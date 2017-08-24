@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+require "thor"
+
+$: << File.join(File.dirname(__FILE__), "../lib")
+require 'kite'
+
+Kite::Commands.start

@@ -1,5 +1,7 @@
-require "kite/version"
+require "erb"
+require "yaml"
+require "thor"
 
-module Kite
-  # Your code goes here...
-end
+require "kite/version"
+require "kite/helpers"
+require "kite/commands"
