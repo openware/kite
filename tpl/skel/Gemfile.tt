@@ -1,0 +1,12 @@
+source 'https://rubygems.org'
+
+gem 'kite', '~> <%= Kite::VERSION %>'
+
+# Use AWS
+# gem 'aws-sdk', '~> 2'
+
+# Use GCP
+# gem 'google-cloud'
+
+# Use Jekyll
+# gem 'jekyll'

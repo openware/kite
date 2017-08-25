@@ -1,0 +1,34 @@
+aws:
+  access_key_id: "XXXXXXXXXXXXXX"
+  secret_access_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  region: "us-east-1"
+  az: "us-east-1a"
+  bosh_password: "bosh_password"
+  keypair_name: "bosh"
+  private_key_path: "~/Downloads/bosh.pem"
+  db_password: "database_password"
+  ci_dns_zone_id: "XXXXXXXXXXXXX"
+  ci_hostname: "ci.example.com"
+  concourse_url: "http://ci.example.com"
+  concourse_auth_username: "concourse"
+  concourse_auth_password: "concourse"
+
+gcp:
+  project_id: gcp-project
+  region: europe-west1
+  zone: europe-west1-b
+  service_account: bosh
+  ssh_key_path: ~/.ssh/bosh
+
+bosh:
+  bosh_password: "bosh_password"
+  keypair_name: "bosh"
+  private_key_path: "~/Downloads/bosh.pem"
+  db_password: "database_password"
+
+concourse:
+  hostname: "ci.domain.io"
+  dns_zone: "your_dns_zone_id"
+  url: "http://ci.example.com"
+  auth_username: "concourse"
+  auth_password: "concourse"
