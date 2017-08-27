@@ -1,31 +1,3 @@
-#!/bin/bash
-#
-#  Please set the following environment variables:
-#  $AWS_ACCESS_KEY_ID
-#  $AWS_SECRET_ACCESS_KEY
-#  $AWS_REGION
-#  $AWS_AZ
-#  $BOSH_PASSWORD
-#  $AWS_KEYPAIR_KEY_NAME
-#  $PRIVATE_KEY_PATH
-
-function getvars() {
-  cd terraform/
-  EIP=$(terraform output eip)
-  SUBNET=$(terraform output default_subnet_id)
-  SECURITY_GROUP=$(terraform output security_group_id)
-  cd ../
-}
-
-getvars
-
-echo "Subnet = $SUBNET"
-echo "Security Group = $SECURITY_GROUP"
-echo "EIP = $EIP"
-echo "AWS REGION = $AWS_REGION"
-echo "AWS AZ = $AWS_AZ"
-
-cat >bosh-director.yml <<YAML
 ---
 name: bosh
 
@@ -46,7 +18,7 @@ resource_pools:
   cloud_properties:
     instance_type: m3.large
     ephemeral_disk: {size: 25_000, type: gp2}
-    availability_zone: $AWS_AZ
+    availability_zone: <%= @values['aws']['az'] %>
 
 disk_pools:
 - name: disks
@@ -60,7 +32,7 @@ networks:
   - range: 10.0.0.0/24
     gateway: 10.0.0.1
     dns: [10.0.0.2]
-    cloud_properties: {subnet: $SUBNET}
+    cloud_properties: {subnet: <%= @tf_output['default_subnet_id'] %>}
 - name: public
   type: vip
 
@@ -85,19 +57,19 @@ jobs:
     static_ips: [10.0.0.6]
     default: [dns, gateway]
   - name: public
-    static_ips: [$EIP]
+    static_ips: [<%= @tf_output['eip'] %>]
 
   properties:
     nats:
       address: 127.0.0.1
       user: nats
-      password: $BOSH_PASSWORD
+      password: <%= @values['aws']['bosh_password'] %>
 
     postgres: &db
       listen_address: 127.0.0.1
       host: 127.0.0.1
       user: postgres
-      password: $BOSH_PASSWORD
+      password: <%= @values['aws']['bosh_password'] %>
       database: bosh
       adapter: postgres
 
@@ -105,17 +77,17 @@ jobs:
       address: 10.0.0.6
       host: 10.0.0.6
       db: *db
-      http: {user: admin, password: $BOSH_PASSWORD, port: 25777}
+      http: {user: admin, password: <%= @values['aws']['bosh_password'] %>, port: 25777}
       username: admin
-      password: $BOSH_PASSWORD
+      password: <%= @values['aws']['bosh_password'] %>
       port: 25777
 
     blobstore:
       address: 10.0.0.6
       port: 25250
       provider: dav
-      director: {user: director, password: $BOSH_PASSWORD}
-      agent: {user: agent, password: $BOSH_PASSWORD}
+      director: {user: director, password: <%= @values['aws']['bosh_password'] %>}
+      agent: {user: agent, password: <%= @values['aws']['bosh_password'] %>}
 
     director:
       address: 127.0.0.1
@@ -127,21 +99,21 @@ jobs:
         provider: local
         local:
           users:
-          - {name: admin, password: $BOSH_PASSWORD}
-          - {name: hm, password: $BOSH_PASSWORD}
+          - {name: admin, password: <%= @values['aws']['bosh_password'] %>}
+          - {name: hm, password: <%= @values['aws']['bosh_password'] %>}
 
     hm:
-      director_account: {user: hm, password: $BOSH_PASSWORD}
+      director_account: {user: hm, password: <%= @values['aws']['bosh_password'] %>}
       resurrector_enabled: true
 
     aws: &aws
-      access_key_id: $AWS_ACCESS_KEY_ID
-      secret_access_key: $AWS_SECRET_ACCESS_KEY
-      default_key_name: $AWS_KEYPAIR_KEY_NAME
-      default_security_groups: [$SECURITY_GROUP]
-      region: $AWS_REGION
+      access_key_id: <%= @values['aws']['access_key_id'] %>
+      secret_access_key: <%= @values['aws']['secret_access_key'] %>
+      default_key_name: <%= @values['aws']['keypair_name'] %>
+      default_security_groups: [<%= @tf_output['security_group_id'] %>]
+      region: <%= @values['aws']['region'] %>
 
-    agent: {mbus: "nats://nats:$BOSH_PASSWORD@10.0.0.6:4222"}
+    agent: {mbus: "nats://nats:<%= @values['aws']['bosh_password'] %>@10.0.0.6:4222"}
 
     ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
@@ -149,16 +121,15 @@ cloud_provider:
   template: {name: aws_cpi, release: bosh-aws-cpi}
 
   ssh_tunnel:
-    host: $EIP # <--- Replace with your Elastic IP address
+    host: <%= @tf_output['eip'] %> # <--- Replace with your Elastic IP address
     port: 22
     user: vcap
-    private_key: $PRIVATE_KEY_PATH # Path relative to this manifest file
+    private_key: <%= @values['aws']['private_key_path'] %> # Path relative to this manifest file
 
-  mbus: "https://mbus:$BOSH_PASSWORD@$EIP:6868" # <--- Replace with Elastic IP
+  mbus: "https://mbus:<%= @values['aws']['bosh_password'] %>@<%= @tf_output['eip'] %>:6868" # <--- Replace with Elastic IP
 
   properties:
     aws: *aws
-    agent: {mbus: "https://mbus:$BOSH_PASSWORD@0.0.0.0:6868"}
+    agent: {mbus: "https://mbus:<%= @values['aws']['bosh_password'] %>@0.0.0.0:6868"}
     blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
     ntp: *ntp
-YAML

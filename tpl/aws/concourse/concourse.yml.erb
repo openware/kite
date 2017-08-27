@@ -1,21 +1,7 @@
-#!/bin/bash
-#
-#  Please set the following environment variables:
-#  $DB_PASSWORD
-#  $CONCOURSE_URL
-#  $CONCOURSE_AUTH_USERNAME
-#  $CONCOURSE_AUTH_PASSWORD
-
-DIRECTOR_UUID=`bosh status --uuid`
-
-echo "director_uuid = $DIRECTOR_UUID"
-echo "concourse url = $CONCOURSE_URL"
-
-cat >concourse.yml <<YAML
 ---
 name: concourse
 
-director_uuid: $DIRECTOR_UUID
+director_uuid: <%= %x(bosh status --uuid) %>
 
 releases:
 - name: concourse
@@ -40,10 +26,10 @@ instance_groups:
     release: concourse
     properties:
       # replace with your CI's externally reachable URL e.g https://blah
-      external_url: $CONCOURSE_URL
+      external_url: <%= @values['aws']['concourse_url'] %>
 
-      basic_auth_username: $CONCOURSE_AUTH_USERNAME
-      basic_auth_password: $CONCOURSE_AUTH_PASSWORD
+      basic_auth_username: <%= @values['aws']['concourse_auth_username'] %>
+      basic_auth_password: <%= @values['aws']['concourse_auth_password'] %>
 
       postgresql_database: &atc_db atc
   - name: tsa
@@ -65,7 +51,7 @@ instance_groups:
       - name: *atc_db
         # make up a role and password
         role: dbrole
-        password: $DB_PASSWORD
+        password: <%= @values['aws']['db_password'] %>
 
 - name: worker
   instances: 1
@@ -93,4 +79,3 @@ update:
   serial: false
   canary_watch_time: 1000-60000
   update_watch_time: 1000-60000
-YAML
