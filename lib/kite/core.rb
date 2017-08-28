@@ -22,10 +22,6 @@ module Kite
 
       case options[:cloud]
       when "aws"
-        copy_file("aws/bin/make_cloud_config.sh",                 "bin/make_cloud_config.sh")
-        copy_file("aws/bin/make_manifest_bosh-init.sh",           "bin/make_manifest_bosh-init.sh")
-        copy_file("aws/bin/make_manifest_concourse-cluster.sh",   "bin/make_manifest_concourse-cluster.sh")
-
         copy_file("aws/terraform/aws-concourse.tf",               "terraform/aws-concourse.tf")
         copy_file("aws/terraform/aws-vault.tf",                   "terraform/aws-vault.tf")
         copy_file("aws/terraform/bosh-aws-base.tf",               "terraform/bosh-aws-base.tf")
@@ -49,6 +45,26 @@ module Kite
         copy_file("gcp/concourse.tf",               "concourse.tf")
       else
         say "Cloud provider not specified"
+
+      end
+    end
+
+    method_option :manifest, type: :string, desc: "Manifest type", enum: %w{bosh concourse}, required: true
+    desc "render-manifest", "Render manifest file from configuration and Terraform output"
+    def render_manifest
+      say "Rendering #{ options[:manifest] } manifest", :green
+      @values = YAML.load(File.read('config/cloud.yml'))
+      @tf_output = parse_tf_state('terraform/terraform.tfstate')
+
+      case options[:manifest]
+      when "bosh"
+        template("aws/bosh/bosh_director.yml.erb",    "bosh_director.yml")
+
+      when "concourse"
+        template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
+        template("aws/concourse/concourse.yml.erb",   "concourse.yml")
+      else
+        say "Manifest type not specified"
 
       end
     end
