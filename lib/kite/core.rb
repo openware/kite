@@ -27,9 +27,8 @@ module Kite
         copy_file("aws/terraform/bosh-aws-base.tf",               "terraform/bosh-aws-base.tf")
         copy_file("aws/terraform/outputs.tf",                     "terraform/outputs.tf")
         copy_file("aws/terraform/variables.tf",                   "terraform/variables.tf")
-        copy_file("aws/terraform/variables.tf",                   "terraform/variables.tf")
+        template("aws/terraform/terraform.tfvars.erb",            "terraform/terraform.tfvars")
 
-        template("aws/env.example.erb",                           ".env")
         copy_file("aws/README.md",                                "README.md")
         copy_file("aws/bootstrap.sh",                             "bootstrap.sh")
 
