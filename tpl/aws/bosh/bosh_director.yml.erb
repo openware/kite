@@ -63,13 +63,13 @@ jobs:
     nats:
       address: 127.0.0.1
       user: nats
-      password: <%= @values['aws']['bosh_password'] %>
+      password: <%= @values['bosh']['password'] %>
 
     postgres: &db
       listen_address: 127.0.0.1
       host: 127.0.0.1
       user: postgres
-      password: <%= @values['aws']['bosh_password'] %>
+      password: <%= @values['bosh']['password'] %>
       database: bosh
       adapter: postgres
 
@@ -77,17 +77,17 @@ jobs:
       address: 10.0.0.6
       host: 10.0.0.6
       db: *db
-      http: {user: admin, password: <%= @values['aws']['bosh_password'] %>, port: 25777}
+      http: {user: admin, password: <%= @values['bosh']['password'] %>, port: 25777}
       username: admin
-      password: <%= @values['aws']['bosh_password'] %>
+      password: <%= @values['bosh']['password'] %>
       port: 25777
 
     blobstore:
       address: 10.0.0.6
       port: 25250
       provider: dav
-      director: {user: director, password: <%= @values['aws']['bosh_password'] %>}
-      agent: {user: agent, password: <%= @values['aws']['bosh_password'] %>}
+      director: {user: director, password: <%= @values['bosh']['password'] %>}
+      agent: {user: agent, password: <%= @values['bosh']['password'] %>}
 
     director:
       address: 127.0.0.1
@@ -99,21 +99,21 @@ jobs:
         provider: local
         local:
           users:
-          - {name: admin, password: <%= @values['aws']['bosh_password'] %>}
-          - {name: hm, password: <%= @values['aws']['bosh_password'] %>}
+          - {name: admin, password: <%= @values['bosh']['password'] %>}
+          - {name: hm, password: <%= @values['bosh']['password'] %>}
 
     hm:
-      director_account: {user: hm, password: <%= @values['aws']['bosh_password'] %>}
+      director_account: {user: hm, password: <%= @values['bosh']['password'] %>}
       resurrector_enabled: true
 
     aws: &aws
-      access_key_id: <%= @values['aws']['access_key_id'] %>
-      secret_access_key: <%= @values['aws']['secret_access_key'] %>
-      default_key_name: <%= @values['aws']['keypair_name'] %>
+      access_key_id: <%= @values['aws']['access_key'] %>
+      secret_access_key: <%= @values['aws']['secret_key'] %>
+      default_key_name: <%= @values['bosh']['keypair_name'] %>
       default_security_groups: [<%= @tf_output['security_group_id'] %>]
       region: <%= @values['aws']['region'] %>
 
-    agent: {mbus: "nats://nats:<%= @values['aws']['bosh_password'] %>@10.0.0.6:4222"}
+    agent: {mbus: "nats://nats:<%= @values['bosh']['password'] %>@10.0.0.6:4222"}
 
     ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
@@ -124,12 +124,12 @@ cloud_provider:
     host: <%= @tf_output['eip'] %> # <--- Replace with your Elastic IP address
     port: 22
     user: vcap
-    private_key: <%= @values['aws']['private_key_path'] %> # Path relative to this manifest file
+    private_key: <%= @values['bosh']['private_key_path'] %> # Path relative to this manifest file
 
-  mbus: "https://mbus:<%= @values['aws']['bosh_password'] %>@<%= @tf_output['eip'] %>:6868" # <--- Replace with Elastic IP
+  mbus: "https://mbus:<%= @values['bosh']['password'] %>@<%= @tf_output['eip'] %>:6868" # <--- Replace with Elastic IP
 
   properties:
     aws: *aws
-    agent: {mbus: "https://mbus:<%= @values['aws']['bosh_password'] %>@0.0.0.0:6868"}
+    agent: {mbus: "https://mbus:<%= @values['bosh']['password'] %>@0.0.0.0:6868"}
     blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
     ntp: *ntp

@@ -26,10 +26,10 @@ instance_groups:
     release: concourse
     properties:
       # replace with your CI's externally reachable URL e.g https://blah
-      external_url: <%= @values['aws']['concourse_url'] %>
+      external_url: <%= @values['concourse']['url'] %>
 
-      basic_auth_username: <%= @values['aws']['concourse_auth_username'] %>
-      basic_auth_password: <%= @values['aws']['concourse_auth_password'] %>
+      basic_auth_username: <%= @values['concourse']['auth_username'] %>
+      basic_auth_password: <%= @values['concourse']['auth_password'] %>
 
       postgresql_database: &atc_db atc
   - name: tsa
@@ -51,7 +51,7 @@ instance_groups:
       - name: *atc_db
         # make up a role and password
         role: dbrole
-        password: <%= @values['aws']['db_password'] %>
+        password: <%= @values['concourse']['db_password'] %>
 
 - name: worker
   instances: 1

@@ -1,30 +1,21 @@
 aws:
-  access_key_id: "XXXXXXXXXXXXXX"
-  secret_access_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  region: "us-east-1"
-  az: "us-east-1a"
-  bosh_password: "bosh_password"
-  keypair_name: "bosh"
-  private_key_path: "~/Downloads/bosh.pem"
-  db_password: "database_password"
-  ci_dns_zone_id: "XXXXXXXXXXXXX"
-  ci_hostname: "ci.example.com"
-  concourse_url: "http://ci.example.com"
-  concourse_auth_username: "concourse"
-  concourse_auth_password: "concourse"
+  access_key: "enter your amazon key"
+  secret_key: "enter your secret key"
+  region: "eu-central-1"
+  az: "eu-central-1a"
 
 gcp:
   project_id: gcp-project
   region: europe-west1
   zone: europe-west1-b
   service_account: bosh
-  ssh_key_path: ~/.ssh/bosh
 
 bosh:
-  bosh_password: "bosh_password"
-  keypair_name: "bosh"
-  private_key_path: "~/Downloads/bosh.pem"
-  db_password: "database_password"
+  password: "changeme"
+  keypair_name: "boshkey"
+  public_key_path: "~/.ssh/bosh.key.pub"
+  private_key_path: "~/.ssh/bosh.key"
+  db_password: "changeme"
 
 concourse:
   hostname: "ci.domain.io"
@@ -32,3 +23,4 @@ concourse:
   url: "http://ci.example.com"
   auth_username: "concourse"
   auth_password: "concourse"
+  db_password: "changeme"
