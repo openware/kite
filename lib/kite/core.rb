@@ -7,7 +7,6 @@ module Kite
       File.expand_path(File.join(File.dirname(__FILE__), "../../tpl"))
     end
 
-    method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}
     desc "new CLOUD_PATH", "Generate Cloud infrastructure skeleton from configuration"
     def new(cloud_name)
       target = Kite::Cloud.new(self, cloud_name)
@@ -48,24 +47,29 @@ module Kite
       end
     end
 
-    method_option :manifest, type: :string, desc: "Manifest type", enum: %w{bosh concourse}, required: true
-    desc "render-manifest", "Render manifest file from configuration and Terraform output"
-    def render_manifest
-      say "Rendering #{ options[:manifest] } manifest", :green
+    desc "render MANIFEST", "Render manifest file from configuration and Terraform output"
+    def render(manifest)
+      say "Rendering #{ manifest } manifest", :green
       @values = YAML.load(File.read('config/cloud.yml'))
       @tf_output = parse_tf_state('terraform/terraform.tfstate')
 
-      case options[:manifest]
+      case manifest
       when "bosh"
         template("aws/bosh/bosh_director.yml.erb",    "bosh_director.yml")
 
       when "concourse"
         template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
         template("aws/concourse/concourse.yml.erb",   "concourse.yml")
+
       else
         say "Manifest type not specified"
 
       end
+    end
+
+    desc "version", "Return kite version"
+    def version
+      say "v#{ Kite::VERSION }"
     end
   end
 end
