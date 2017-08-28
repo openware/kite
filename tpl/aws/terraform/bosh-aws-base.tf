@@ -123,3 +123,27 @@ resource "aws_security_group" "boshdefault" {
       "0.0.0.0/0"]
   }
 }
+
+resource "aws_instance" "bosh-bastion" {
+  ami = "ami-f4cc1de2"
+  instance_type = "t2.medium"
+  key_name = "bosh"
+
+  vpc_security_group_ids = ["${aws_security_group.boshdefault.id}"]
+  subnet_id = "${aws_subnet.default.id}"
+
+  tags {
+    Name = "bosh-bastion"
+  }
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("~/Downloads/bosh.pem")}"
+  }
+
+  provisioner "remote-exec" {
+      inline = [
+        "curl -fsSL test.docker.com | sh"
+      ]
+    }
+}
