@@ -10,6 +10,10 @@ variable "bosh_public_key" {
   type = "string"
 }
 
+variable "bosh_private_key" {
+  type = "string"
+}
+
 variable "aws_region" {
   type = "string"
   default =  "eu-central-1"
@@ -26,4 +30,11 @@ variable "ci_hostname" {
 
 variable "ci_dns_zone_id" {
   type = "string"
+}
+
+variable "aws_amis" {
+  default = {
+    us-east-1 = "ami-1d4e7a66"
+    eu-central-1 = "ami-958128fa"
+  }
 }

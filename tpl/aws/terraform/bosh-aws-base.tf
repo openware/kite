@@ -123,3 +123,27 @@ resource "aws_security_group" "boshdefault" {
       "0.0.0.0/0"]
   }
 }
+
+resource "aws_instance" "jumpbox" {
+  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  instance_type = "t2.medium"
+  key_name = "boshkey"
+
+  vpc_security_group_ids = ["${aws_security_group.boshdefault.id}"]
+  subnet_id = "${aws_subnet.default.id}"
+
+  tags {
+    Name = "jumpbox"
+  }
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file(var.bosh_private_key)}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "curl -fsSL get.docker.com | sh"
+    ]
+  }
+}
