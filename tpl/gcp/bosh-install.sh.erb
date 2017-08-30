@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -xe
+
+bosh create-env bosh-deployment/bosh.yml \
+  --state=config/state.json \
+  --vars-store=config/creds.yml \
+  -o bosh-deployment/gcp/cpi.yml \
+  -v director_name=bosh-director \
+  -v internal_cidr=<%= @values['gcp']['subnet_cidr'] %> \
+  -v internal_gw=<%= @values['gcp']['internal_gw'] %> \
+  -v internal_ip=<%= @values['bosh']['static_ip'] %> \
+  --var-file gcp_credentials_json=<%= @values['gcp']['service_account'] %> \
+  -v project_id=<%= @values['gcp']['project'] %> \
+  -v zone=<%= @values['gcp']['zone'] %> \
+  -v tags=[platform-internal] \
+  -v network=<%= @values['gcp']['vpc_name'] %> \
+  -v subnetwork=<%= @values['gcp']['subnet_name'] %>

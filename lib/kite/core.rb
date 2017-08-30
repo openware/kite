@@ -20,33 +20,32 @@ module Kite
       @values = YAML.load(File.read('config/cloud.yml'))
 
       case options[:cloud]
-      when "aws"
-        copy_file("aws/terraform/main.tf",                        "terraform/main.tf")
-        copy_file("aws/terraform/network.tf",                     "terraform/network.tf")
-        copy_file("aws/terraform/outputs.tf",                     "terraform/outputs.tf")
-        copy_file("aws/terraform/variables.tf",                   "terraform/variables.tf")
-        template("aws/terraform/terraform.tfvars.erb",            "terraform/terraform.tfvars")
+      when 'aws'
+        copy_file('aws/terraform/main.tf',                 'terraform/main.tf')
+        copy_file('aws/terraform/network.tf',              'terraform/network.tf')
+        copy_file('aws/terraform/outputs.tf',              'terraform/outputs.tf')
+        copy_file('aws/terraform/variables.tf',            'terraform/variables.tf')
+        template('aws/terraform/terraform.tfvars.erb',     'terraform/terraform.tfvars')
 
-        copy_file("aws/README.md",                                "README.md")
-        copy_file("aws/bootstrap.sh",                             "bootstrap.sh")
+        copy_file('aws/README.md',                         'README.md')
+        copy_file('aws/bootstrap.sh',                      'bootstrap.sh')
 
-      when "gcp"
-        template("gcp/manifest.yml.erb",            "manifest.yml")
-        template("gcp/cloud-config.yml.erb",        "cloud-config.yml")
-        copy_file("gcp/concourse.yml.erb",          "concourse.yml")
-        copy_file("gcp/README.md",                  "README.md")
-        directory("gcp/scripts",                    "scripts")
-        copy_file("gcp/INSTALL.md",                 "INSTALL.md")
-        template("gcp/env.example.erb",             ".env")
-        copy_file("gcp/main.tf",                    "main.tf")
-        copy_file("gcp/concourse.tf",               "concourse.tf")
+      when 'gcp'
+        copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
+        copy_file('gcp/terraform/network.tf',               'terraform/network.tf')
+        copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
+        copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
+        template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
+        template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
+        chmod('bin/bosh-install.sh', 0755)
+
       else
-        say "Cloud provider not specified"
+        say 'Cloud provider not specified'
 
       end
     end
 
-    desc "render MANIFEST", "Render manifest file from configuration and Terraform output"
+    desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     def render(manifest)
       say "Rendering #{ manifest } manifest", :green
       @values = YAML.load(File.read('config/cloud.yml'))

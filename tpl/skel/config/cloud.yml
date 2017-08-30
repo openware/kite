@@ -1,3 +1,8 @@
+kite:
+  keypair_name: "kitekey"
+  public_key_path: "~/.ssh/kite.key.pub"
+  private_key_path: "~/.ssh/kite.key"
+
 aws:
   access_key: "enter your amazon key"
   secret_key: "enter your secret key"
@@ -6,7 +11,7 @@ aws:
   vpc_cidr_block: "10.0.0.0/16"
   vpc_name: "platform-tools"
   platform_subnet_cidr_block: "10.0.0.0/24"
-  platform_subnet_name: "platform-tools"
+  platform_subnet_name: "platform_net"
   ops_subnet_cidr_block: "10.0.10.0/24"
   ops_subnet_name: "ops_services"
 
@@ -14,18 +19,17 @@ gcp:
   project_id: gcp-project
   region: europe-west1
   zone: europe-west1-b
-  service_account: bosh
+  service_account: "~/safe/terraform.json"
+  vpc_name: "platform-tools"
+  subnet_name: "platform-net"
+  subnet_cidr: "10.0.0.0/24"
+  internal_gw: "10.0.0.1"
 
 bosh:
-  password: "changeme"
-  keypair_name: "boshkey"
-  public_key_path: "~/.ssh/bosh.key.pub"
-  private_key_path: "~/.ssh/bosh.key"
-  db_password: "changeme"
+  static_ip: "10.0.0.10"
 
 concourse:
   hostname: "ci.domain.io"
-  dns_zone: "your_dns_zone_id"
   url: "http://ci.example.com"
   auth_username: "concourse"
   auth_password: "concourse"

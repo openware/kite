@@ -5,28 +5,28 @@ provider "aws" {
   secret_key = "${var.aws_secret_key}"
 }
 
-resource "aws_key_pair" "boshkey" {
-  key_name   = "boshkey"
-  public_key = "${file("${var.bosh_public_key}")}"
+resource "aws_key_pair" "platform_key" {
+  key_name   = "${var.keypair_name}"
+  public_key = "${file("${var.public_key}")}"
 }
 
-resource "aws_instance" "jumpbox" {
+resource "aws_instance" "bastion" {
   ami = "${lookup(var.aws_amis, var.aws_region)}"
-  instance_type = "t2.medium"
-  key_name = "boshkey"
+  instance_type = "t2.small"
+  key_name = "${var.keypair_name}"
 
-  vpc_security_group_ids = ["${aws_security_group.boshdefault.id}"]
-  subnet_id = "${aws_subnet.default.id}"
+  vpc_security_group_ids = ["${aws_security_group.bosh_sg.id}"]
+  subnet_id = "${aws_subnet.platform.id}"
 
   associate_public_ip_address = true
 
   tags {
-    Name = "jumpbox"
+    Name = "bastion"
   }
 
   connection {
     user = "ubuntu"
-    private_key = "${file(var.bosh_private_key)}"
+    private_key = "${file(var.private_key)}"
   }
 
   provisioner "remote-exec" {

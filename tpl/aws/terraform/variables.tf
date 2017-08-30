@@ -6,11 +6,15 @@ variable "aws_secret_key" {
   type = "string"
 }
 
-variable "bosh_public_key" {
+variable "public_key" {
   type = "string"
 }
 
-variable "bosh_private_key" {
+variable "private_key" {
+  type = "string"
+}
+
+variable "keypair_name" {
   type = "string"
 }
 
@@ -45,14 +49,6 @@ variable "aws_ops_subnet_cidr_block" {
 }
 
 variable "aws_ops_subnet_name" {
-  type = "string"
-}
-
-variable "ci_hostname" {
-  type = "string"
-}
-
-variable "ci_dns_zone_id" {
   type = "string"
 }
 

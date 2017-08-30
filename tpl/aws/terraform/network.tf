@@ -1,61 +1,61 @@
 # Create a VPC to launch our instances into
-resource "aws_vpc" "default" {
+resource "aws_vpc" "platform" {
   cidr_block = "${var.aws_vpc_cidr_block}"
 
   tags {
     Name = "${var.aws_vpc_name}"
-    component = "bosh-director"
+    Component = "kite-platform"
   }
 }
 
 # Create an internet gateway to give our subnet access to the outside world
-resource "aws_internet_gateway" "default" {
-  vpc_id = "${aws_vpc.default.id}"
+resource "aws_internet_gateway" "platform" {
+  vpc_id = "${aws_vpc.platform.id}"
   tags {
-    Name = "bosh-default"
-    component = "bosh-director"
+    Name = "platform-gateway"
+    Component = "kite-platform"
   }
 }
 
 # Grant the VPC internet access on its main route table
 resource "aws_route" "internet_access" {
-  route_table_id = "${aws_vpc.default.main_route_table_id}"
+  route_table_id = "${aws_vpc.platform.main_route_table_id}"
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = "${aws_internet_gateway.default.id}"
+  gateway_id = "${aws_internet_gateway.platform.id}"
 }
 
 # Create a subnet to launch our instances into
-resource "aws_subnet" "default" {
-  vpc_id = "${aws_vpc.default.id}"
+resource "aws_subnet" "platform" {
+  vpc_id = "${aws_vpc.platform.id}"
   availability_zone = "${var.aws_availability_zone}"
   cidr_block = "${var.aws_platform_subnet_cidr_block}"
   map_public_ip_on_launch = false
   tags {
     Name = "${var.aws_platform_subnet_name}"
-    component = "bosh-director"
+    Component = "kite-platform"
   }
 }
 
 # Create an ops_services subnet
 resource "aws_subnet" "ops_services" {
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = "${aws_vpc.platform.id}"
   availability_zone = "${var.aws_availability_zone}"
   cidr_block = "${var.aws_ops_subnet_cidr_block}"
   map_public_ip_on_launch = false
   tags {
     Name = "${var.aws_ops_subnet_name}"
-    component = "ops_services"
+    Component = "ops-services"
   }
 }
 
 # The default security group
-resource "aws_security_group" "boshdefault" {
-  name = "boshdefault"
+resource "aws_security_group" "bosh_sg" {
+  name = "bosh_sg"
   description = "Default BOSH security group"
-  vpc_id = "${aws_vpc.default.id}"
+  vpc_id = "${aws_vpc.platform.id}"
   tags {
-    Name = "bosh-default"
-    component = "bosh-director"
+    Name = "bosh-sq"
+    Component = "bosh-director"
   }
 
   # inbound access rules
@@ -108,13 +108,13 @@ resource "aws_security_group" "boshdefault" {
 }
 
 # Create a Concourse security group
-resource "aws_security_group" "concourse-sg" {
+resource "aws_security_group" "concourse_sg" {
   name        = "concourse-sg"
   description = "Concourse security group"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = "${aws_vpc.platform.id}"
   tags {
     Name = "concourse-sg"
-    component = "concourse"
+    Component = "concourse"
   }
 
   # outbound internet access
@@ -150,13 +150,13 @@ resource "aws_security_group" "concourse-sg" {
 }
 
 # Create a Vault security group
-resource "aws_security_group" "vault-sg" {
+resource "aws_security_group" "vault_sg" {
   name        = "vault-sg"
   description = "Vault security group"
-  vpc_id      = "${aws_vpc.default.id}"
+  vpc_id      = "${aws_vpc.platform.id}"
   tags {
     Name = "vault-sg"
-    component = "vault"
+    Component = "vault"
   }
 
   # outbound internet access
