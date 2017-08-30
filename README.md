@@ -23,7 +23,15 @@ Or install it yourself as:
 
 ## Usage
 
-Kite is a command line tool, documentation is embedded
+To start using kite from scratch:
+- Create a new kite project, use `kite new`
+- Fill out the `config/cloud.yml` file with your credentials.
+- For BOSH you'll need an SSH key, to generate one, use `ssh-keygen -f *path_to_key*`
+- Generate the cloud IaC needed with `kite generate --cloud=*aws or gcp*`
+- Continue with instructions from newly generated README.md
+
+
+To list all Kite commands, use
 
 ```shell
 $> kite help
