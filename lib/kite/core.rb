@@ -21,9 +21,8 @@ module Kite
 
       case options[:cloud]
       when "aws"
-        copy_file("aws/terraform/aws-concourse.tf",               "terraform/aws-concourse.tf")
-        copy_file("aws/terraform/aws-vault.tf",                   "terraform/aws-vault.tf")
-        copy_file("aws/terraform/bosh-aws-base.tf",               "terraform/bosh-aws-base.tf")
+        copy_file("aws/terraform/main.tf",                        "terraform/main.tf")
+        copy_file("aws/terraform/network.tf",                     "terraform/network.tf")
         copy_file("aws/terraform/outputs.tf",                     "terraform/outputs.tf")
         copy_file("aws/terraform/variables.tf",                   "terraform/variables.tf")
         template("aws/terraform/terraform.tfvars.erb",            "terraform/terraform.tfvars")

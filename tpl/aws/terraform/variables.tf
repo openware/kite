@@ -24,6 +24,30 @@ variable "aws_availability_zone" {
   default =  "eu-central-1a"
 }
 
+variable "aws_vpc_cidr_block" {
+  type = "string"
+}
+
+variable "aws_vpc_name" {
+  type = "string"
+}
+
+variable "aws_platform_subnet_cidr_block" {
+  type = "string"
+}
+
+variable "aws_platform_subnet_name" {
+  type = "string"
+}
+
+variable "aws_ops_subnet_cidr_block" {
+  type = "string"
+}
+
+variable "aws_ops_subnet_name" {
+  type = "string"
+}
+
 variable "ci_hostname" {
   type = "string"
 }

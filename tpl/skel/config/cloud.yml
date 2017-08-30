@@ -3,6 +3,12 @@ aws:
   secret_key: "enter your secret key"
   region: "eu-central-1"
   az: "eu-central-1a"
+  vpc_cidr_block: "10.0.0.0/16"
+  vpc_name: "platform-tools"
+  platform_subnet_cidr_block: "10.0.0.0/24"
+  platform_subnet_name: "platform-tools"
+  ops_subnet_cidr_block: "10.0.10.0/24"
+  ops_subnet_name: "ops_services"
 
 gcp:
   project_id: gcp-project

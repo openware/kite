@@ -33,8 +33,6 @@ networks:
     gateway: 10.0.0.1
     dns: [10.0.0.2]
     cloud_properties: {subnet: <%= @tf_output['default_subnet_id'] %>}
-- name: public
-  type: vip
 
 jobs:
 - name: bosh

@@ -1,21 +1,9 @@
-# Specify the provider and access details
-provider "aws" {
-  region = "${var.aws_region}"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-}
-
-resource "aws_key_pair" "boshkey" {
-  key_name   = "boshkey"
-  public_key = "${file("${var.bosh_public_key}")}"
-}
-
 # Create a VPC to launch our instances into
 resource "aws_vpc" "default" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = "${var.aws_vpc_cidr_block}"
 
   tags {
-    Name = "bosh-default"
+    Name = "${var.aws_vpc_name}"
     component = "bosh-director"
   }
 }
@@ -40,10 +28,10 @@ resource "aws_route" "internet_access" {
 resource "aws_subnet" "default" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${var.aws_availability_zone}"
-  cidr_block = "10.0.0.0/24"
-  map_public_ip_on_launch = true
+  cidr_block = "${var.aws_platform_subnet_cidr_block}"
+  map_public_ip_on_launch = false
   tags {
-    Name = "bosh-default"
+    Name = "${var.aws_platform_subnet_name}"
     component = "bosh-director"
   }
 }
@@ -52,17 +40,12 @@ resource "aws_subnet" "default" {
 resource "aws_subnet" "ops_services" {
   vpc_id = "${aws_vpc.default.id}"
   availability_zone = "${var.aws_availability_zone}"
-  cidr_block = "10.0.10.0/24"
-  map_public_ip_on_launch = true
+  cidr_block = "${var.aws_ops_subnet_cidr_block}"
+  map_public_ip_on_launch = false
   tags {
-    Name = "ops_services"
+    Name = "${var.aws_ops_subnet_name}"
     component = "ops_services"
   }
-}
-
-# Create an EIP for our Director
-resource "aws_eip" "boshdirector" {
-  vpc = true
 }
 
 # The default security group
@@ -124,26 +107,71 @@ resource "aws_security_group" "boshdefault" {
   }
 }
 
-resource "aws_instance" "jumpbox" {
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
-  instance_type = "t2.medium"
-  key_name = "boshkey"
-
-  vpc_security_group_ids = ["${aws_security_group.boshdefault.id}"]
-  subnet_id = "${aws_subnet.default.id}"
-
+# Create a Concourse security group
+resource "aws_security_group" "concourse-sg" {
+  name        = "concourse-sg"
+  description = "Concourse security group"
+  vpc_id      = "${aws_vpc.default.id}"
   tags {
-    Name = "jumpbox"
+    Name = "concourse-sg"
+    component = "concourse"
   }
 
-  connection {
-    user = "ubuntu"
-    private_key = "${file(var.bosh_private_key)}"
+  # outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "curl -fsSL get.docker.com | sh"
-    ]
+  # inbound connections from ELB
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 8080
+    to_port = 8080
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 2222
+    to_port     = 2222
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Create a Vault security group
+resource "aws_security_group" "vault-sg" {
+  name        = "vault-sg"
+  description = "Vault security group"
+  vpc_id      = "${aws_vpc.default.id}"
+  tags {
+    Name = "vault-sg"
+    component = "vault"
+  }
+
+  # outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # inbound http
+  ingress {
+    from_port   = 8200
+    to_port     = 8200
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
