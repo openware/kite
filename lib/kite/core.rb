@@ -18,17 +18,19 @@ module Kite
     def generate()
       say "Generating Cloud #{ options[:cloud] } IaC", :green
       @values = YAML.load(File.read('config/cloud.yml'))
+      return false unless check_cloud_config(@values)
 
       case options[:cloud]
       when 'aws'
-        copy_file('aws/terraform/main.tf',                 'terraform/main.tf')
-        copy_file('aws/terraform/network.tf',              'terraform/network.tf')
-        copy_file('aws/terraform/outputs.tf',              'terraform/outputs.tf')
-        copy_file('aws/terraform/variables.tf',            'terraform/variables.tf')
-        template('aws/terraform/terraform.tfvars.erb',     'terraform/terraform.tfvars')
+        copy_file('aws/terraform/main.tf',                  'terraform/main.tf')
+        copy_file('aws/terraform/network.tf',               'terraform/network.tf')
+        copy_file('aws/terraform/outputs.tf',               'terraform/outputs.tf')
+        copy_file('aws/terraform/variables.tf',             'terraform/variables.tf')
+        template('aws/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
 
-        copy_file('aws/README.md',                         'README.md')
-        copy_file('aws/bootstrap.sh',                      'bootstrap.sh')
+        copy_file('aws/README.md',                          'README.md')
+        template('aws/bootstrap.sh.erb',                    'bootstrap.sh')
+        chmod('bootstrap.sh', 0755)
 
       when 'gcp'
         copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
@@ -47,13 +49,18 @@ module Kite
 
     desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     def render(manifest)
+      return false unless check_terraform_applied
+
       say "Rendering #{ manifest } manifest", :green
       @values = YAML.load(File.read('config/cloud.yml'))
       @tf_output = parse_tf_state('terraform/terraform.tfstate')
 
       case manifest
       when "bosh"
-        template("aws/bosh/bosh_director.yml.erb",    "bosh_director.yml")
+        copy_file("aws/bosh/jumpbox-user.yml",        "jumpbox-user.yml")
+        copy_file("aws/bosh/cpi.yml",                 "cpi.yml")
+        copy_file("aws/bosh/bosh_director.yml",       "bosh_director.yml")
+        template("aws/bosh/bosh_vars.yml.erb",        "bosh_vars.yml")
 
       when "concourse"
         template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
