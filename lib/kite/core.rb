@@ -16,57 +16,67 @@ module Kite
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     desc "generate", "Generate Cloud IaC from configuration"
     def generate()
-      say "Generating Cloud #{ options[:cloud] } IaC", :green
-      @values = YAML.load(File.read('config/cloud.yml'))
+      begin
+        @values = parse_cloud_config
 
-      case options[:cloud]
-      when 'aws'
-        copy_file('aws/terraform/main.tf',                 'terraform/main.tf')
-        copy_file('aws/terraform/network.tf',              'terraform/network.tf')
-        copy_file('aws/terraform/outputs.tf',              'terraform/outputs.tf')
-        copy_file('aws/terraform/variables.tf',            'terraform/variables.tf')
-        template('aws/terraform/terraform.tfvars.erb',     'terraform/terraform.tfvars')
+        say "Generating Cloud #{ options[:cloud] } IaC", :green
 
-        copy_file('aws/README.md',                         'README.md')
-        copy_file('aws/bootstrap.sh',                      'bootstrap.sh')
+        case options[:cloud]
+        when 'aws'
+          copy_file('aws/terraform/main.tf',                  'terraform/main.tf')
+          copy_file('aws/terraform/network.tf',               'terraform/network.tf')
+          copy_file('aws/terraform/outputs.tf',               'terraform/outputs.tf')
+          copy_file('aws/terraform/variables.tf',             'terraform/variables.tf')
+          template('aws/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
 
-      when 'gcp'
-        copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
-        copy_file('gcp/terraform/network.tf',               'terraform/network.tf')
-        copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
-        copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
-        template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
+          copy_file('aws/README.md',                          'README.md')
+          template('aws/bootstrap.sh.erb',                    'bootstrap.sh')
+          chmod('bootstrap.sh', 0755)
 
-        template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
-        template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
-        chmod('bin/bosh-install.sh', 0755)
-        chmod('bin/setup-tunnel.sh', 0755)
+        when 'gcp'
+          copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
+          copy_file('gcp/terraform/network.tf',               'terraform/network.tf')
+          copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
+          copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
+          template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
 
-      else
-        say 'Cloud provider not specified'
+          template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
+          template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
+          chmod('bin/bosh-install.sh', 0755)
+          chmod('bin/setup-tunnel.sh', 0755)
 
+        else
+          say 'Cloud provider not specified'
+
+        end
+      rescue => e
+        say e, :red
       end
     end
 
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     def render(manifest)
-      say "Rendering #{ manifest } manifest", :green
-      @values = YAML.load(File.read('config/cloud.yml'))
-      @tf_output = parse_tf_state('terraform/terraform.tfstate')
+      begin
+        @values = parse_cloud_config
+        @tf_output = parse_tf_state('terraform/terraform.tfstate')
 
-      case manifest
-      when "bosh"
-        cloud = options[:cloud]
-        directory("#{cloud}/deployments", 'deployments')
+        say "Rendering #{ manifest } manifest", :green
 
-      when "concourse"
-        template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
-        template("aws/concourse/concourse.yml.erb",   "concourse.yml")
+        case manifest
+        when "bosh"
+          cloud = options[:cloud]
+          directory("#{cloud}/deployments", 'deployments')
 
-      else
-        say "Manifest type not specified"
+        when "concourse"
+          template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
+          template("aws/concourse/concourse.yml.erb",   "concourse.yml")
 
+        else
+          say "Manifest type not specified"
+        end
+      rescue => e
+        say e, :red
       end
     end
 
