@@ -16,7 +16,7 @@ aws:
   ops_subnet_name: "ops_services"
 
 gcp:
-  project_id: gcp-project
+  project: gcp-project
   region: europe-west1
   zone: europe-west1-b
   service_account: "~/safe/terraform.json"

@@ -36,8 +36,11 @@ module Kite
         copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
         copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
         template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
+
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
+        template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
         chmod('bin/bosh-install.sh', 0755)
+        chmod('bin/setup-tunnel.sh', 0755)
 
       else
         say 'Cloud provider not specified'
@@ -45,6 +48,7 @@ module Kite
       end
     end
 
+    method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     def render(manifest)
       say "Rendering #{ manifest } manifest", :green
@@ -53,7 +57,8 @@ module Kite
 
       case manifest
       when "bosh"
-        template("aws/bosh/bosh_director.yml.erb",    "bosh_director.yml")
+        cloud = options[:cloud]
+        directory("#{cloud}/deployments", 'deployments')
 
       when "concourse"
         template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")

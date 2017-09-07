@@ -9,6 +9,17 @@ resource "google_compute_subnetwork" "platform_net" {
   network       = "${google_compute_network.platform.self_link}"
 }
 
+resource "google_compute_route" "platform-gate" {
+  name                   = "platform-gate"
+  dest_range             = "0.0.0.0/0"
+  network                = "${google_compute_network.platform.name}"
+  next_hop_instance      = "${google_compute_instance.bastion.name}"
+  next_hop_instance_zone = "${var.zone}"
+  priority               = 800
+  tags                   = ["no-ip"]
+  project                = "${var.project}"
+}
+
 # Allow open access between internal VM
 resource "google_compute_firewall" "platform_internal" {
   name    = "platform-internal"

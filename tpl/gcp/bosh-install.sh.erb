@@ -2,10 +2,11 @@
 
 set -xe
 
-bosh create-env bosh-deployment/bosh.yml \
+bosh create-env deployments/bosh/bosh.yml \
   --state=config/state.json \
   --vars-store=config/creds.yml \
-  -o bosh-deployment/gcp/cpi.yml \
+  -o deployments/bosh/cpi.yml \
+  -o deployments/bosh/jumpbox-user.yml \
   -v director_name=bosh-director \
   -v internal_cidr=<%= @values['gcp']['subnet_cidr'] %> \
   -v internal_gw=<%= @values['gcp']['internal_gw'] %> \
@@ -13,6 +14,6 @@ bosh create-env bosh-deployment/bosh.yml \
   --var-file gcp_credentials_json=<%= @values['gcp']['service_account'] %> \
   -v project_id=<%= @values['gcp']['project'] %> \
   -v zone=<%= @values['gcp']['zone'] %> \
-  -v tags=[platform-internal] \
+  -v tags='[platform-internal, no-ip]' \
   -v network=<%= @values['gcp']['vpc_name'] %> \
   -v subnetwork=<%= @values['gcp']['subnet_name'] %>

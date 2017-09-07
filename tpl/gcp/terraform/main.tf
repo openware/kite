@@ -39,16 +39,24 @@ resource "google_compute_instance" "bastion" {
     }
   }
 
-  metadata {
-    sshKeys = "kite:${file(var.public_key)}"
-  }
-
   network_interface {
     subnetwork = "${google_compute_subnetwork.platform_net.name}"
     access_config {
       nat_ip = "${google_compute_address.bastion.address}"
     }
   }
+
+  can_ip_forward = true
+
+  metadata {
+    sshKeys = "kite:${file(var.public_key)}"
+  }
+
+  metadata_startup_script = <<EOT
+#!/bin/bash
+sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+EOT
 
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
