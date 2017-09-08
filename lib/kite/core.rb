@@ -38,6 +38,7 @@ module Kite
         template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
 
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
+        template('gcp/bosh-vars.yml.erb',                   'bosh-vars.yml')
         template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
         chmod('bin/bosh-install.sh', 0755)
         chmod('bin/setup-tunnel.sh', 0755)
