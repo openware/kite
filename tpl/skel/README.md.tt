@@ -1,1 +1,4 @@
-# <%=@cloud_name %>
+## Generate a new cloud
+```
+kite generate --cloud=<CLOUD_NAME>
+```
