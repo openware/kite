@@ -36,6 +36,7 @@ module Kite
         copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
         copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
         template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
+        copy_file('gcp/README.md',                          'README.md', force: true)
 
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
         template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
