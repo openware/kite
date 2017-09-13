@@ -24,9 +24,9 @@ networks:
 - name: default
   type: manual
   subnets:
-  - range: 10.0.0.0/24
-    gateway: 10.0.0.1
-    static: [10.0.0.2]
+  - range: 10.0.10.0/24
+    gateway: 10.0.10.1
+    static: [10.0.10.2]
     dns: [8.8.8.8]
 
 instance_groups:
