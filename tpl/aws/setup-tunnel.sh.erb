@@ -1,4 +1,4 @@
 BASTION_IP="$(terraform output -state=terraform/terraform.tfstate bastion_ip)"
-ssh -D 5000 -fNC ubuntu@$BASTION_IP -i <%= @values['kite']['public_key_path'] %>
+ssh -4 -D 5000 -fNC ubuntu@$BASTION_IP -i <%= @values['kite']['private_key_path'] %>
 
 export BOSH_ALL_PROXY=socks5://localhost:5000
