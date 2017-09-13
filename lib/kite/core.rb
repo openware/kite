@@ -26,9 +26,12 @@ module Kite
         copy_file('aws/terraform/outputs.tf',              'terraform/outputs.tf')
         copy_file('aws/terraform/variables.tf',            'terraform/variables.tf')
         template('aws/terraform/terraform.tfvars.erb',     'terraform/terraform.tfvars')
-
         copy_file('aws/README.md',                         'README.md')
-        copy_file('aws/bootstrap.sh',                      'bootstrap.sh')
+
+        template('aws/bosh-install.sh.erb',                 'bin/bosh-install.sh')
+        template('aws/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
+        chmod('bin/bosh-install.sh', 0755)
+        chmod('bin/setup-tunnel.sh', 0755)
 
       when 'gcp'
         copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
