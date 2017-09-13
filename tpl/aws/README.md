@@ -18,7 +18,11 @@ Requirements
 Usage
 -----
 
-To bootstrap the whole deployment just run `bootstrap.sh`
+To deploy a BOSH Director:
+- Apply the terraform IaC from `terraform` folder
+- Run `bin/setup_tunnel.sh` to create an SSH CLI tunnel
+- Run `kite render bosh --cloud aws` to render BOSH deployment files
+- Run `bin/bosh_setup.sh` to deploy the BOSH Director
 
 To access BOSH Director information, use bosh -e *bosh_name* env
 
