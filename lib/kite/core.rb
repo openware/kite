@@ -17,7 +17,7 @@ module Kite
     desc "generate", "Generate Cloud IaC from configuration"
     def generate()
       say "Generating Cloud #{ options[:cloud] } IaC", :green
-      @values = YAML.load(File.read('config/cloud.yml'))
+      @values = parse_cloud_config
 
       case options[:cloud]
       when 'aws'
@@ -54,7 +54,7 @@ module Kite
     desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     def render(manifest)
       say "Rendering #{ manifest } manifest", :green
-      @values = YAML.load(File.read('config/cloud.yml'))
+      @values = parse_cloud_config
       @tf_output = parse_tf_state('terraform/terraform.tfstate')
 
       case manifest
