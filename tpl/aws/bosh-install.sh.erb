@@ -3,10 +3,10 @@
 set -xe
 
 # Create a new BOSH environment with Director
-bosh create-env deployments/bosh/bosh_director.yml \
-  --state=state.json \
-  --vars-store=creds.yml \
-  --vars-file=bosh_vars.yml \
+bosh create-env deployments/bosh/bosh.yml \
+  --state=config/state.json \
+  --vars-store=config/creds.yml \
+  --vars-file=deployments/bosh/bosh_vars.yml \
   --var-file private_key=<%= @values['kite']['private_key_path'] %> \
   -o deployments/bosh/cpi.yml \
   -o deployments/bosh/jumpbox-user.yml
@@ -14,12 +14,8 @@ bosh create-env deployments/bosh/bosh_director.yml \
 # Configure alias for the new environment
 bosh alias-env <%= @values['bosh']['name'] %> \
   -e <%= @values['bosh']['static_ip'] %>  \
-  --ca-cert <(bosh int ./creds.yml --path /director_ssl/ca)
+  --ca-cert <(bosh int ./config/creds.yml --path /director_ssl/ca)
 
 # Get jumpbox user key
-bosh int creds.yml --path /jumpbox_ssh/private_key > jumpbox.key
-chmod 600 jumpbox.key
-
-# Log into the newly created Director
-export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET=`bosh int ./creds.yml --path /admin_password`
+bosh int config/creds.yml --path /jumpbox_ssh/private_key > config/jumpbox.key
+chmod 600 config/jumpbox.key

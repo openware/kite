@@ -16,7 +16,6 @@ module Kite
       when "bosh"
         cloud = options[:cloud]
         directory("#{cloud}/deployments",                    'deployments')
-        template('aws/deployments/bosh/bosh_vars.yml.erb',   'bosh_vars.yml') if options[:cloud] == 'aws'
 
       when "concourse"
         template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")

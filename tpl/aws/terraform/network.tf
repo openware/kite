@@ -1,9 +1,9 @@
 # Create a VPC to launch our instances into
 resource "aws_vpc" "platform" {
-  cidr_block = "${var.aws_vpc_cidr_block}"
+  cidr_block = "${var.vpc_cidr_block}"
 
   tags {
-    Name = "${var.aws_vpc_name}"
+    Name = "${var.vpc_name}"
     Component = "kite-platform"
   }
 }
@@ -17,6 +17,40 @@ resource "aws_internet_gateway" "platform" {
   }
 }
 
+# DMZ subnet
+resource "aws_subnet" "platform_dmz" {
+  vpc_id = "${aws_vpc.platform.id}"
+  availability_zone = "${var.availability_zone}"
+  cidr_block = "${var.public_subnet_cidr}"
+  map_public_ip_on_launch = false
+  tags {
+    Name = "${var.public_subnet_name}"
+    Component = "kite-platform"
+  }
+}
+
+# Private subnet
+resource "aws_subnet" "platform_net" {
+  vpc_id = "${aws_vpc.platform.id}"
+  availability_zone = "${var.availability_zone}"
+  cidr_block = "${var.private_subnet_cidr}"
+  map_public_ip_on_launch = false
+  tags {
+    Name = "${var.private_subnet_name}"
+    Component = "kite-platform"
+  }
+}
+
+# Allocate an Elastic IP for NAT gateway
+resource "aws_eip" "nat_ip" {
+}
+
+# Create a NAT gateway to forward the traffic for BOSH
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id = "${aws_eip.nat_ip.id}"
+  subnet_id = "${aws_subnet.platform_dmz.id}"
+}
+
 # Grant the VPC internet access on its main route table
 resource "aws_route" "internet_access" {
   route_table_id = "${aws_vpc.platform.main_route_table_id}"
@@ -24,27 +58,51 @@ resource "aws_route" "internet_access" {
   gateway_id = "${aws_internet_gateway.platform.id}"
 }
 
-# Create a subnet to launch our instances into
-resource "aws_subnet" "platform" {
+# Create a custom route table for the private subnet
+resource "aws_route_table" "private_route" {
   vpc_id = "${aws_vpc.platform.id}"
-  availability_zone = "${var.aws_availability_zone}"
-  cidr_block = "${var.aws_platform_subnet_cidr_block}"
-  map_public_ip_on_launch = false
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.nat_gateway.id}"
+  }
+
   tags {
-    Name = "${var.aws_platform_subnet_name}"
+    Name = "platform-route"
     Component = "kite-platform"
   }
 }
 
-# Create an ops_services subnet
-resource "aws_subnet" "ops_services" {
+# Associate custom route table with private subnet
+resource "aws_route_table_association" "private_route" {
+  subnet_id      = "${aws_subnet.platform_net.id}"
+  route_table_id = "${aws_route_table.private_route.id}"
+}
+
+# The default security group
+resource "aws_security_group" "bastion_sg" {
+  name = "bastion_sg"
+  description = "Bastion security group"
   vpc_id = "${aws_vpc.platform.id}"
-  availability_zone = "${var.aws_availability_zone}"
-  cidr_block = "${var.aws_ops_subnet_cidr_block}"
-  map_public_ip_on_launch = false
   tags {
-    Name = "${var.aws_ops_subnet_name}"
-    Component = "ops-services"
+    Name = "bastion-sg"
+    Component = "bosh-director"
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"]
   }
 }
 
@@ -54,7 +112,7 @@ resource "aws_security_group" "bosh_sg" {
   description = "Default BOSH security group"
   vpc_id = "${aws_vpc.platform.id}"
   tags {
-    Name = "bosh-sq"
+    Name = "bosh-sg"
     Component = "bosh-director"
   }
 
@@ -144,33 +202,6 @@ resource "aws_security_group" "concourse_sg" {
   ingress {
     from_port   = 2222
     to_port     = 2222
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Create a Vault security group
-resource "aws_security_group" "vault_sg" {
-  name        = "vault-sg"
-  description = "Vault security group"
-  vpc_id      = "${aws_vpc.platform.id}"
-  tags {
-    Name = "vault-sg"
-    Component = "vault"
-  }
-
-  # outbound internet access
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # inbound http
-  ingress {
-    from_port   = 8200
-    to_port     = 8200
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
