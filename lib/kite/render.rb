@@ -1,0 +1,29 @@
+module Kite
+  class Render < Base
+
+    include Kite::Helpers
+
+    desc "manifest <type>", "Renders a manifest of selected type"
+    method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
+    def manifest(type)
+      say "Rendering #{type} manifest", :green
+      @values = parse_cloud_config
+      @tf_output = parse_tf_state('terraform/terraform.tfstate')
+
+      case type
+      when "bosh"
+        cloud = options[:cloud]
+        directory("#{cloud}/deployments",                    'deployments')
+        template('aws/deployments/bosh/bosh_vars.yml.erb',   'bosh_vars.yml') if options[:cloud] == 'aws'
+
+      when "concourse"
+        template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
+        template("aws/concourse/concourse.yml.erb",   "concourse.yml")
+
+      else
+        say "Manifest type not specified"
+
+      end
+    end
+  end
+end
