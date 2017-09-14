@@ -4,6 +4,7 @@ module Kite
     include Kite::Helpers
 
     desc "new CLOUD_PATH", "Generate Cloud infrastructure skeleton from configuration"
+    # Creates a cloud infrastructure skeleton with a given name
     def new(cloud_name)
       target = Kite::Cloud.new(self, cloud_name)
       target.prepare
@@ -11,6 +12,7 @@ module Kite
 
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     desc "generate", "Generate Cloud IaC from configuration"
+    # Generates Infrastructure as Code and setup scripts for the given cloud using values from <b>config/cloud.yml</b>
     def generate()
       say "Generating Cloud #{ options[:cloud] } IaC", :green
       @values = parse_cloud_config
@@ -53,6 +55,7 @@ module Kite
     subcommand "render", Kite::Render
 
     desc "version", "Return kite version"
+    # Return kite version
     def version
       say "v#{ Kite::VERSION }"
     end

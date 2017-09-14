@@ -1,3 +1,4 @@
+# Class responsible for creating a new cloud infrastructure skeleton
 class Kite::Cloud
 
   def initialize(core, cloud_name)
