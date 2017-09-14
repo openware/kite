@@ -39,3 +39,14 @@ resource "google_compute_firewall" "platform_internal" {
   target_tags = ["platform-internal"]
   source_tags = ["platform-internal"]
 }
+
+# Allow concourse
+resource "google_compute_firewall" "allow_concourse" {
+  name    = "allow-concourse"
+  network = "${google_compute_network.platform.name}"
+
+  allow {
+    protocol = "all"
+  }
+
+}

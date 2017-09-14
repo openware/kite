@@ -30,8 +30,8 @@ bosh:
   static_ip: "10.0.0.10"
 
 concourse:
-  hostname: "ci.domain.io"
-  url: "http://ci.example.com"
+  hostname: "concourse.example.com"
+  url: "http://concourse.example.com"
   auth_username: "concourse"
   auth_password: "concourse"
-  db_password: "changeme"
+  db_password: "concourse"

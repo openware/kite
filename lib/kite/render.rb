@@ -19,8 +19,8 @@ module Kite
         template('aws/deployments/bosh/bosh_vars.yml.erb',   'bosh_vars.yml') if options[:cloud] == 'aws'
 
       when "concourse"
-        template("aws/concourse/aws_cloud.yml.erb",   "aws_cloud.yml")
-        template("aws/concourse/concourse.yml.erb",   "concourse.yml")
+        template("#{options[:cloud]}/deployments/concourse/cloud-config.yml.erb", "deployments/concourse/cloud-config.yml")
+        template("#{options[:cloud]}/deployments/concourse/concourse.yml.erb", "deployments/concourse/concourse.yml")
 
       else
         say "Manifest type not specified"
