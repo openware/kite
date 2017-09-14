@@ -1,3 +1,4 @@
+# Base class including all Thor-related configuration
 class Kite::Base < Thor
 
   include Thor::Actions
