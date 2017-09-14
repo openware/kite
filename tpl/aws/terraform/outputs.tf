@@ -6,8 +6,8 @@ output "platform_subnet_id" {
     value = "${aws_subnet.platform.id}"
 }
 
-output "ops_services_subnet_id" {
-    value = "${aws_subnet.ops_services.id}"
+output "bosh_private_subnet_id" {
+    value = "${aws_subnet.bosh_private.id}"
 }
 
 output "bastion_ip" {
