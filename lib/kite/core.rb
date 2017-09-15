@@ -43,6 +43,7 @@ module Kite
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
         template('gcp/bosh-vars.yml.erb',                   'bosh-vars.yml')
         template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
+        template('gcp/set-env.sh.erb',                      'bin/set-env.sh')
         chmod('bin/bosh-install.sh', 0755)
         chmod('bin/setup-tunnel.sh', 0755)
 
