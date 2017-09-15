@@ -1,8 +1,8 @@
 # Specify the provider and access details
 provider "aws" {
-  region = "${var.aws_region}"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
+  region = "${var.region}"
+  access_key = "${var.access_key}"
+  secret_key = "${var.secret_key}"
 }
 
 resource "aws_key_pair" "platform_key" {
@@ -11,12 +11,12 @@ resource "aws_key_pair" "platform_key" {
 }
 
 resource "aws_instance" "bastion" {
-  ami = "${lookup(var.aws_amis, var.aws_region)}"
+  ami = "${lookup(var.aws_amis, var.region)}"
   instance_type = "t2.small"
   key_name = "${var.keypair_name}"
 
-  vpc_security_group_ids = ["${aws_security_group.bosh_sg.id}"]
-  subnet_id = "${aws_subnet.platform.id}"
+  vpc_security_group_ids = ["${aws_security_group.bastion_sg.id}"]
+  subnet_id = "${aws_subnet.platform_dmz.id}"
 
   associate_public_ip_address = true
 

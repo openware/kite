@@ -1,16 +1,16 @@
 # Credentials
-aws_access_key = "<%= @values['aws']['access_key'] %>"
-aws_secret_key = "<%= @values['aws']['secret_key'] %>"
-aws_region = "<%= @values['aws']['region'] %>"
-aws_availability_zone = "<%= @values['aws']['az'] %>"
+access_key = "<%= @values['aws']['access_key'] %>"
+secret_key = "<%= @values['aws']['secret_key'] %>"
+region = "<%= @values['aws']['region'] %>"
+availability_zone = "<%= @values['aws']['zone'] %>"
 
 # Network Config
-aws_vpc_cidr_block = "<%= @values['aws']['vpc_cidr_block'] %>"
-aws_vpc_name = "<%= @values['aws']['vpc_name'] %>"
-aws_platform_subnet_cidr_block = "<%= @values['aws']['platform_subnet_cidr_block'] %>"
-aws_platform_subnet_name = "<%= @values['aws']['platform_subnet_name'] %>"
-aws_ops_subnet_cidr_block = "<%= @values['aws']['ops_subnet_cidr_block'] %>"
-aws_ops_subnet_name = "<%= @values['aws']['ops_subnet_name'] %>"
+vpc_cidr_block = "<%= @values['aws']['vpc_cidr_block'] %>"
+vpc_name = "<%= @values['aws']['vpc_name'] %>"
+public_subnet_name = "<%= @values['aws']['public_subnet']['name'] %>"
+public_subnet_cidr = "<%= @values['aws']['public_subnet']['network'] %>"
+private_subnet_name = "<%= @values['aws']['private_subnet']['name'] %>"
+private_subnet_cidr = "<%= @values['aws']['private_subnet']['network'] %>"
 
 # Kite config
 keypair_name = "<%= @values['kite']['keypair_name'] %>"

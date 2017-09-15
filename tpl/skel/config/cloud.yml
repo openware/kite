@@ -7,27 +7,30 @@ aws:
   access_key: "enter your amazon key"
   secret_key: "enter your secret key"
   region: "eu-central-1"
-  az: "eu-central-1a"
-  vpc_cidr_block: "10.0.0.0/16"
+  zone: "eu-central-1a"
   vpc_name: "platform-tools"
-  platform_subnet_cidr_block: "10.0.0.0/24"
-  platform_subnet_name: "platform_net"
-  ops_subnet_cidr_block: "10.0.10.0/24"
-  ops_subnet_name: "ops_services"
+  vpc_cidr_block: "10.0.0.0/16"
+  public_subnet:
+    name: "platform-dmz"
+    network: "10.0.10.0/26"
+  private_subnet:
+    name: "platform-net"
+    gateway: "10.0.20.1"
+    network: "10.0.20.0/26"
 
 gcp:
-  project: gcp-project
-  region: europe-west1
-  zone: europe-west1-b
+  project: "gcp-project"
+  region: "europe-west1"
+  zone: "europe-west1-b"
   service_account: "~/safe/terraform.json"
   vpc_name: "platform-tools"
   subnet_name: "platform-net"
   subnet_cidr: "10.0.0.0/24"
-  internal_gw: "10.0.0.1"
+  internal_gw: "10.0.0.2"
 
 bosh:
   name: "bosh-director"
-  static_ip: "10.0.0.10"
+  static_ip: "10.0.20.10"
 
 concourse:
   hostname: "ci.domain.io"

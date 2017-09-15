@@ -1,11 +1,11 @@
 director_name:             <%= @values['bosh']['name'] %>
-internal_cidr:             <%= @values['aws']['platform_subnet_cidr_block'] %>
-internal_gw:               10.0.0.1
+internal_cidr:             <%= @values['aws']['private_subnet']['network'] %>
+internal_gw:               <%= @values['aws']['private_subnet']['gateway'] %>
 internal_ip:               <%= @values['bosh']['static_ip'] %>
 access_key_id:             <%= @values['aws']['access_key'] %>
 secret_access_key:         <%= @values['aws']['secret_key'] %>
 region:                    <%= @values['aws']['region'] %>
-az:                        <%= @values['aws']['az'] %>
+az:                        <%= @values['aws']['zone'] %>
 default_key_name:          <%= @values['kite']['keypair_name'] %>
 default_security_groups:   [<%= @tf_output['security_group_id'] %>]
 subnet_id:                 <%= @tf_output['platform_subnet_id'] %>

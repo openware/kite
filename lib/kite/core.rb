@@ -28,6 +28,7 @@ module Kite
 
         template('aws/bosh-install.sh.erb',                 'bin/bosh-install.sh')
         template('aws/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
+        template('aws/set-env.sh.erb',                      'bin/set-env.sh')
         chmod('bin/bosh-install.sh', 0755)
         chmod('bin/setup-tunnel.sh', 0755)
 
