@@ -1,46 +1,44 @@
 ---
 azs:
 - name: z1
-  cloud_properties: {availability_zone: <%= @values['aws']['az'] %>}
+  cloud_properties: {availability_zone: <%= @values['aws']['zone'] %>}
 
 vm_types:
 - name: concourse_standalone
   cloud_properties:
     instance_type: m3.large
     ephemeral_disk: {size: 5000, type: gp2}
-    elbs: [concourse-elb]
-    security_groups: [concourse-sg, boshdefault]
+    security_groups: [concourse-sg, bosh_sg]
 - name: concourse_web
   cloud_properties:
     instance_type: m3.medium
     ephemeral_disk: {size: 3000, type: gp2}
-    elbs: [concourse-elb]
-    security_groups: [concourse-sg, boshdefault]
+    security_groups: [concourse-sg, bosh_sg]
 - name: concourse_db
   cloud_properties:
     instance_type: m3.medium
     ephemeral_disk: {size: 3000, type: gp2}
-    security_groups: [boshdefault]
+    security_groups: [bosh_sg]
 - name: concourse_worker
   cloud_properties:
     instance_type: m3.large
     ephemeral_disk: {size: 30000, type: gp2}
-    security_groups: [boshdefault]
+    security_groups: [bosh_sg]
 - name: default
   cloud_properties:
     instance_type: t2.micro
     ephemeral_disk: {size: 3000, type: gp2}
-    security_groups: [boshdefault]
+    security_groups: [bosh_sg]
 - name: large
   cloud_properties:
     instance_type: m3.large
     ephemeral_disk: {size: 5000, type: gp2}
-    security_groups: [boshdefault]
+    security_groups: [bosh_sg]
 - name: vault-default
   cloud_properties:
     instance_type: t2.micro
     ephemeral_disk: {size: 3000, type: gp2}
-    security_groups: [vault-sg, boshdefault]
+    security_groups: [vault-sg, bosh_sg]
 
 disk_types:
 - name: default
@@ -51,25 +49,15 @@ disk_types:
   cloud_properties: {type: gp2}
 
 networks:
-- name: default
+- name: platform_net
   type: manual
   subnets:
-  - range: 10.0.0.0/24
-    gateway: 10.0.0.1
-    az: z1
-    static: [10.0.0.6]
-    reserved: [10.0.0.1-10.0.0.5]
-    dns: [10.0.0.2]
-    cloud_properties: {subnet: <%= @tf_output['default_subnet_id'] %>}
-- name: ops_services
-  type: manual
-  subnets:
-  - range: 10.0.10.0/24
-    gateway: 10.0.10.1
-    az: z1
-    reserved: [10.0.10.1-10.0.10.5]
-    dns: [10.0.0.2]
-    cloud_properties: {subnet: <%= @tf_output['ops_services_subnet_id'] %>}
+  - az: z1
+    range: <%= @values['aws']['private_subnet']['network'] %>
+    gateway: <%= @values['aws']['private_subnet']['gateway'] %>
+    reserved: [10.0.20.1-10.0.20.10]
+    dns: [10.0.20.8]
+    cloud_properties: {subnet: <%= @tf_output['platform_subnet_id'] %>}
 - name: vip
   type: vip
 
@@ -78,4 +66,4 @@ compilation:
   reuse_compilation_vms: true
   az: z1
   vm_type: large
-  network: default
+  network: platform_net
