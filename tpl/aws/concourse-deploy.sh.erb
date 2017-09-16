@@ -6,7 +6,7 @@ set -xe
 kite render manifest concourse --cloud aws
 
 # Update BOSH director cloud configuration
-bosh update-cloud-config deployments/concourse/cloud-config.yml
+bosh -e <%= @values['bosh']['name'] %> update-cloud-config deployments/concourse/cloud-config.yml
 
 # Upload necessary stemcells and releases
 bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
