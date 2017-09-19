@@ -31,8 +31,6 @@ Connect to the Director
 ```
 . bin/set-env.sh
 
-bosh alias-env bosh-1 -e 10.0.0.10 --ca-cert \
-  <(bosh int ./config/creds.yml --path /director_ssl/ca)
 ```
 
 Render concourse deployment

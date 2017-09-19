@@ -16,6 +16,8 @@ bosh alias-env <%= @values['bosh']['name'] %> \
   -e <%= @values['bosh']['static_ip'] %>  \
   --ca-cert <(bosh int ./config/creds.yml --path /director_ssl/ca)
 
+bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud_config.yml
+
 # Get jumpbox user key
 bosh int config/creds.yml --path /jumpbox_ssh/private_key > config/jumpbox.key
 chmod 600 config/jumpbox.key

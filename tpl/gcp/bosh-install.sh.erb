@@ -10,3 +10,8 @@ bosh create-env deployments/bosh/bosh.yml \
   -v tags='[platform-internal, no-ip]' \
   -o deployments/bosh/cpi.yml \
   -o deployments/bosh/jumpbox-user.yml
+
+bosh alias-env <%= @values['bosh']['name'] %> -e <%= @values['bosh']['static_ip'] %> --ca-cert \
+  <(bosh int ./config/creds.yml --path /director_ssl/ca)
+
+bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud_config.yml
