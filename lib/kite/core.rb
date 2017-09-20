@@ -6,8 +6,8 @@ module Kite
     desc "new CLOUD_PATH", "Generate Cloud infrastructure skeleton from configuration"
     # Creates a cloud infrastructure skeleton with a given name
     def new(cloud_name)
-      target = Kite::Cloud.new(self, cloud_name)
-      target.prepare
+      cloud.init_core(self, cloud_name)
+      cloud.prepare
     end
 
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
@@ -15,7 +15,7 @@ module Kite
     # Generates Infrastructure as Code and setup scripts for the given cloud using values from <b>config/cloud.yml</b>
     def generate()
       say "Generating Cloud #{ options[:cloud] } IaC", :green
-      @values = parse_cloud_config
+      @values = cloud.cloud_conf
 
       case options[:cloud]
       when 'aws'
