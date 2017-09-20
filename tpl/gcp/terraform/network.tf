@@ -4,7 +4,7 @@ resource "google_compute_network" "platform" {
 
 # Subnet for the Platform tools
 resource "google_compute_subnetwork" "platform_net" {
-  name          = "platform-net"
+  name          = "${var.platform_subnet_name}"
   ip_cidr_range = "${var.subnet_cidr}"
   network       = "${google_compute_network.platform.self_link}"
 }

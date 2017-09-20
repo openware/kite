@@ -22,6 +22,11 @@ variable "vpc_name" {
     default = "platform-tools"
 }
 
+variable "platform_subnet_name" {
+    type = "string"
+    default = "platform-net"
+}
+
 variable "subnet_cidr" {
     type = "string"
     default = "10.0.0.0/24"
