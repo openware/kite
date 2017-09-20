@@ -18,6 +18,8 @@ module Kite
         directory("#{cloud}/deployments",                    'deployments')
 
       when "concourse"
+        @private_subnet = IPAddr.new(@values['aws']['private_subnet']['network']).to_range.to_a if options[:cloud] == 'aws'
+
         template("#{options[:cloud]}/deployments/concourse/cloud-config.yml.erb", "deployments/concourse/cloud-config.yml")
         template("#{options[:cloud]}/deployments/concourse/concourse.yml.erb", "deployments/concourse/concourse.yml")
 
