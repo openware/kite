@@ -1,5 +1,6 @@
 require 'erb'
 require 'yaml'
+require 'ipaddr'
 require 'thor'
 
 require 'kite/version'

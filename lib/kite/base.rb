@@ -7,4 +7,10 @@ class Kite::Base < Thor
     File.expand_path(File.join(File.dirname(__FILE__), "../../tpl"))
   end
 
+  no_commands do
+    def cloud
+      Kite::Cloud.instance
+    end
+  end
+
 end

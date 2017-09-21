@@ -9,15 +9,16 @@ module Kite
     # Render a manifest of selected type based on <b>config/cloud.yml</b> and <b>terraform apply</b> results
     def manifest(type)
       say "Rendering #{type} manifest", :green
-      @values = parse_cloud_config
-      @tf_output = parse_tf_state('terraform/terraform.tfstate')
+      @values = cloud.cloud_conf
+      @tf_output = cloud.tf_output
 
       case type
       when "bosh"
-        cloud = options[:cloud]
-        directory("#{cloud}/deployments",                    'deployments')
+        directory("#{options[:cloud]}/deployments",                    'deployments')
 
       when "concourse"
+        @private_subnet = cloud.private_subnet if options[:cloud] == 'aws'
+
         template("#{options[:cloud]}/deployments/concourse/cloud-config.yml.erb", "deployments/concourse/cloud-config.yml")
         template("#{options[:cloud]}/deployments/concourse/concourse.yml.erb", "deployments/concourse/concourse.yml")
 

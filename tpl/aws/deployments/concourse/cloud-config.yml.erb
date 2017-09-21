@@ -55,8 +55,8 @@ networks:
   - az: z1
     range: <%= @values['aws']['private_subnet']['network'] %>
     gateway: <%= @values['aws']['private_subnet']['gateway'] %>
-    reserved: [10.0.20.1-10.0.20.10]
-    dns: [10.0.20.8]
+    reserved: [<%= render_range(0, 10, @private_subnet) %>]
+    dns: [<%= @private_subnet[8].to_s %>]
     cloud_properties: {subnet: <%= @tf_output['platform_subnet_id'] %>}
 - name: vip
   type: vip
