@@ -1,0 +1,18 @@
+# Setup Terraform GCS backend to be able to store .tfstate remotely
+terraform {
+  backend "gcs" {
+    bucket  = "<%= @values['kite']['bucket_name'] %>"
+    path    = "terraform.tfstate"
+    project = "<%= @values['gcp']['project'] %>"
+  }
+}
+
+# Store .tfstate in a GCS bucket
+data "terraform_remote_state" "tfstate" {
+  backend = "gcs"
+  config {
+    bucket  = "<%= @values['kite']['bucket_name'] %>"
+    path    = "terraform.tfstate"
+    project = "<%= @values['gcp']['project'] %>"
+  }
+}
