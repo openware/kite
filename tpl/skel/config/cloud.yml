@@ -2,6 +2,7 @@ kite:
   keypair_name: "kitekey"
   public_key_path: "~/.ssh/kite.key.pub"
   private_key_path: "~/.ssh/kite.key"
+  bucket_name: "kite-state"
 
 aws:
   access_key: "enter your amazon key"

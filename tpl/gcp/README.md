@@ -1,6 +1,12 @@
 ## GCP Cloud
 
 ### Usage
+
+Set path to your service account credentials:
+```
+export GOOGLE_CREDENTIALS=*~/credentials/service-account.json*
+```
+
 Apply terraform code
 ```
 pushd terraform && terraform init && terraform apply && popd

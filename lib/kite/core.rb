@@ -19,12 +19,8 @@ module Kite
 
       case options[:cloud]
       when 'aws'
-        copy_file('aws/terraform/main.tf',                 'terraform/main.tf')
-        copy_file('aws/terraform/network.tf',              'terraform/network.tf')
-        copy_file('aws/terraform/outputs.tf',              'terraform/outputs.tf')
-        copy_file('aws/terraform/variables.tf',            'terraform/variables.tf')
-        template('aws/terraform/terraform.tfvars.erb',     'terraform/terraform.tfvars')
-        copy_file('aws/README.md',                         'README.md')
+        directory('aws/terraform',                          'terraform')
+        copy_file('aws/README.md',                          'README.md', force: true)
 
         template('aws/bosh-install.sh.erb',                 'bin/bosh-install.sh')
         template('aws/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
@@ -35,11 +31,7 @@ module Kite
         chmod('bin/setup-tunnel.sh', 0755)
 
       when 'gcp'
-        copy_file('gcp/terraform/main.tf',                  'terraform/main.tf')
-        copy_file('gcp/terraform/network.tf',               'terraform/network.tf')
-        copy_file('gcp/terraform/outputs.tf',               'terraform/outputs.tf')
-        copy_file('gcp/terraform/variables.tf',             'terraform/variables.tf')
-        template('gcp/terraform/terraform.tfvars.erb',      'terraform/terraform.tfvars')
+        directory('gcp/terraform',                          'terraform')
         copy_file('gcp/README.md',                          'README.md', force: true)
 
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
