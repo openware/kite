@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/helios-technologies/kite/tree/HEAD)
-
-[Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.7...HEAD)
+## [v0.0.8](https://github.com/helios-technologies/kite/tree/v0.0.8) (2017-09-22)
+[Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.7...v0.0.8)
 
 **Closed issues:**
 

@@ -4,6 +4,9 @@
 
 Kite is a CLI for scaffolding and managing devops modules
 The main purpose is templating of various tools for devops around terraform, bosh, ansible
+Currently Kite support one Stack on both AWS and GCP.
+
+We plan in adding community stack using a simple template repository structure.
 
 ## Installation
 
@@ -23,13 +26,37 @@ Or install it yourself as:
 
 ## Usage
 
-To start using kite from scratch:
-- Create a new kite project, use `kite new`
+To start using kite for bootstraping your infrastructure
+follow the steps below :
+
+### Create your Infrastructure as Code base repository
+
+Create a new kite project using:
+
+```
+$ kite new PROJECT_NAME
+```
+
+### Configure your cloud and credentials
+
 - Fill out the `config/cloud.yml` file with your credentials.
 - For BOSH you'll need an SSH key, to generate one, use `ssh-keygen -f *path_to_key*`
-- Generate the cloud IaC needed with `kite generate --cloud=*aws or gcp*`
-- Continue with instructions from newly generated README.md
 
+### Generate your infrastructure using terraform
+
+Generate the cloud IaC needed with 
+
+```
+$ kite generate --cloud=aws|gcp
+```
+
+you can now review and apply your terraform files.
+
+### Deploy the default stack (BOSH / Concourse / Vault / Kubernetes)
+
+Continue with instructions from newly generated README.md
+
+## Getting help
 
 To list all Kite commands, use
 
