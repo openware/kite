@@ -40,6 +40,7 @@ networks:
       range: <%= @values['gcp']['subnet_cidr'] %>
       gateway: <%= @values['gcp']['internal_gw'] %>
       static: [10.0.0.2, 10.0.0.10]
+      reserved: [<%= ip_range(@private_subnet, (1..10)) %>]
       cloud_properties:
         network_name: <%= @values['gcp']['vpc_name'] %>
         subnetwork_name: <%= @values['gcp']['subnet_name'] %>
