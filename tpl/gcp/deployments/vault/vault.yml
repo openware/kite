@@ -1,0 +1,37 @@
+---
+name: vault
+
+releases:
+- name: vault
+  version: latest
+
+instance_groups:
+- name: vault
+  instances: 1
+  vm_type: common
+  azs: [z1]
+  stemcell: trusty
+  networks:
+  - name: public
+
+  jobs:
+  - name: vault
+    release: vault
+    properties:
+      vault:
+        ha:
+          redirect: ~
+        storage:
+          use_file: true
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+stemcells:
+- alias: trusty
+  name: bosh-google-kvm-ubuntu-trusty-go_agent
+  version: latest

@@ -37,8 +37,12 @@ module Kite
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
         template('gcp/bosh-vars.yml.erb',                   'bosh-vars.yml')
         template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
+        template('gcp/concourse-deploy.sh.erb',             'bin/concourse-deploy.sh')
+        template('gcp/vault-deploy.sh.erb',                 'bin/vault-deploy.sh')
         template('gcp/set-env.sh.erb',                      'bin/set-env.sh')
         chmod('bin/bosh-install.sh', 0755)
+        chmod('bin/concourse-deploy.sh', 0755)
+        chmod('bin/vault-deploy.sh', 0755)
         chmod('bin/setup-tunnel.sh', 0755)
 
       else
