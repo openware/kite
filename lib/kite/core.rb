@@ -35,7 +35,6 @@ module Kite
         copy_file('gcp/README.md',                          'README.md', force: true)
 
         template('gcp/bosh-install.sh.erb',                 'bin/bosh-install.sh')
-        template('gcp/bosh-vars.yml.erb',                   'bosh-vars.yml')
         template('gcp/setup-tunnel.sh.erb',                 'bin/setup-tunnel.sh')
         template('gcp/concourse-deploy.sh.erb',             'bin/concourse-deploy.sh')
         template('gcp/vault-deploy.sh.erb',                 'bin/vault-deploy.sh')
