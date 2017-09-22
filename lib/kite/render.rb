@@ -21,6 +21,7 @@ module Kite
         end
 
         directory("#{options[:cloud]}/deployments/bosh",                          'deployments/bosh')
+        template("#{options[:cloud]}/bosh-vars.yml.erb",                          'config/bosh-vars.yml')
 
       when "concourse"
         template("#{options[:cloud]}/deployments/concourse/cloud-config.yml.erb", "deployments/concourse/cloud-config.yml")

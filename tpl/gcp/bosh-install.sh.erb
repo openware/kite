@@ -5,7 +5,7 @@ set -xe
 bosh create-env deployments/bosh/bosh.yml \
   --state=config/state.json \
   --vars-store=config/creds.yml \
-  --vars-file=bosh-vars.yml \
+  --vars-file=config/bosh-vars.yml \
   --var-file gcp_credentials_json=<%= @values['gcp']['service_account'] %> \
   -v tags='[platform-internal, no-ip]' \
   -o deployments/bosh/cpi.yml \
@@ -14,4 +14,4 @@ bosh create-env deployments/bosh/bosh.yml \
 bosh alias-env <%= @values['bosh']['name'] %> -e <%= @values['bosh']['static_ip'] %> --ca-cert \
   <(bosh int ./config/creds.yml --path /director_ssl/ca)
 
-bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud_config.yml
+bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud-config.yml
