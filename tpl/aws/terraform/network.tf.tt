@@ -1,18 +1,10 @@
+<% if @values['aws']['vpc_id'].empty? %>
 # Create a VPC to launch our instances into
 resource "aws_vpc" "platform" {
   cidr_block = "${var.vpc_cidr_block}"
 
   tags {
     Name = "${var.vpc_name}"
-    Component = "kite-platform"
-  }
-}
-
-# Create an internet gateway to give our subnet access to the outside world
-resource "aws_internet_gateway" "platform" {
-  vpc_id = "${aws_vpc.platform.id}"
-  tags {
-    Name = "platform-gateway"
     Component = "kite-platform"
   }
 }
@@ -29,26 +21,13 @@ resource "aws_subnet" "platform_dmz" {
   }
 }
 
-# Private subnet
-resource "aws_subnet" "platform_net" {
+# Create an internet gateway to give our subnet access to the outside world
+resource "aws_internet_gateway" "platform" {
   vpc_id = "${aws_vpc.platform.id}"
-  availability_zone = "${var.availability_zone}"
-  cidr_block = "${var.private_subnet_cidr}"
-  map_public_ip_on_launch = false
   tags {
-    Name = "${var.private_subnet_name}"
+    Name = "platform-gateway"
     Component = "kite-platform"
   }
-}
-
-# Allocate an Elastic IP for NAT gateway
-resource "aws_eip" "nat_ip" {
-}
-
-# Create a NAT gateway to forward the traffic for BOSH
-resource "aws_nat_gateway" "nat_gateway" {
-  allocation_id = "${aws_eip.nat_ip.id}"
-  subnet_id = "${aws_subnet.platform_dmz.id}"
 }
 
 # Grant the VPC internet access on its main route table
@@ -58,9 +37,37 @@ resource "aws_route" "internet_access" {
   gateway_id = "${aws_internet_gateway.platform.id}"
 }
 
+<% end %>
+
+<% if !@values['aws']['vpc_id'].empty? && @values['aws']['public_subnet']['id'].empty? %>
+# DMZ subnet
+resource "aws_subnet" "platform_dmz" {
+  vpc_id = "${var.vpc_id}"
+  availability_zone = "${var.availability_zone}"
+  cidr_block = "${var.public_subnet_cidr}"
+  map_public_ip_on_launch = false
+  tags {
+    Name = "${var.public_subnet_name}"
+    Component = "kite-platform"
+  }
+}
+<% end %>
+
+# Private subnet
+resource "aws_subnet" "platform_net" {
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
+  availability_zone = "${var.availability_zone}"
+  cidr_block = "${var.private_subnet_cidr}"
+  map_public_ip_on_launch = false
+  tags {
+    Name = "${var.private_subnet_name}"
+    Component = "kite-platform"
+  }
+}
+
 # Create a custom route table for the private subnet
 resource "aws_route_table" "private_route" {
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -73,6 +80,16 @@ resource "aws_route_table" "private_route" {
   }
 }
 
+# Allocate an Elastic IP for NAT gateway
+resource "aws_eip" "nat_ip" {
+}
+
+# Create a NAT gateway to forward the traffic for BOSH
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id = "${aws_eip.nat_ip.id}"
+  subnet_id = <%= "\"#{conditional_subnet_id(@values)}\"" %>
+}
+
 # Associate custom route table with private subnet
 resource "aws_route_table_association" "private_route" {
   subnet_id      = "${aws_subnet.platform_net.id}"
@@ -83,7 +100,7 @@ resource "aws_route_table_association" "private_route" {
 resource "aws_security_group" "bastion_sg" {
   name = "bastion_sg"
   description = "Bastion security group"
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
   tags {
     Name = "bastion-sg"
     Component = "bosh-director"
@@ -110,7 +127,7 @@ resource "aws_security_group" "bastion_sg" {
 resource "aws_security_group" "bosh_sg" {
   name = "bosh_sg"
   description = "Default BOSH security group"
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
   tags {
     Name = "bosh-sg"
     Component = "bosh-director"
@@ -169,7 +186,7 @@ resource "aws_security_group" "bosh_sg" {
 resource "aws_security_group" "concourse_sg" {
   name        = "concourse-sg"
   description = "Concourse security group"
-  vpc_id      = "${aws_vpc.platform.id}"
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
   tags {
     Name = "concourse-sg"
     Component = "concourse"

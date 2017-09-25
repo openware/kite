@@ -28,6 +28,33 @@ module Kite::Helpers
     cloud_config
   end
 
+  # Return public subnet id depending on
+  # whether it's declared in config/cloud.yml or not
+  def conditional_subnet_id(values)
+    subnet_id = values['aws']['public_subnet']['id']
+
+    if subnet_id.empty?
+      '${aws_subnet.platform_dmz.id}'
+    else
+      subnet_id
+    end
+  end
+
+  # Return vpc id depending on
+  # whether it's declared in config/cloud.yml or not
+  def conditional_vpc_id(values)
+    vpc_id = values['aws']['vpc_id']
+
+    if vpc_id.empty?
+      '${aws_vpc.platform.id}'
+    else
+      vpc_id
+    end
+  end
+
+
+
+
   # Returns subnet's IP range slice in a BOSH manifest-compatible way
   def ip_range(subnet, range)
 
