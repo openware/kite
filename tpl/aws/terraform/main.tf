@@ -16,7 +16,7 @@ resource "aws_instance" "bastion" {
   key_name = "${var.keypair_name}"
 
   vpc_security_group_ids = ["${aws_security_group.bastion_sg.id}"]
-  subnet_id = "${aws_subnet.platform_dmz.id}"
+  subnet_id = "${var.public_subnet_id != "" ? var.public_subnet_id : join(" ", aws_subnet.platform_dmz.*.id)}"
 
   associate_public_ip_address = true
 

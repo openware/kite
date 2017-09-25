@@ -1,7 +1,7 @@
 # Create a VPC to launch our instances into
 resource "aws_vpc" "platform" {
+  count = "${var.vpc_id != "" ? 0 : 1}"
   cidr_block = "${var.vpc_cidr_block}"
-
   tags {
     Name = "${var.vpc_name}"
     Component = "kite-platform"
@@ -10,7 +10,8 @@ resource "aws_vpc" "platform" {
 
 # Create an internet gateway to give our subnet access to the outside world
 resource "aws_internet_gateway" "platform" {
-  vpc_id = "${aws_vpc.platform.id}"
+  count = "${var.vpc_id != "" ? 0 : 1}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   tags {
     Name = "platform-gateway"
     Component = "kite-platform"
@@ -19,7 +20,8 @@ resource "aws_internet_gateway" "platform" {
 
 # DMZ subnet
 resource "aws_subnet" "platform_dmz" {
-  vpc_id = "${aws_vpc.platform.id}"
+  count = "${var.public_subnet_id != "" ? 0 : 1}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   availability_zone = "${var.availability_zone}"
   cidr_block = "${var.public_subnet_cidr}"
   map_public_ip_on_launch = false
@@ -31,7 +33,7 @@ resource "aws_subnet" "platform_dmz" {
 
 # Private subnet
 resource "aws_subnet" "platform_net" {
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   availability_zone = "${var.availability_zone}"
   cidr_block = "${var.private_subnet_cidr}"
   map_public_ip_on_launch = false
@@ -43,16 +45,19 @@ resource "aws_subnet" "platform_net" {
 
 # Allocate an Elastic IP for NAT gateway
 resource "aws_eip" "nat_ip" {
+  count = "${var.vpc_id != "" ? 0 : 1}"
 }
 
 # Create a NAT gateway to forward the traffic for BOSH
 resource "aws_nat_gateway" "nat_gateway" {
+  count = "${var.vpc_id != "" ? 0 : 1}"
   allocation_id = "${aws_eip.nat_ip.id}"
   subnet_id = "${aws_subnet.platform_dmz.id}"
 }
 
 # Grant the VPC internet access on its main route table
 resource "aws_route" "internet_access" {
+  count = "${var.vpc_id != "" ? 0 : 1}"
   route_table_id = "${aws_vpc.platform.main_route_table_id}"
   destination_cidr_block = "0.0.0.0/0"
   gateway_id = "${aws_internet_gateway.platform.id}"
@@ -60,7 +65,8 @@ resource "aws_route" "internet_access" {
 
 # Create a custom route table for the private subnet
 resource "aws_route_table" "private_route" {
-  vpc_id = "${aws_vpc.platform.id}"
+  count = "${var.vpc_id != "" ? 0 : 1}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -75,6 +81,7 @@ resource "aws_route_table" "private_route" {
 
 # Associate custom route table with private subnet
 resource "aws_route_table_association" "private_route" {
+  count = "${var.vpc_id != "" ? 0 : 1}"
   subnet_id      = "${aws_subnet.platform_net.id}"
   route_table_id = "${aws_route_table.private_route.id}"
 }
@@ -83,7 +90,7 @@ resource "aws_route_table_association" "private_route" {
 resource "aws_security_group" "bastion_sg" {
   name = "bastion_sg"
   description = "Bastion security group"
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   tags {
     Name = "bastion-sg"
     Component = "bosh-director"
@@ -110,7 +117,7 @@ resource "aws_security_group" "bastion_sg" {
 resource "aws_security_group" "bosh_sg" {
   name = "bosh_sg"
   description = "Default BOSH security group"
-  vpc_id = "${aws_vpc.platform.id}"
+  vpc_id = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   tags {
     Name = "bosh-sg"
     Component = "bosh-director"
@@ -169,7 +176,7 @@ resource "aws_security_group" "bosh_sg" {
 resource "aws_security_group" "concourse_sg" {
   name        = "concourse-sg"
   description = "Concourse security group"
-  vpc_id      = "${aws_vpc.platform.id}"
+  vpc_id      = "${var.vpc_id != "" ? var.vpc_id : join(" ", aws_vpc.platform.*.id)}"
   tags {
     Name = "concourse-sg"
     Component = "concourse"
