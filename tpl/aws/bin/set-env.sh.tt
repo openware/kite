@@ -1,0 +1,7 @@
+
+BASTION_IP="$(terraform output -state=terraform/terraform.tfstate bastion_ip)"
+
+export BASTION_IP
+export BOSH_ALL_PROXY=socks5://localhost:5000
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=`bosh int ./config/creds.yml --path /admin_password`
