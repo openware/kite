@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-BASTION_IP="$(terraform output -state=terraform/terraform.tfstate bastion_ip)"
+pushd terraform
+BASTION_IP="$(terraform output bastion_ip)"
+popd
 
 export BASTION_IP
 export BOSH_ALL_PROXY=socks5://localhost:5000

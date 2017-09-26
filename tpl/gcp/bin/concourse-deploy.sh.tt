@@ -3,10 +3,10 @@
 set -xe
 
 # Render Concourse-related files
-kite render manifest concourse --cloud aws
+kite render manifest concourse --cloud gcp
 
 # Upload necessary stemcells and releases
-bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent
 bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.com/concourse/concourse
 bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.com/cloudfoundry-incubator/garden-runc-release
 
