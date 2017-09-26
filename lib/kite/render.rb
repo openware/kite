@@ -12,21 +12,21 @@ module Kite
       @values = parse_cloud_config
       @tf_output = parse_tf_state('terraform/terraform.tfstate') if options[:cloud] == 'aws'
 
+      if options[:cloud] == 'aws'
+        @private_subnet = IPAddr.new(@values['aws']['private_subnet']['network']).to_range.to_a
+      else
+        @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
+      end
+
       case type
       when "bosh"
-        if options[:cloud] == 'aws'
-          @private_subnet = IPAddr.new(@values['aws']['private_subnet']['network']).to_range.to_a
-        else
-          @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
-        end
-
         directory("#{options[:cloud]}/deployments/bosh",                          'deployments/bosh')
         template("#{options[:cloud]}/bosh-vars.yml.erb",                          'config/bosh-vars.yml')
 
       when "concourse"
-        template("#{options[:cloud]}/deployments/concourse/concourse.yml.erb",    "deployments/concourse/concourse.yml")
+        directory("#{options[:cloud]}/deployments/concourse",                     "deployments/concourse")
       when "vault"
-        copy_file("#{options[:cloud]}/deployments/vault/vault.yml",               "deployments/vault/vault.yml")
+        template("#{options[:cloud]}/deployments/vault/vault.yml.erb",            "deployments/vault/vault.yml")
         copy_file("#{options[:cloud]}/vault.md",                                  "docs/vault.md")
 
       else

@@ -15,6 +15,7 @@ instance_groups:
   stemcell: trusty
   networks:
   - name: public
+    static_ips: [<%= @private_subnet[12] %>]
     default: [dns, gateway]
 
   jobs:
@@ -26,6 +27,13 @@ instance_groups:
       basic_auth_username: <%= @values['concourse']['auth_username'] %>
       basic_auth_password: <%= @values['concourse']['auth_password'] %>
       publicly_viewable: true
+
+      vault:
+        auth:
+          backend: token
+          client_token: "your Vault root token here"
+        path_prefix: /concourse
+        url: "http://<%= @private_subnet[11] %>:8200" # expecting Vault to be deployed first
 
       postgresql_database: &atc_db atc
 

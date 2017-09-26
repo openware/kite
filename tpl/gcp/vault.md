@@ -18,9 +18,14 @@ To deploy Vault, use `bin/vault-deploy.sh`
 - Run `vault init` to initialize the vault
 - Store the keys displayed after init
 - Unseal the vault by running `vault unseal` three times using three keys from the previous step
+- Authenticate to the vault with `vault auth` using the root token you got from `vault init`
 
 [Optional]
 - Try to store a dummy secret: `vault write secret/handshake knock=knock`
 - Read it: `vault read secret/handshake`
 
-You're good to go!
+## Usage with Concourse
+
+Before using Vault with Concourse you should mount a secrets backend with `vault mount -path=concourse kv`
+
+To add new secrets accessible for Concourse use `vault write concourse/main/*secret_name* value="*secret_value*"`
