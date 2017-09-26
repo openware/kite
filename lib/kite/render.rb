@@ -10,7 +10,7 @@ module Kite
     def manifest(type)
       say "Rendering #{type} manifest", :green
       @values = parse_cloud_config
-      @tf_output = parse_tf_state('terraform/terraform.tfstate')
+      @tf_output = parse_tf_state('terraform/terraform.tfstate') if options[:cloud] == 'aws'
 
       case type
       when "bosh"
@@ -24,7 +24,6 @@ module Kite
         template("#{options[:cloud]}/bosh-vars.yml.erb",                          'config/bosh-vars.yml')
 
       when "concourse"
-        template("#{options[:cloud]}/deployments/concourse/cloud-config.yml.erb", "deployments/concourse/cloud-config.yml")
         template("#{options[:cloud]}/deployments/concourse/concourse.yml.erb",    "deployments/concourse/concourse.yml")
       when "vault"
         copy_file("#{options[:cloud]}/deployments/vault/vault.yml",               "deployments/vault/vault.yml")
