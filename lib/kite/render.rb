@@ -25,9 +25,13 @@ module Kite
 
       when "concourse"
         directory("#{options[:cloud]}/deployments/concourse",                     "deployments/concourse")
+
       when "vault"
         template("#{options[:cloud]}/deployments/vault/vault.yml.erb",            "deployments/vault/vault.yml")
         copy_file("#{options[:cloud]}/vault.md",                                  "docs/vault.md")
+
+      when "nginx"
+        template("#{options[:cloud]}/deployments/nginx/nginx.yml.erb",            "deployments/nginx/nginx.yml")
 
       else
         say "Manifest type not specified"
