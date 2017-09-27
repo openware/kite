@@ -1,6 +1,8 @@
 # Kite
 
 [![Build Status](https://travis-ci.org/helios-technologies/kite.svg?branch=master)](https://travis-ci.org/helios-technologies/kite)
+[![codecov](https://codecov.io/gh/helios-technologies/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/helios-technologies/kite)
+
 
 Kite is a CLI for scaffolding and managing devops modules
 The main purpose is templating of various tools for devops around terraform, bosh, ansible
