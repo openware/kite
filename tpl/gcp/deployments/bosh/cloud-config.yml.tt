@@ -39,7 +39,8 @@ networks:
     - az: z1
       range: <%= @values['gcp']['subnet_cidr'] %>
       gateway: <%= @values['gcp']['internal_gw'] %>
-      reserved: [<%= ip_range(@private_subnet, (1..10)) %>]
+      reserved: [<%= ip_range(@private_subnet, (1..10)) %>] # Reserved range for the gateway, BOSH Director etc
+      static: [<%= ip_range(@private_subnet, (11..13)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
       cloud_properties:
         network_name: <%= @values['gcp']['vpc_name'] %>
         subnetwork_name: <%= @values['gcp']['subnet_name'] %>

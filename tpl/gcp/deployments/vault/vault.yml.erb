@@ -13,7 +13,7 @@ instance_groups:
   stemcell: trusty
   networks:
   - name: public
-
+    static_ips: [<%= @private_subnet[11] %>]
   jobs:
   - name: vault
     release: vault

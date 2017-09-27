@@ -33,23 +33,34 @@ Connect to the Director
 
 ```
 
-Render concourse deployment
+Deploy Vault
+```
+./bin/vault-deploy.sh
+```
+
+Follow instructions from `docs/vault.md` to initialize Vault
+
+Render Concourse deployment
 ```
 kite render manifest concourse --cloud=gcp
 ```
 
-Install concourse
+Fill out Vault-related fields in `deployments/concourse/concourse.yml`
+
+Deploy Concourse
 ```
-bosh -e bosh-1 update-cloud-config  deployments/concourse/cloud-config.yml
-
-bosh -e bosh-1 upload-stemcell \
-  https://bosh.io/d/stemcells/bosh-google-kvm-ubuntu-trusty-go_agent?v=3445.7
-
-bosh -e bosh-1 upload-release \
-  https://github.com/concourse/concourse/releases/download/v3.4.1/concourse-3.4.1.tgz
-
-bosh -e bosh-1 upload-release \
-  https://github.com/concourse/concourse/releases/download/v3.4.1/garden-runc-1.6.0.tgz
-
-bosh -e bosh-1 -d concourse deploy deployments/concourse/concourse.yml
+./bin/concourse-deploy.sh
 ```
+
+[Optional]
+
+To run a test Concourse job:
+
+- Go to test folder: `cd deployments/concourse/test`
+- Fill out `test-credentials.yml`
+- Add necessary secrets to your Vault(see `docs/vault.md`)
+- Login to Concourse using the `fly` client: `fly -t ci --concourse-url *concourse-url*`
+- Create a test pipeline with `fly set-pipeline -t ci -c test-pipeline.yml -p test --load-vars-from test-credentials.yml -n`
+- Unpause pipeline `fly unpause-pipeline -t ci -p test`
+- Trigger and unpause the test job `fly trigger-job -t ci -j test/test-publish`
+- See the results on Concourse web panel or use `fly watch -p test -j test/test-publish`
