@@ -11,9 +11,11 @@ aws:
   zone: "eu-central-1a"
   vpc_name: "platform-tools"
   vpc_cidr_block: "10.0.0.0/16"
+  vpc_id: "" # submit vpc id if you want to use an existing vpc
   public_subnet:
     name: "platform-dmz"
     network: "10.0.10.0/26"
+    id: "" # submit id if you want to use an existing public subnet
   private_subnet:
     name: "platform-net"
     gateway: "10.0.20.1"
