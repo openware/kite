@@ -32,3 +32,14 @@ kite render manifest concourse --cloud gcp
 ```
 
 Follow instructions from [docs/concourse.md](docs/concourse.md) to deploy Concourse
+
+
+## Extends kite for your needs
+
+You can extend kite with you own commands.
+
+Create a specific command _hello_ with sub-commands _world_ and _kitty_ for your project:
+
+```
+kite generate task hello world kitty
+```
