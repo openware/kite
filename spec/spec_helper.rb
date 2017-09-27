@@ -1,11 +1,13 @@
 if ENV["COVERAGE"] == "true"
   require 'simplecov'
+  require 'codecov'
   SimpleCov.start do
     load_profile "test_frameworks"
     add_group "Templates", "tpl"
     add_group "Lib", "lib"
     track_files "{lib,bin,tpl}/**/*.{rb,erb}"
   end
+  SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
 
 require "bundler/setup"
