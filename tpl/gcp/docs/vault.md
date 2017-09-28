@@ -1,6 +1,8 @@
-# Vault usage
+#### [Back](../README.md)
 
-## Prerequisites
+## Vault
+
+### Prerequisites
 
 Before using Vault, you should have the client installed:
 
@@ -8,11 +10,11 @@ Before using Vault, you should have the client installed:
 - Unzip it and run `chmod +x vault && sudo mv vault /usr/local/bin/vault`
 - Check if the Vault is installed by running `vault -v`
 
-## Deployment
+### Deployment
 
-To deploy Vault, use `bin/vault-deploy.sh`
+To deploy Vault, use `./bin/vault-deploy.sh`
 
-## Connection
+### Connection
 
 - Export your Vault's IP using `export VAULT_ADDR=*vault_ip*`
 - Run `vault init` to initialize the vault
@@ -24,7 +26,7 @@ To deploy Vault, use `bin/vault-deploy.sh`
 - Try to store a dummy secret: `vault write secret/handshake knock=knock`
 - Read it: `vault read secret/handshake`
 
-## Usage with Concourse
+### Usage with Concourse
 
 Before using Vault with Concourse you should mount a secrets backend with `vault mount -path=concourse kv`
 

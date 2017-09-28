@@ -1,29 +1,29 @@
-BOSH Director & Concourse Bootstrap
-===================================
+## AWS Cloud
 
-This project achieves the following:
+### Setup
 
-- Preparation of an AWS environment for BOSH & Concourse
-- Deployment of a new BOSH Director using bosh-init
-- Deployment of a new Concourse cluster, or standalone server
+Apply terraform code
+```
+pushd terraform && terraform init && terraform apply && popd
+```
 
-Terraform is used to setup the base network and security infrastructure, including an ELB for Concourse.
+Render BOSH manifest and related files
+```
+kite render manifest bosh --cloud aws
+```
 
-Requirements
------
+Prepare BOSH environment using instructions from [docs/bosh.md](docs/bosh.md)
 
-- Install [terraform](https://www.terraform.io/intro/getting-started/install.html)
-- Install [bosh](https://bosh.io/docs/cli-v2.html#install)
+Render Vault deployment
+```
+kite render manifest vault --cloud aws
+```
 
-Usage
------
+Follow instructions from [docs/vault.md](docs/vault.md) to deploy Vault
 
-To deploy a BOSH Director:
-- Apply the terraform IaC from `terraform` folder
-- Run `source bin/setup-tunnel.sh` to create an SSH CLI tunnel
-- Run `kite render manifest bosh --cloud=aws` to render BOSH deployment files
-- Run `bin/bosh-install.sh` to deploy the BOSH Director
+Render Concourse manifest
+```
+kite render manifest concourse --cloud aws
+```
 
-To access BOSH Director information, use bosh -e *bosh_name* env
-
-To connect to Bastion over SSH, use ssh jumpbox@*bastion ip* -i jumpbox.key
+Follow instructions from [docs/concourse.md](docs/concourse.md) to deploy Concourse
