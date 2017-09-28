@@ -22,13 +22,21 @@ module Kite
       when "bosh"
         directory("#{options[:cloud]}/deployments/bosh",                          'deployments/bosh')
         template("#{options[:cloud]}/bosh-vars.yml.erb",                          'config/bosh-vars.yml')
+        copy_file("#{options[:cloud]}/docs/bosh.md",                              "docs/bosh.md")
+        template("#{options[:cloud]}/bin/bosh-install.sh.tt",                     "bin/bosh-install.sh")
+        chmod('bin/bosh-install.sh', 0755)
 
       when "concourse"
         directory("#{options[:cloud]}/deployments/concourse",                     "deployments/concourse")
+        copy_file("#{options[:cloud]}/docs/concourse.md",                         "docs/concourse.md")
+        template("#{options[:cloud]}/bin/concourse-deploy.sh.tt",                 "bin/concourse-deploy.sh")
+        chmod('bin/concourse-deploy.sh', 0755)
 
       when "vault"
         template("#{options[:cloud]}/deployments/vault/vault.yml.erb",            "deployments/vault/vault.yml")
-        copy_file("#{options[:cloud]}/vault.md",                                  "docs/vault.md")
+        copy_file("#{options[:cloud]}/docs/vault.md",                             "docs/vault.md")
+        template("#{options[:cloud]}/bin/vault-deploy.sh.tt",                     "bin/vault-deploy.sh")
+        chmod('bin/vault-deploy.sh', 0755)
 
       when "nginx"
         template("#{options[:cloud]}/deployments/nginx/nginx.yml.erb",            "deployments/nginx/nginx.yml")

@@ -15,26 +15,18 @@ module Kite
           directory('aws/terraform',                          'terraform')
           copy_file('aws/README.md',                          'README.md', force: true)
 
-          directory('aws/bin',                                'bin')
+          directory('aws/bin/base',                           'bin')
           chmod('bin/bootstrap.sh', 0755)
           chmod('bin/cleanup.sh', 0755)
-          chmod('bin/bosh-install.sh', 0755)
-          chmod('bin/concourse-deploy.sh', 0755)
-          chmod('bin/vault-deploy.sh', 0755)
-          chmod('bin/setup-tunnel.sh', 0755)
 
         when 'gcp'
           directory('gcp/terraform',                          'terraform')
           copy_file('gcp/README.md',                          'README.md', force: true)
 
 
-          directory('gcp/bin',                                'bin')
+          directory('gcp/bin/base',                           'bin')
           chmod('bin/bootstrap.sh', 0755)
           chmod('bin/cleanup.sh', 0755)
-          chmod('bin/bosh-install.sh', 0755)
-          chmod('bin/concourse-deploy.sh', 0755)
-          chmod('bin/vault-deploy.sh', 0755)
-          chmod('bin/setup-tunnel.sh', 0755)
 
         else
           say 'Cloud provider not specified'
