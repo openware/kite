@@ -22,8 +22,14 @@ kite render manifest bosh --cloud gcp
 # Set the needed environment variables
 . bin/set-env.sh
 
-# Render Concourse manifest and related files
+# Render Vault manifest and related files
 kite render manifest vault --cloud gcp
 
-# Deploy Concourse
+# Deploy Vault
 ./bin/vault-deploy.sh
+
+# Render Concourse manifest
+kite render manifest concourse --cloud gcp
+
+# Deploy Concourse
+./bin/concourse-deploy.sh

@@ -22,6 +22,12 @@ kite render manifest bosh --cloud aws
 # Set the needed environment variables
 . bin/set-env.sh
 
+# Render Vault manifest
+kite render manifest vault --cloud aws
+
+# Deploy Vault
+./bin/vault-deploy.sh
+
 # Render Concourse manifest and related files
 kite render manifest concourse --cloud aws
 
