@@ -26,6 +26,13 @@ instance_groups:
       basic_auth_password: <%= @values['concourse']['auth_password'] %>
       publicly_viewable: true
 
+      vault:
+        auth:
+          backend: token
+          client_token: "your Vault root token here"
+        path_prefix: /concourse
+        url: "http://<%= @private_subnet[11] %>:8200" # assuming Vault is deployed first
+
       postgresql_database: &atc_db atc
 
   - name: tsa

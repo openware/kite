@@ -20,6 +20,7 @@ module Kite
           chmod('bin/cleanup.sh', 0755)
           chmod('bin/bosh-install.sh', 0755)
           chmod('bin/concourse-deploy.sh', 0755)
+          chmod('bin/vault-deploy.sh', 0755)
           chmod('bin/setup-tunnel.sh', 0755)
 
         when 'gcp'
