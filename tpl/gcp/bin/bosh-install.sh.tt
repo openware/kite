@@ -14,4 +14,5 @@ bosh create-env deployments/bosh/bosh.yml \
 bosh alias-env <%= @values['bosh']['name'] %> -e <%= @values['bosh']['static_ip'] %> --ca-cert \
   <(bosh int ./config/creds.yml --path /director_ssl/ca)
 
-bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud-config.yml
+echo "Please run"
+echo bosh -e <%= @values['bosh']['name'] %> ucc deployments/bosh/cloud-config.yml
