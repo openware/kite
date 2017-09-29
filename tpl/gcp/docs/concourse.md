@@ -15,6 +15,17 @@ Deploy Concourse
 ./bin/concourse-deploy.sh
 ```
 
+### Connect GitHub oAuth
+
+To configure GitHub oAuth, you'll first need to [create](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/registering-oauth-apps) a GitHub oAuth app.
+
+```
+fly set-team -n concourse \
+    --github-auth-client-id D \
+    --github-auth-client-secret $CLIENT_SECRET \
+    --github-auth-team concourse/Pivotal
+```
+
 ### Test
 
 To run a test Concourse job:

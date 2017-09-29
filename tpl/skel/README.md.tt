@@ -1,4 +1,4 @@
 ## Generate a new cloud
 ```
-kite generate --cloud=<CLOUD_NAME>
+kite generate cloud --provider=<CLOUD_PROVIDER>
 ```

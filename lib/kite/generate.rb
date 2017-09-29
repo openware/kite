@@ -18,6 +18,7 @@ module Kite
           directory('aws/bin/base',                           'bin')
           chmod('bin/bootstrap.sh', 0755)
           chmod('bin/cleanup.sh', 0755)
+          chmod('bin/setup-tunnel.sh', 0755)
 
         when 'gcp'
           directory('gcp/terraform',                          'terraform')
@@ -27,6 +28,7 @@ module Kite
           directory('gcp/bin/base',                           'bin')
           chmod('bin/bootstrap.sh', 0755)
           chmod('bin/cleanup.sh', 0755)
+          chmod('bin/setup-tunnel.sh', 0755)
 
         else
           say 'Cloud provider not specified'
