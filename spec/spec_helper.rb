@@ -12,6 +12,7 @@ end
 
 require "bundler/setup"
 require "kite"
+require "pp"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -19,5 +20,20 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+end
+
+module TmpDirIsolation
+  def self.included(base)
+    base.before(:each) do
+      @old_dir = Dir.pwd
+      @tmp_dir = Dir.mktmpdir
+      Dir.chdir(@tmp_dir)
+    end
+
+    base.after(:each) do
+      Dir.chdir(@old_dir)
+      FileUtils.rm_rf(@tmp_dir)
+    end
   end
 end
