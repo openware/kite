@@ -7,6 +7,9 @@ Apply terraform code
 pushd terraform && terraform init && terraform apply && popd
 ```
 
+[Note]
+To destroy Bastion later, use `terraform destroy -target aws_instance.bastion`
+
 Render BOSH manifest and related files
 ```
 kite render manifest bosh --cloud aws

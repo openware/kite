@@ -11,7 +11,7 @@
 
 Render bosh deployment
 ```
-kite render manifest bosh --cloud=gcp
+kite render manifest bosh --cloud=aws
 ```
 
 Setup tunnel

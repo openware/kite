@@ -7,10 +7,14 @@ Set path to your service account credentials:
 export GOOGLE_CREDENTIALS=*~/credentials/service-account.json*
 ```
 
+
 Apply terraform code
 ```
 pushd terraform && terraform init && terraform apply && popd
 ```
+
+[Note]
+To destroy Bastion later, use `terraform destroy -target google_compute_instance.bastion`
 
 Render BOSH manifest and related files
 ```
