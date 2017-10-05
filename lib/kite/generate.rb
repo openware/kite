@@ -14,6 +14,7 @@ module Kite
         when 'aws'
           directory('aws/terraform',                          'terraform')
           copy_file('aws/README.md',                          'README.md', force: true)
+          copy_file('aws/docs/kops.md',                       'docs/kops.md')
 
           directory('aws/bin/base',                           'bin')
           chmod('bin/bootstrap.sh', 0755)
