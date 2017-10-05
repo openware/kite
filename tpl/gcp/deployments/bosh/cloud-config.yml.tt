@@ -46,6 +46,8 @@ networks:
         subnetwork_name: <%= @values['gcp']['subnet_name'] %>
         ephemeral_external_ip: false
         tags:
+          - no-ip
+          - platform-internal
           - concourse-public
           - concourse-internal
 
