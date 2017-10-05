@@ -41,6 +41,10 @@ module Kite
     desc "task", "Generate task IaC from configuration"
     def task()
       say "Generating task #{ options[:name] } IaC", :green
+
+      task_filename = "#{options[:name]}.rb"
+
+      template("tasks/#{task_filename}", "lib/tasks/#{task_filename}")
     end
   end
 end
