@@ -29,7 +29,7 @@ instance_groups:
       vault:
         auth:
           backend: token
-          client_token: "your Vault root token here"
+          client_token: ((vault_token))
         path_prefix: /concourse
         url: "http://<%= @private_subnet[11] %>:8200" # assuming Vault is deployed first
 

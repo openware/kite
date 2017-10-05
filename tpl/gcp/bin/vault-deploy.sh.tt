@@ -2,9 +2,6 @@
 
 set -xe
 
-# Render Concourse-related files
-kite render manifest vault --cloud gcp
-
 # Upload necessary stemcells and releases
 bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://s3.amazonaws.com/bosh-core-stemcells/google/bosh-stemcell-3445.7-google-kvm-ubuntu-trusty-go_agent.tgz
 bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.com/cloudfoundry-community/vault-boshrelease

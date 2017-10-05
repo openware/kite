@@ -10,9 +10,9 @@
 
 Fill out the "token" field in `deployments/concourse/concourse.yml` with root token received from `vault init`.
 
-Deploy Concourse
+Deploy Concourse by running the script with your Vault token as argument
 ```
-./bin/concourse-deploy.sh
+./bin/concourse-deploy.sh -v vault_token=*vault_token*
 ```
 
 ### Test

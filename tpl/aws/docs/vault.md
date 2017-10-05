@@ -31,3 +31,5 @@ To deploy Vault, use `./bin/vault-deploy.sh`
 Before using Vault with Concourse you should mount a secrets backend with `vault mount -path=concourse kv`
 
 To add new secrets accessible for Concourse use `vault write concourse/main/*secret_name* value="*secret_value*"`
+
+#### It's recommended to create a separate token for Concourse by using `vault token-create`

@@ -8,4 +8,4 @@ bosh -e <%= @values['bosh']['name'] %> upload-release https://github.com/concour
 bosh -e <%= @values['bosh']['name'] %> upload-release https://github.com/concourse/concourse/releases/download/v3.4.1/garden-runc-1.6.0.tgz
 
 # Deploy Concourse
-bosh -e <%= @values['bosh']['name'] %> -d concourse deploy deployments/concourse/concourse.yml
+bosh -e <%= @values['bosh']['name'] %> -d concourse deploy deployments/concourse/concourse.yml -v vault_token=$1
