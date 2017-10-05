@@ -16,7 +16,7 @@ To deploy Vault, use `./bin/vault-deploy.sh`
 
 ### Connection
 
-- Export your Vault's IP using `export VAULT_ADDR=*vault_ip*`
+- Export your Vault's IP using `export VAULT_ADDR=http://*vault_ip*:8200`
 - Run `vault init` to initialize the vault
 - Store the keys displayed after init
 - Unseal the vault by running `vault unseal` three times using three keys from the previous step

@@ -46,10 +46,10 @@ $ kite new PROJECT_NAME
 
 ### Generate your infrastructure using terraform
 
-Generate the cloud IaC needed with 
+Generate the cloud IaC needed with
 
 ```
-$ kite generate --cloud=aws|gcp
+$ kite generate cloud --provider=aws|gcp
 ```
 
 you can now review and apply your terraform files.
