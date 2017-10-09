@@ -1,5 +1,23 @@
 # Change Log
 
+## [v0.1.0](https://github.com/helios-technologies/kite/tree/v0.1.0) (2017-10-09)
+[Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.9...v0.1.0)
+
+**Closed issues:**
+
+- Use read-only Vault token for Concourse [\#49](https://github.com/helios-technologies/kite/issues/49)
+- Remove credentials from manifest [\#48](https://github.com/helios-technologies/kite/issues/48)
+
+**Merged pull requests:**
+
+- Replaced rendering db and auth passwords with BOSH interpolation [\#59](https://github.com/helios-technologies/kite/pull/59) ([vshatravenko](https://github.com/vshatravenko))
+- Updated kops instructions [\#58](https://github.com/helios-technologies/kite/pull/58) ([vshatravenko](https://github.com/vshatravenko))
+- Added no-ip + platform-internal tag for GCP instances [\#56](https://github.com/helios-technologies/kite/pull/56) ([vshatravenko](https://github.com/vshatravenko))
+- Added instructions for kops cluster creation [\#55](https://github.com/helios-technologies/kite/pull/55) ([vshatravenko](https://github.com/vshatravenko))
+- Added manifest credentials interpolation; updated docs [\#54](https://github.com/helios-technologies/kite/pull/54) ([vshatravenko](https://github.com/vshatravenko))
+- Added functional tests [\#53](https://github.com/helios-technologies/kite/pull/53) ([vshatravenko](https://github.com/vshatravenko))
+- Fixed docs and setup-tunnel mode [\#51](https://github.com/helios-technologies/kite/pull/51) ([vshatravenko](https://github.com/vshatravenko))
+
 ## [v0.0.9](https://github.com/helios-technologies/kite/tree/v0.0.9) (2017-09-29)
 [Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.8...v0.0.9)
 
@@ -82,4 +100,3 @@
 [Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.2...v0.0.3)
 
 ## [v0.0.2](https://github.com/helios-technologies/kite/tree/v0.0.2) (2017-08-24)
-
