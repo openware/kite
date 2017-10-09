@@ -10,9 +10,9 @@
 
 Fill out the "token" field in `deployments/concourse/concourse.yml` with root token received from `vault init`.
 
-Deploy Concourse by running the script with your Vault token as argument
+Deploy Concourse by running the script with the required arguments
 ```
-./bin/concourse-deploy.sh -v vault_token=*vault_token*
+./bin/concourse-deploy.sh *concourse_auth_password* *concourse_db_password* *vault_token*
 ```
 
 ### Connect GitHub oAuth

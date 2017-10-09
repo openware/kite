@@ -39,5 +39,3 @@ concourse:
   hostname: "concourse.example.com"
   url: "http://concourse.example.com"
   auth_username: "concourse"
-  auth_password: "concourse"
-  db_password: "concourse"
