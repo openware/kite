@@ -8,4 +8,7 @@ bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.c
 bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.com/cloudfoundry-incubator/garden-runc-release
 
 # Deploy Concourse
-bosh -e <%= @values['bosh']['name'] %> -d concourse deploy deployments/concourse/concourse.yml -v vault_token=$1
+bosh -e <%= @values['bosh']['name'] %> -d concourse \
+  deploy deployments/concourse/concourse.yml \
+  -v vault_token=$1 \
+  --vars-store config/creds.yml

@@ -92,3 +92,9 @@ stemcells:
 - alias: trusty
   os: ubuntu-trusty
   version: latest
+
+variables:
+- name: db_password
+  type: password
+- name: auth_password
+  type: password
