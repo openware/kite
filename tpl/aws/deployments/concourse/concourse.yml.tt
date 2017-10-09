@@ -23,7 +23,7 @@ instance_groups:
       bind_port: 80
       external_url: <%= @values['concourse']['url'] %>
       basic_auth_username: <%= @values['concourse']['auth_username'] %>
-      basic_auth_password: <%= @values['concourse']['auth_password'] %>
+      basic_auth_password: ((auth_password))
       publicly_viewable: true
 
       vault:
@@ -53,7 +53,7 @@ instance_groups:
       databases:
       - name: *atc_db
         role: admin
-        password: <%= @values['concourse']['db_password'] %>
+        password: ((db_password))
 
 - name: worker
   instances: 1
