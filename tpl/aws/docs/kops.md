@@ -22,17 +22,14 @@ export AWS_ACCESS_KEY_ID=<access key>
 export AWS_SECRET_ACCESS_KEY=<secret key>
 ```
 
-Create cluster configuration
+Deploy the `kops` cluster
 ```
-kops create cluster --name *kops.example.com* --state "s3://kops-example-state-store" --zones *eu-central-1b* --ssh-public-key *path to SSH key*
-```
-
-Review and edit cluster configuration if needed
-```
-kops edit cluster --name *kops.example.com* --state "s3://kops-example-state-store"
+./bin/kops-deploy.sh
 ```
 
-Build the cluster
+### Teardown
+
+To tear down the kops cluster you've created, just run
 ```
-kops update cluster --name *kops.example.com* --state "s3://kops-example-state-store" --yes
+./bin/kops-delete.sh
 ```

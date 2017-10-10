@@ -17,9 +17,13 @@ module Kite
           copy_file('aws/docs/kops.md',                       'docs/kops.md')
 
           directory('aws/bin/base',                           'bin')
+          template('aws/bin/kops-deploy.sh.erb',              'bin/kops-deploy.sh')
+          template('aws/bin/kops-delete.sh.erb',              'bin/kops-delete.sh')
           chmod('bin/bootstrap.sh', 0755)
           chmod('bin/cleanup.sh', 0755)
           chmod('bin/setup-tunnel.sh', 0755)
+          chmod('bin/kops-deploy.sh', 0755)
+          chmod('bin/kops-delete.sh', 0755)
 
         when 'gcp'
           directory('gcp/terraform',                          'terraform')

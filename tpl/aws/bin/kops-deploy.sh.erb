@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set NAME=<%= @values['aws']['kops_address'] %>
+set KOPS_STATE_STORE=s3://<%= @values['kite']['bucket_name'] %>
+
+kops create cluster \
+  --zones <%= @values['aws']['zone'] %> \
+  --ssh-public-key <%= @values['kite']['public_key_path'] %> \
+  $NAME
+
+kops update cluster $NAME --yes
