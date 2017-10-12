@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+export KOPS_STATE_STORE=s3://<%= @values['kite']['bucket_name'] %>
+
+kops delete cluster <%= @values['aws']['kops_address'] %> --yes
