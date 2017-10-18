@@ -28,8 +28,8 @@ gcp:
   service_account: "~/safe/terraform.json"
   vpc_name: "platform-tools"
   subnet_name: "platform-net"
-  subnet_cidr: "10.0.0.0/24"
-  internal_gw: "10.0.0.2"
+  subnet_cidr: "10.0.20.0/24"
+  internal_gw: "10.0.20.2"
 
 bosh:
   name: "bosh-director"
@@ -37,5 +37,6 @@ bosh:
 
 concourse:
   hostname: "concourse.example.com"
+  vip: "42.42.42.42"
   url: "http://concourse.example.com"
   auth_username: "concourse"
