@@ -29,3 +29,8 @@ Connect to the Director
 . bin/set-env.sh
 
 ```
+
+Update the cloud configuration
+```
+bosh -e bosh-director ucc deployments/bosh/cloud-config.yml
+```
