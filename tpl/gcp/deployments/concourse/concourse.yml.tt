@@ -26,7 +26,7 @@ instance_groups:
   - name: atc
     release: concourse
     properties:
-      bind_port: 80
+      bind_port: 8080
       external_url: <%= @values['concourse']['url'] %>
       basic_auth_username: <%= @values['concourse']['auth_username'] %>
       basic_auth_password: ((auth_password))
@@ -62,6 +62,11 @@ instance_groups:
           server_names_hash_bucket_size 64;
 
           server {
+             listen 80;
+             return 301 https://$host$request_uri;
+          }
+
+          server {
              listen 443;
              server_name <%= @values['concourse']['hostname'] %>;
 <% if @values['concourse']['vip'].to_s.empty? %>
@@ -87,10 +92,10 @@ instance_groups:
                proxy_set_header        X-Forwarded-Proto $scheme;
 
                # Fix the “It appears that your reverse proxy set up is broken" error.
-               proxy_pass          http://localhost:80;
+               proxy_pass          http://localhost:8080;
                proxy_read_timeout  90;
 
-               proxy_redirect      http://localhost:80 https://<%= @values['concourse']['hostname'] %>;
+               proxy_redirect      http://localhost:8080 https://<%= @values['concourse']['hostname'] %>;
              }
           }
         }
