@@ -64,8 +64,13 @@ instance_groups:
           server {
              listen 443;
              server_name <%= @values['concourse']['hostname'] %>;
+<% if @values['concourse']['vip'].to_s.empty? %>
              ssl_certificate_key /var/vcap/jobs/nginx/etc/ssl.key.pem;
              ssl_certificate     /var/vcap/jobs/nginx/etc/ssl_chained.crt.pem;
+<% else %>
+             ssl_certificate_key /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/key.pem;
+             ssl_certificate     /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/cert.pem;
+<% end %>
              ssl on;
              ssl_session_cache  builtin:1000  shared:SSL:10m;
              ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
@@ -89,6 +94,25 @@ instance_groups:
              }
           }
         }
+
+<% unless @values['concourse']['vip'].to_s.empty? %>
+      pre_start: |
+        #!/bin/bash
+        set -x
+        source /etc/profile
+        export HOME=/root
+        export USER=root
+        echo "Running pre_start script as ${USER} with ${SHELL} with home ${HOME}"
+        if [[ ! -f ${HOME}/.acme.sh/acme.sh.env ]]; then
+          curl -s https://get.acme.sh | sh
+        fi
+        source ${HOME}/.acme.sh/acme.sh.env
+        mkdir -p /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/
+        ${HOME}/.acme.sh/acme.sh --issue --tls -d <%= @values['concourse']['hostname'] %>
+        ${HOME}/.acme.sh/acme.sh --install-cert -d <%= @values['concourse']['hostname'] %> \
+          --key-file /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/key.pem \
+          --fullchain-file /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/cert.pem
+<% end %>
 
       ssl_key: ((default_ca.private_key))
       ssl_chained_cert: ((default_ca.certificate))
