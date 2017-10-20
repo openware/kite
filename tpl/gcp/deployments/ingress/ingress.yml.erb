@@ -72,8 +72,8 @@ instance_groups:
                proxy_read_timeout  90;
              }
           }
-        }
 <% end %>
+        }
 
       pre_start: |
         #!/bin/bash
@@ -88,11 +88,7 @@ instance_groups:
         source ${HOME}/.acme.sh/acme.sh.env
 <% ingress_db.each do |hostname, config| -%>
         mkdir -p /var/vcap/jobs/nginx/etc/<%= hostname %>/
-<%- end -%>
-
-        ${HOME}/.acme.sh/acme.sh --issue --tls <%= ingress_db.keys.map{|host| "-d #{host}"}.join(" ") %>
-
-<% ingress_db.each do |hostname, config| -%>
+        ${HOME}/.acme.sh/acme.sh --issue --tls -d <%= hostname %>
         ${HOME}/.acme.sh/acme.sh --install-cert -d <%= hostname %> \
           --key-file /var/vcap/jobs/nginx/etc/<%= hostname %>/key.pem \
           --fullchain-file /var/vcap/jobs/nginx/etc/<%= hostname %>/cert.pem
