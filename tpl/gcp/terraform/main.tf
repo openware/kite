@@ -29,7 +29,7 @@ resource "google_compute_address" "bastion" {
 
 resource "google_compute_instance" "bastion" {
   name         = "bastion"
-  machine_type = "n1-standard-1"
+  machine_type = "g1-small"
   zone         = "${var.zone}"
 
   tags = ["bastion", "platform-internal"]
