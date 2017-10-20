@@ -63,3 +63,8 @@ EOT
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
 }
+
+# Ingress
+resource "google_compute_address" "ingress" {
+  name = "ingress-ip"
+}

@@ -34,7 +34,7 @@ To run a test Concourse job:
 - Fill out `test-credentials.yml`
 - Add necessary secrets to your Vault(see [docs/vault.md](docs/vault.md))
 - Download the `fly` client from Concourse web panel and add it to your PATH: `mv *path_to_fly* /usr/local/bin`
-- Login to Concourse using the `fly` client: `fly -t ci --concourse-url *concourse-url*`
+- Login to Concourse using the `fly` client: `fly login -t ci --concourse-url *concourse-url*`
 - Create a test pipeline with `fly set-pipeline -t ci -c test-pipeline.yml -p test --load-vars-from test-credentials.yml -n`
 - Unpause pipeline: `fly unpause-pipeline -t ci -p test`
 - Trigger and unpause the test job: `fly trigger-job -t ci -j test/test-publish`
