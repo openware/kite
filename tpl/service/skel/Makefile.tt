@@ -1,0 +1,15 @@
+VERSION := $(shell cat VERSION)
+IMAGE := <%= @name %>:$(VERSION)
+
+default: build run
+
+build:
+	@echo '> Building "<%= @name %>" docker image...'
+	@docker build -t $(IMAGE) .
+
+run:
+	@echo '> Starting "<%= @name %>" container...'
+	@docker run $(IMAGE)
+
+deploy:
+	@helm install ./config/charts/<%= @name %> --set "image.tag=$(VERSION)"

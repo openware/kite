@@ -46,5 +46,15 @@ module Kite
     def task()
       say "Generating task #{ options[:name] } IaC", :green
     end
+
+    desc "service NAME", "Generate new service"
+    def service(name)
+      say "Generating service #{name}", :green
+
+      @name = name
+      @title = name.split(/\W/).map(&:capitalize).join(' ')
+      directory('service/skel', name)
+      directory('service/chart', "#{name}/config/charts/#{name}")
+    end
   end
 end
