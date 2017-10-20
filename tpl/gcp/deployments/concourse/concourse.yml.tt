@@ -5,22 +5,18 @@ releases:
   version: 3.4.1
 - name: garden-runc
   version: 1.6.0
-- name: nginx
-  version: latest
 
 instance_groups:
 - name: web
   instances: 1
-  vm_type: common-web
+  vm_type: common
   azs: [z1]
   # vm_extensions: [concourse-lb]
   stemcell: trusty
   networks:
   - name: public
-    static_ips: [<%= @private_subnet[12] %>]
+    static_ips: <%= @static_ips_concourse %>
     default: [dns, gateway]
-  - name: vip
-    static_ips: [<%= @values['concourse']['vip'] %>]
 
   jobs:
   - name: atc
@@ -37,90 +33,13 @@ instance_groups:
           backend: token
           client_token: ((vault_token))
         path_prefix: /concourse
-        url: "http://<%= @private_subnet[11] %>:8200" # expecting Vault to be deployed first
+        url: "http://<%= @static_ip_vault %>:8200" # expecting Vault to be deployed first
 
       postgresql_database: &atc_db atc
 
   - name: tsa
     release: concourse
     properties: {}
-
-  - name: nginx
-    release: nginx
-    properties:
-      nginx_conf: |
-        worker_processes  1;
-        error_log /var/vcap/sys/log/nginx/error.log   info;
-        events {
-          worker_connections  1024;
-        }
-        http {
-          include /var/vcap/packages/nginx/conf/mime.types;
-          default_type  application/octet-stream;
-          sendfile        on;
-          keepalive_timeout  65;
-          server_names_hash_bucket_size 64;
-
-          server {
-             listen 80;
-             return 301 https://$host$request_uri;
-          }
-
-          server {
-             listen 443;
-             server_name <%= @values['concourse']['hostname'] %>;
-<% if @values['concourse']['vip'].to_s.empty? %>
-             ssl_certificate_key /var/vcap/jobs/nginx/etc/ssl.key.pem;
-             ssl_certificate     /var/vcap/jobs/nginx/etc/ssl_chained.crt.pem;
-<% else %>
-             ssl_certificate_key /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/key.pem;
-             ssl_certificate     /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/cert.pem;
-<% end %>
-             ssl on;
-             ssl_session_cache  builtin:1000  shared:SSL:10m;
-             ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
-             ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
-             ssl_prefer_server_ciphers on;
-
-             access_log /var/vcap/sys/log/nginx/<%= @values['concourse']['hostname'] %>-access.log;
-             error_log /var/vcap/sys/log/nginx/<%= @values['concourse']['hostname'] %>-error.log;
-
-             location / {
-               proxy_set_header        Host $host;
-               proxy_set_header        X-Real-IP $remote_addr;
-               proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-               proxy_set_header        X-Forwarded-Proto $scheme;
-
-               # Fix the “It appears that your reverse proxy set up is broken" error.
-               proxy_pass          http://localhost:8080;
-               proxy_read_timeout  90;
-
-               proxy_redirect      http://localhost:8080 https://<%= @values['concourse']['hostname'] %>;
-             }
-          }
-        }
-
-<% unless @values['concourse']['vip'].to_s.empty? %>
-      pre_start: |
-        #!/bin/bash
-        set -x
-        source /etc/profile
-        export HOME=/root
-        export USER=root
-        echo "Running pre_start script as ${USER} with ${SHELL} with home ${HOME}"
-        if [[ ! -f ${HOME}/.acme.sh/acme.sh.env ]]; then
-          curl -s https://get.acme.sh | sh
-        fi
-        source ${HOME}/.acme.sh/acme.sh.env
-        mkdir -p /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/
-        ${HOME}/.acme.sh/acme.sh --issue --tls -d <%= @values['concourse']['hostname'] %>
-        ${HOME}/.acme.sh/acme.sh --install-cert -d <%= @values['concourse']['hostname'] %> \
-          --key-file /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/key.pem \
-          --fullchain-file /var/vcap/jobs/nginx/etc/<%= @values['concourse']['hostname'] %>/cert.pem
-<% end %>
-
-      ssl_key: ((default_ca.private_key))
-      ssl_chained_cert: ((default_ca.certificate))
 
 - name: db
   instances: 1

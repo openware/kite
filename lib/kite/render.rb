@@ -4,10 +4,44 @@ module Kite
 
     include Kite::Helpers
 
+    no_commands do
+      def ingress_db_file
+        "config/ingress.yml"
+      end
+
+      def ingress_db
+        @db ||= YAML.load(File.read(ingress_db_file)) rescue {}
+      end
+
+      def ingress_db_save!
+        create_file ingress_db_file, YAML.dump(ingress_db), force: true
+      end
+
+      def ingress_add_entry(hostname, upstreams, args = {})
+        raise "upstreams argument should be an array" unless upstreams.is_a?(Array)
+        args[:port] ||= 80
+        args[:protocol] ||= "http"
+        ingress_db[hostname] = {
+          upstreams: upstreams,
+          port: args[:port],
+          protocol: args[:protocol],
+        }
+        ingress_db_save!
+      end
+    end
+
     desc "manifest <type>", "Renders a manifest of selected type"
+    long_desc <<-LONGDESC
+      Available types:
+      \x5  BOSH        Render Bosh environement
+      \x5  CONCOURSE   Render Concourse deployment
+      \x5  VAULT       Render Vault deployment
+      \x5  INGRESS     Render Ingress deployment
+    LONGDESC
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     # Render a manifest of selected type based on <b>config/cloud.yml</b> and <b>terraform apply</b> results
     def manifest(type)
+      type = type.downcase
       say "Rendering #{type} manifest", :green
       @values = parse_cloud_config
       @tf_output = parse_tf_state('terraform/terraform.tfstate') if options[:cloud] == 'aws'
@@ -17,6 +51,9 @@ module Kite
       else
         @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
       end
+
+      @static_ip_vault = @private_subnet[11].to_s
+      @static_ips_concourse = [@private_subnet[12]].map(&:to_s)
 
       case type
       when "bosh"
@@ -31,15 +68,20 @@ module Kite
         copy_file("#{options[:cloud]}/docs/concourse.md",                         "docs/concourse.md")
         template("#{options[:cloud]}/bin/concourse-deploy.sh.tt",                 "bin/concourse-deploy.sh")
         chmod('bin/concourse-deploy.sh', 0755)
+        ingress_add_entry(@values['concourse']['hostname'], @static_ips_concourse, port: 8080)
 
       when "vault"
         template("#{options[:cloud]}/deployments/vault/vault.yml.erb",            "deployments/vault/vault.yml")
         copy_file("#{options[:cloud]}/docs/vault.md",                             "docs/vault.md")
         template("#{options[:cloud]}/bin/vault-deploy.sh.tt",                     "bin/vault-deploy.sh")
         chmod('bin/vault-deploy.sh', 0755)
+        ingress_add_entry(@values['vault']['hostname'], [@static_ip_vault], port: 8200)
 
-      when "nginx"
-        template("#{options[:cloud]}/deployments/nginx/nginx.yml.erb",            "deployments/nginx/nginx.yml")
+      when "ingress"
+        template("#{options[:cloud]}/deployments/ingress/ingress.yml.erb",        "deployments/ingress/ingress.yml")
+        copy_file("#{options[:cloud]}/docs/ingress.md",                           "docs/ingress.md")
+        template("#{options[:cloud]}/bin/ingress-deploy.sh.tt",                   "bin/ingress-deploy.sh")
+        chmod('bin/ingress-deploy.sh', 0755)
 
       else
         say "Manifest type not specified"

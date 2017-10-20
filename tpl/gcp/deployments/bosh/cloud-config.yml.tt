@@ -10,9 +10,9 @@ vm_types:
     root_disk_size_gb: 20
     root_disk_type: pd-ssd
 
-- name: common-web
+- name: ingress
   cloud_properties:
-    machine_type: n1-standard-2
+    machine_type: g1-small
     root_disk_size_gb: 20
     root_disk_type: pd-ssd
     tags:
