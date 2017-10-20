@@ -9,8 +9,10 @@ vm_types:
     machine_type: n1-standard-2
     root_disk_size_gb: 20
     root_disk_type: pd-ssd
+    tags:
+      - no-ip
 
-- name: ingress
+- name: ingress-tiny
   cloud_properties:
     machine_type: g1-small
     root_disk_size_gb: 20
