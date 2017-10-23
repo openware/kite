@@ -1,5 +1,5 @@
 VERSION := $(shell cat VERSION)
-IMAGE := <%= @name %>:$(VERSION)
+IMAGE   := <%= @username %>/<%= @name %>:$(VERSION)
 
 default: build run
 
@@ -9,7 +9,11 @@ build:
 
 run:
 	@echo '> Starting "<%= @name %>" container...'
-	@docker run $(IMAGE)
+	@docker run -d $(IMAGE)
+
+ci:
+	@fly -t ci set-pipeline -p <%= @name %> -c config/pipelines/review.yml --load-vars-from config/pipelines/secrets.yml -n
+	@fly -t ci unpause-pipeline -p <%= @name %>
 
 deploy:
 	@helm install ./config/charts/<%= @name %> --set "image.tag=$(VERSION)"

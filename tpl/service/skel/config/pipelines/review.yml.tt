@@ -1,0 +1,25 @@
+# Check `docs/pipeline.md` to get info about this file
+
+resources:
+- name: <%= @name %>-repository
+  type: git
+  source:
+    uri: https://github.com/<%= @username %>/<%= @name %>.git
+    branch: master
+
+- name: <%= @name %>-image
+  type: docker-image
+  source:
+    repository: <%= @username %>/<%= @name %>
+    username: {{docker_username}}
+    password: {{docker_password}}
+
+jobs:
+- name: <%= @name %>
+  serial: true
+  plan:
+  - get: <%= @name %>-repository
+    trigger: true
+  - put: <%= @name %>-image
+    params:
+      build: <%= @name %>-repository
