@@ -9,3 +9,4 @@ az:                        <%= @values['aws']['zone'] %>
 default_key_name:          <%= @values['kite']['keypair_name'] %>
 default_security_groups:   [<%= @tf_output['security_group_id'] %>]
 subnet_id:                 <%= @tf_output['platform_subnet_id'] %>
+kubernetes_apiserver:      <%= @values['aws']['kops_api_server_address'] %>

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -xe
+
+# Upload necessary stemcells and releases
+bosh -e bosh-director upload-stemcell https://s3.amazonaws.com/bosh-core-stemcells/google/bosh-stemcell-3445.7-google-kvm-ubuntu-trusty-go_agent.tgz
+
+# Deploy Concourse
+bosh -e bosh-director -d prometheus \
+  deploy deployments/prometheus/prometheus.yml \
+  --vars-store config/creds.yml \
+  --vars-file config/bosh-vars.yml \
+  --var-file kubernetes_kubeconfig=<%= @values['aws']['kubeconfig_path'] %> \
+  -o monitor-kubernetes.yml

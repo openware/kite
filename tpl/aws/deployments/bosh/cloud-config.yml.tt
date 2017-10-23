@@ -56,7 +56,7 @@ networks:
     range: <%= @values['aws']['private_subnet']['network'] %>
     gateway: <%= @values['aws']['private_subnet']['gateway'] %>
     reserved: [<%= ip_range(@private_subnet, (1..10)) %>] # Reserved range for the gateway, BOSH Director etc
-    static: [<%= ip_range(@private_subnet, (11..13)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
+    static: [<%= ip_range(@private_subnet, (11..16)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
     dns: [<%= @private_subnet[8].to_s %>]
     cloud_properties: {subnet: <%= @tf_output['platform_subnet_id'] %>}
 - name: vip

@@ -37,6 +37,7 @@ module Kite
       \x5  CONCOURSE   Render Concourse deployment
       \x5  VAULT       Render Vault deployment
       \x5  INGRESS     Render Ingress deployment
+      \x5  PROMETHEUS  Render Prometheus deployment
     LONGDESC
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     # Render a manifest of selected type based on <b>config/cloud.yml</b> and <b>terraform apply</b> results
@@ -82,6 +83,12 @@ module Kite
         copy_file("#{options[:cloud]}/docs/ingress.md",                           "docs/ingress.md")
         template("#{options[:cloud]}/bin/ingress-deploy.sh.tt",                   "bin/ingress-deploy.sh")
         chmod('bin/ingress-deploy.sh', 0755)
+
+      when "prometheus"
+        directory("#{options[:cloud]}/deployments/prometheus",                    "deployments/prometheus")
+        copy_file("#{options[:cloud]}/docs/prometheus.md",                        "docs/prometheus.md")
+        template("#{options[:cloud]}/bin/prometheus-deploy.sh.tt",                "bin/prometheus-deploy.sh")
+        chmod('bin/prometheus-deploy.sh', 0755)
 
       else
         say "Manifest type not specified"
