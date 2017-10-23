@@ -17,6 +17,13 @@ kite render manifest bosh --cloud aws
 
 Prepare BOSH environment using instructions from [docs/bosh.md](docs/bosh.md)
 
+Render Grafana deployment files
+```
+kite render manifest prometheus --cloud aws
+```
+
+Follow instructions from [docs/prometheus.md](docs/prometheus.md) to deploy Prometheus
+
 Render Vault deployment
 ```
 kite render manifest vault --cloud aws

@@ -42,7 +42,7 @@ describe(Kite::Render) do
     expect(Dir).to exist('deployments/bosh')
 
     expect(File).to exist('deployments/bosh/bosh.yml')
-    expect(File).to exist('deployments/bosh/cloud-config.yml')
+   expect(File).to exist('deployments/bosh/cloud-config.yml')
     expect(File).to exist('deployments/bosh/cpi.yml')
     expect(File).to exist('deployments/bosh/jumpbox-user.yml')
 
@@ -65,6 +65,15 @@ describe(Kite::Render) do
     expect(File).to exist('deployments/vault/vault.yml')
     expect(File).to exist('docs/vault.md')
     expect(File).to exist('bin/vault-deploy.sh')
+  end
+
+  def assert_prometheus_files
+    expect(Dir).to exist('deployments/prometheus')
+
+    expect(File).to exist('deployments/prometheus/prometheus.yml')
+    expect(File).to exist('deployments/prometheus/monitor-kubernetes.yml')
+    expect(File).to exist('docs/prometheus.md')
+    expect(File).to exist('bin/prometheus-deploy.sh')
   end
 
   context "Cloud AWS provider" do
@@ -90,6 +99,14 @@ describe(Kite::Render) do
 
       Kite::Render.start(["manifest", "vault", "--cloud", "aws"], debug: true)
       assert_vault_files
+    end
+
+    it "renders a Prometheus manifest" do
+      new_stack
+      generate_aws
+
+      Kite::Render.start(["manifest", "prometheus", "--cloud", "aws"], debug: true)
+      assert_prometheus_files
     end
   end
 
