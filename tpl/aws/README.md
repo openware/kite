@@ -17,7 +17,20 @@ kite render manifest bosh --cloud aws
 
 Prepare BOSH environment using instructions from [docs/bosh.md](docs/bosh.md)
 
-Render Grafana deployment files
+[Optional]
+If you want to access components outside of your VPC, use the Ingress deployment:
+
+Render Ingress deployment files
+```
+kite render manifest prometheus --cloud aws
+```
+
+Follow instructions from [docs/prometheus.md](docs/prometheus.md) to deploy Prometheus
+
+[Note]
+If you're using Ingress, create CNAME DNS records for each deployment as listed in `config/cloud.yml`(e.g. vault.example.com pointing to ingress.example.com)
+
+Render Prometheus deployment files
 ```
 kite render manifest prometheus --cloud aws
 ```

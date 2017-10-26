@@ -6,6 +6,10 @@ output "platform_subnet_id" {
     value = "${aws_subnet.platform_net.id}"
 }
 
+output "dmz_subnet_id" {
+    value = "${aws_subnet.platform_dmz.id}"
+}
+
 output "bastion_ip" {
     value = "${aws_instance.bastion.public_ip}"
 }

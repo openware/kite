@@ -6,4 +6,4 @@ project_id:           <%= @values['gcp']['project'] %>
 zone:                 <%= @values['gcp']['zone'] %>
 network:              <%= @values['gcp']['vpc_name'] %>
 subnetwork:           <%= @values['gcp']['subnet_name'] %>
-kubernetes_apiserver:      <%= @values['aws']['kops_api_server_address'] %>
+kubernetes_apiserver: <%= @values['k8s']['api_server_address'] %>

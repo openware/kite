@@ -42,7 +42,7 @@ describe(Kite::Render) do
     expect(Dir).to exist('deployments/bosh')
 
     expect(File).to exist('deployments/bosh/bosh.yml')
-   expect(File).to exist('deployments/bosh/cloud-config.yml')
+    expect(File).to exist('deployments/bosh/cloud-config.yml')
     expect(File).to exist('deployments/bosh/cpi.yml')
     expect(File).to exist('deployments/bosh/jumpbox-user.yml')
 
@@ -72,6 +72,7 @@ describe(Kite::Render) do
 
     expect(File).to exist('deployments/prometheus/prometheus.yml')
     expect(File).to exist('deployments/prometheus/monitor-kubernetes.yml')
+    expect(File).to exist('deployments/prometheus/monitor-bosh.yml')
     expect(File).to exist('docs/prometheus.md')
     expect(File).to exist('bin/prometheus-deploy.sh')
   end

@@ -14,6 +14,7 @@ aws:
   vpc_id: "" # submit vpc id if you want to use an existing vpc
   public_subnet:
     name: "platform-dmz"
+    gateway: "10.0.10.1"
     network: "10.0.10.0/26"
     id: "" # submit id if you want to use an existing public subnet
   private_subnet:
@@ -35,11 +36,25 @@ bosh:
   name: "bosh-director"
   static_ip: "10.0.20.10"
 
+k8s:
+  config_path: "~/.kube/config"
+  cluster_address: "k8s.example.com"
+  api_server_address: "https://api.k8s.example.com"
+
 ingress:
   vip: "42.42.42.42"
 
 vault:
   hostname: "vault.example.com"
+
+prometheus:
+  hostname: "prometheus.example.com"
+
+grafana:
+  hostname: "grafana.example.com"
+
+alertmanager:
+  hostname: "alertmanager.example.com"
 
 concourse:
   hostname: "concourse.example.com"

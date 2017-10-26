@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -xe
+
+bosh -e <%= @values['bosh']['name'] %> upload-release https://github.com/cloudfoundry-community/nginx-release/releases/download/v1.12.1/nginx-1.12.1.tgz
+
+bosh -e <%= @values['bosh']['name'] %> -d ingress deploy deployments/ingress/ingress.yml

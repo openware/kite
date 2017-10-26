@@ -4,6 +4,11 @@ azs:
   cloud_properties: {availability_zone: <%= @values['aws']['zone'] %>}
 
 vm_types:
+- name: ingress_tiny
+  cloud_properties:
+    instance_type: m3.medium
+    ephemeral_disk: {size: 3000, type: gp2}
+    security_groups: [ingress-sg]
 - name: concourse_standalone
   cloud_properties:
     instance_type: m3.large
@@ -49,6 +54,17 @@ disk_types:
   cloud_properties: {type: gp2}
 
 networks:
+- name: platform_dmz
+  type: manual
+  subnets:
+  - az: z1
+    range: <%= @values['aws']['public_subnet']['network'] %>
+    gateway: <%= @values['aws']['public_subnet']['gateway'] %>
+    reserved: [<%= ip_range(@public_subnet, (1..10)) %>] # Reserved range for the gateway, BOSH Director etc
+    # static: [<%= ip_range(@public_subnet, (11..16)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
+    dns: [<%= @public_subnet[8].to_s %>]
+    cloud_properties: {subnet: <%= @tf_output['dmz_subnet_id'] %>}
+
 - name: platform_net
   type: manual
   subnets:
@@ -56,7 +72,7 @@ networks:
     range: <%= @values['aws']['private_subnet']['network'] %>
     gateway: <%= @values['aws']['private_subnet']['gateway'] %>
     reserved: [<%= ip_range(@private_subnet, (1..10)) %>] # Reserved range for the gateway, BOSH Director etc
-    static: [<%= ip_range(@private_subnet, (11..16)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
+    static: [<%= ip_range(@private_subnet, (11..20)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
     dns: [<%= @private_subnet[8].to_s %>]
     cloud_properties: {subnet: <%= @tf_output['platform_subnet_id'] %>}
 - name: vip
