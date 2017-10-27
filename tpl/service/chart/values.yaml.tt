@@ -3,8 +3,8 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
-  repository: <%= @name %>/<%= @name %>
-  tag: latest
+  repository: <%= @image %>
+  tag: <%= @image_version %>
   pullPolicy: IfNotPresent
 service:
   name: <%= @name %>
