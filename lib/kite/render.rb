@@ -38,6 +38,7 @@ module Kite
       \x5  VAULT       Render Vault deployment
       \x5  INGRESS     Render Ingress deployment
       \x5  PROMETHEUS  Render Prometheus deployment
+      \x5  OAUTH       Render OAuth (UAA) deployment
     LONGDESC
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     # Render a manifest of selected type based on <b>config/cloud.yml</b> and <b>terraform apply</b> results
@@ -54,9 +55,10 @@ module Kite
         @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
       end
 
-      @static_ip_vault            = @private_subnet[11].to_s
-      @static_ips_concourse       = [@private_subnet[12]].map(&:to_s)
+      @static_ip_vault = @private_subnet[11].to_s
+      @static_ips_concourse = [@private_subnet[12]].map(&:to_s)
       @static_ip_prometheus_stack = @private_subnet[18].to_s
+      @static_ip_oauth = @private_subnet[19].to_s
 
       case type
       when "bosh"
@@ -94,6 +96,13 @@ module Kite
         ingress_add_entry(@values['alertmanager']['hostname'], [@static_ip_prometheus_stack], port: 9093)
         ingress_add_entry(@values['grafana']['hostname'], [@static_ip_prometheus_stack], port: 3000)
         ingress_add_entry(@values['prometheus']['hostname'], [@static_ip_prometheus_stack], port: 9090)
+
+      when "oauth"
+        directory("#{options[:cloud]}/deployments/oauth",                         "deployments/oauth")
+        copy_file("#{options[:cloud]}/docs/oauth.md",                             "docs/oauth.md")
+        template("#{options[:cloud]}/bin/oauth-deploy.sh.tt",                     "bin/oauth-deploy.sh")
+        chmod('bin/oauth-deploy.sh', 0755)
+        ingress_add_entry(@values['oauth']['hostname'], [@static_ip_oauth], port: 8080)
 
       else
         say "Manifest type not specified"

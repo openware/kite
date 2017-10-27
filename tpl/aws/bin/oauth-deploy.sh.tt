@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -xe
+
+# Upload necessary stemcells and releases
+bosh -e <%= @values['bosh']['name'] %> upload-release https://bosh.io/d/github.com/cloudfoundry/uaa-release
+
+# Deploy Concourse
+bosh -e <%= @values['bosh']['name'] %> -d uaa \
+  deploy deployments/oauth/uaa.yml \
+  --vars-file=config/bosh-vars.yml \
+  --vars-store=config/creds.yml
