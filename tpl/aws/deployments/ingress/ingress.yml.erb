@@ -37,7 +37,6 @@ instance_groups:
 
           server {
              listen 80;
-             return 301 https://$host$request_uri;
           }
 <% ingress_db.each do |hostname, config| %>
 <% upstream_name = hostname.gsub('.', '-') %>

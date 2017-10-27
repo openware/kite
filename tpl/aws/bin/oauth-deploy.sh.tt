@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -xe
+
+# Upload necessary stemcells and releases
+bosh -e <%= @values['bosh']['name'] %> upload-stemcell \
+  https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+
+bosh -e <%= @values['bosh']['name'] %> upload-release \
+  https://bosh.io/d/github.com/cloudfoundry/uaa-release
+
+# Deploy Concourse
+bosh -e <%= @values['bosh']['name'] %> -d oauth deploy \
+  deployments/oauth/oauth.yml \
+  --vars-store config/creds.yml \
+  -o config/oauth.yml \
+  && ./bin/ingress-update.sh

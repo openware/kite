@@ -182,6 +182,33 @@ resource "aws_security_group" "bosh_sg" {
   }
 }
 
+# Create an Ingress security group
+resource "aws_security_group" "ingress_sg" {
+  name        = "ingress-sg"
+  description = "Ingress security group"
+  vpc_id = <%= "\"#{conditional_vpc_id(@values)}\"" %>
+  tags {
+    Name = "ingress-sg"
+    Component = "ingress"
+  }
+
+  # outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # inbound HTTP access
+  ingress {
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # Create a Concourse security group
 resource "aws_security_group" "concourse_sg" {
   name        = "concourse-sg"
