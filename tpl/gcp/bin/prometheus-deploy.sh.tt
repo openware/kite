@@ -20,4 +20,4 @@ bosh -e <%= @values['bosh']['name'] %> -d prometheus \
   -v bosh_username=admin \
   -v bosh_password=`bosh int ./config/creds.yml --path /admin_password` \
   --var-file bosh_ca_cert=bosh.ca \
-  -v metrics_environment=kite
+  -v metrics_environment=kite && ingress-update.sh

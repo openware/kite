@@ -25,6 +25,15 @@ kite render manifest bosh --cloud gcp
 
 Prepare BOSH environment using instructions from [docs/bosh.md](docs/bosh.md)
 
+### Setup INGRESS
+Render Ingress manifest and related files
+```
+kite render manifest ingress --cloud gcp
+```
+
+Follow instructions from [docs/ingress.md](docs/ingress.md) to deploy Ingress
+
+
 ### Setup VAULT
 Render Vault deployment
 ```

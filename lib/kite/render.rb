@@ -84,7 +84,9 @@ module Kite
         template("#{options[:cloud]}/deployments/ingress/ingress.yml.erb",        "deployments/ingress/ingress.yml")
         copy_file("#{options[:cloud]}/docs/ingress.md",                           "docs/ingress.md")
         template("#{options[:cloud]}/bin/ingress-deploy.sh.tt",                   "bin/ingress-deploy.sh")
+        template("#{options[:cloud]}/bin/ingress-update.sh.tt",                   "bin/ingress-update.sh")
         chmod('bin/ingress-deploy.sh', 0755)
+        chmod('bin/ingress-update.sh', 0755)
 
       when "prometheus"
         directory("#{options[:cloud]}/deployments/prometheus",                    "deployments/prometheus")
