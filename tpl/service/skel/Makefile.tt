@@ -7,6 +7,13 @@ build:
 	@echo '> Building "<%= @name %>" docker image...'
 	@docker build -t $(IMAGE) .
 
+push:
+<% if @provider == 'gcp' %>
+	gcloud docker -- push $(IMAGE)
+<% else %>
+	docker push $(IMAGE)
+<% end %>
+
 run:
 	@echo '> Starting "<%= @name %>" container...'
 	@docker run -d $(IMAGE)

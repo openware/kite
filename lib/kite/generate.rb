@@ -50,6 +50,7 @@ module Kite
     method_option :git, type: :string, desc: "Git repository", required: true
     method_option :image, type: :string, desc: "Docker image full name", required: true
     method_option :name, type: :string, desc: "Name of the service", required: false
+    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
     desc "service NAME", "Generate new service"
     def service(path)
       @name     = options[:name] || File.basename(File.expand_path(path))
@@ -57,6 +58,7 @@ module Kite
       @title    = @name.split(/\W/).map(&:capitalize).join(' ')
       @git      = options[:git]
       @image    = options[:image]
+      @provider = options[:provider]
       directory('service/skel', path)
       directory('service/chart', "#{path}/config/charts/#{@name}")
     end
