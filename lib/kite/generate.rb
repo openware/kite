@@ -47,15 +47,18 @@ module Kite
       say "Generating task #{ options[:name] } IaC", :green
     end
 
+    method_option :git, type: :string, desc: "Git repository", required: true
+    method_option :image, type: :string, desc: "Docker image full name", required: true
+    method_option :name, type: :string, desc: "Name of the service", required: false
     desc "service NAME", "Generate new service"
-    def service(name)
-      say "Generating service #{name}", :green
-
-      @name     = name
-      @username = ENV['USER']
-      @title    = name.split(/\W/).map(&:capitalize).join(' ')
-      directory('service/skel', name)
-      directory('service/chart', "#{name}/config/charts/#{name}")
+    def service(path)
+      @name     = options[:name] || File.basename(File.expand_path(path))
+      say "Generating service #{ @name }", :green
+      @title    = @name.split(/\W/).map(&:capitalize).join(' ')
+      @git      = options[:git]
+      @image    = options[:image]
+      directory('service/skel', path)
+      directory('service/chart', "#{path}/config/charts/#{@name}")
     end
   end
 end

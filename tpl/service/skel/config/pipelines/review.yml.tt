@@ -4,13 +4,13 @@ resources:
 - name: <%= @name %>-repository
   type: git
   source:
-    uri: https://github.com/<%= @username %>/<%= @name %>.git
+    uri: <%= @git %>
     branch: master
 
 - name: <%= @name %>-image
   type: docker-image
   source:
-    repository: <%= @username %>/<%= @name %>
+    repository: <%= @image %>
     username: {{docker_username}}
     password: {{docker_password}}
 
