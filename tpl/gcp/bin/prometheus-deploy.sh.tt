@@ -3,7 +3,7 @@
 set -xe
 
 # Upload necessary stemcells and releases
-bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+bosh -e <%= @values['bosh']['name'] %> upload-stemcell https://s3.amazonaws.com/bosh-core-stemcells/google/bosh-stemcell-3445.7-google-kvm-ubuntu-trusty-go_agent.tgz
 
 # Extract BOSH Director's SSL certificate
 bosh int ./config/creds.yml --path /director_ssl/certificate > bosh.ca

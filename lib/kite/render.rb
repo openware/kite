@@ -49,12 +49,14 @@ module Kite
 
       if options[:cloud] == 'aws'
         @private_subnet = IPAddr.new(@values['aws']['private_subnet']['network']).to_range.to_a
+        @public_subnet = IPAddr.new(@values['aws']['public_subnet']['network']).to_range.to_a
       else
         @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
       end
 
-      @static_ip_vault = @private_subnet[11].to_s
-      @static_ips_concourse = [@private_subnet[12]].map(&:to_s)
+      @static_ip_vault            = @private_subnet[11].to_s
+      @static_ips_concourse       = [@private_subnet[12]].map(&:to_s)
+      @static_ip_prometheus_stack = @private_subnet[18].to_s
 
       case type
       when "bosh"
@@ -89,6 +91,9 @@ module Kite
         copy_file("#{options[:cloud]}/docs/prometheus.md",                        "docs/prometheus.md")
         template("#{options[:cloud]}/bin/prometheus-deploy.sh.tt",                "bin/prometheus-deploy.sh")
         chmod('bin/prometheus-deploy.sh', 0755)
+        ingress_add_entry(@values['alertmanager']['hostname'], [@static_ip_prometheus_stack], port: 9093)
+        ingress_add_entry(@values['grafana']['hostname'], [@static_ip_prometheus_stack], port: 3000)
+        ingress_add_entry(@values['prometheus']['hostname'], [@static_ip_prometheus_stack], port: 9090)
 
       else
         say "Manifest type not specified"

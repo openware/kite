@@ -10,7 +10,7 @@ instance_groups:
     stemcell: default
     networks:
       - name: platform_net
-        static_ips: [<%= @private_subnet[14] %>]
+        static_ips: [<%= @private_subnet[15] %>]
     jobs:
       - name: alertmanager
         release: prometheus
@@ -89,7 +89,7 @@ instance_groups:
     stemcell: default
     networks:
       - name: platform_net
-        static_ips: [<%= @private_subnet[15] %>]
+        static_ips: [<%= @private_subnet[17] %>]
     jobs:
       - name: grafana
         release: prometheus
@@ -134,6 +134,7 @@ instance_groups:
     stemcell: default
     networks:
       - name: platform_net
+        static_ips: [<%= @private_subnet[18] %>]
     jobs:
       - name: nginx
         release: prometheus
