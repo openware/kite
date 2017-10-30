@@ -53,6 +53,7 @@ module Kite
     method_option :chart_version, type: :string, desc: "Chart version", required: false, default: '0.1.0'
     method_option :name, type: :string, desc: "Name of the service", required: false
     method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
+    method_option :ci_dir, type: :string, desc: "Output sub-directory", default: "ci"
     desc "service NAME", "Generate new service"
     def service(path)
       @name     = options[:name] || File.basename(File.expand_path(path))
@@ -63,8 +64,15 @@ module Kite
       @provider = options[:provider]
       @image_version = options[:image_version]
       @chart_version = options[:chart_version]
-      directory('service/skel', path)
-      directory('service/chart', "#{path}/config/charts/#{@name}")
+      @ci_dir = options[:ci_dir]
+
+      template('service/skel/Dockerfile.tt', File.join(path, "Dockerfile"))
+      template('service/skel/Makefile.tt', File.join(path, "Makefile"))
+      template('service/skel/VERSION.tt', File.join(path, "VERSION"))
+
+      directory('service/skel/config', File.join(path, @ci_dir))
+      directory('service/skel/docs', File.join(path, "docs"))
+      directory('service/chart', File.join(path, @ci_dir, "charts/#{@name}"))
     end
   end
 end
