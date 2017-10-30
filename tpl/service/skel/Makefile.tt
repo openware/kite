@@ -1,18 +1,20 @@
 VERSION := $(shell cat VERSION)
 IMAGE   := <%= @image %>:$(VERSION)
 
+.PHONY: default build push run ci deploy
+
 default: build run
 
 build:
 	@echo '> Building "<%= @name %>" docker image...'
 	@docker build -t $(IMAGE) .
 
-push:
-<% if @provider == 'gcp' %>
+push: build
+<% if @provider == 'gcp' -%>
 	gcloud docker -- push $(IMAGE)
-<% else %>
+<% else -%>
 	docker push $(IMAGE)
-<% end %>
+<% end -%>
 
 run:
 	@echo '> Starting "<%= @name %>" container...'
@@ -22,5 +24,5 @@ ci:
 	@fly -t ci set-pipeline -p <%= @name %> -c config/pipelines/review.yml --load-vars-from config/pipelines/secrets.yml -n
 	@fly -t ci unpause-pipeline -p <%= @name %>
 
-deploy:
+deploy: push
 	@helm install ./config/charts/<%= @name %> --set "image.tag=$(VERSION)"

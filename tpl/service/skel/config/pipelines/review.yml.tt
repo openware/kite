@@ -11,11 +11,9 @@ resources:
   type: docker-image
   source:
     repository: <%= @image %>
-    username: {{docker_username}}
-    password: {{docker_password}}
 
 jobs:
-- name: <%= @name %>
+- name: build <%= @name %> image
   serial: true
   plan:
   - get: <%= @name %>-repository
