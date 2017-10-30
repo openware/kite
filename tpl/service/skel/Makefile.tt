@@ -21,7 +21,7 @@ run:
 	@docker run -d $(IMAGE)
 
 ci:
-	@fly -t ci set-pipeline -p <%= @name %> -c config/pipelines/review.yml --load-vars-from config/pipelines/secrets.yml -n
+	@fly -t ci set-pipeline -p <%= @name %> -c config/pipelines/review.yml -n
 	@fly -t ci unpause-pipeline -p <%= @name %>
 
 deploy: push
