@@ -1,23 +1,92 @@
 # Check `docs/pipeline.md` to get info about this file
+resource_types:
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: jtarchie/pr
 
 resources:
-- name: <%= @name %>-repository
-  type: git
-  source:
-    uri: <%= @git %>
-    branch: master
+  - name: <%= @name %>-repository
+    type: git
+    source:
+      uri: <%= @git %>
+      branch: master
 
-- name: <%= @name %>-image
-  type: docker-image
-  source:
-    repository: <%= @image %>
+  - name: pull-requests
+      type: pull-request
+      source:
+        access_token: ((github_token))
+        base: master
+        private_key: ((git_private_key))
+        repo: git@github.com:<%= @git.split(%r{\W}).last(2).join('/') %>
+
+  - name: <%= @name %>-image
+    type: docker-image
+    source:
+      repository: <%= @image %>
+      username: _json_key
+      password: ((gcr_password))
 
 jobs:
-- name: build <%= @name %> image
-  serial: true
-  plan:
-  - get: <%= @name %>-repository
-    trigger: true
-  - put: <%= @name %>-image
-    params:
-      build: <%= @name %>-repository
+  - name: build-pull-request
+    plan:
+      - get: pull-requests
+        trigger: true
+      - task: tag
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: alpine
+          run:
+            path: sh
+            args: ['-c', 'echo test > tag/name']
+          outputs:
+            - name: tag
+      - put: <%= @name %>-image
+        params:
+          build: pull-requests
+          tag: tag/name
+
+  - name: build-master
+    serial: true
+    plan:
+      - get: <%= @name %>-repository
+        trigger: true
+      - put: <%= @name %>-image
+        params:
+          build: bloomon-pms-repository
+
+  - name: test-pull-request
+    plan:
+      - get: pull-requests
+        passed:
+          - build-pull-request
+        trigger: true
+      - task: run-tests
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: <%= @image %>
+              tag: test
+              username: _json_key
+              password: ((gcr_password))
+          run:
+            path: bash
+            args: ["-c", "pushd /pull-requests && npm test"]
+          inputs:
+            - name: pull-requests
+        on_failure:
+          put: pull-requests
+          params:
+            path: pull-requests
+            status: failure
+        on_success:
+          put: pull-requests
+          params:
+            path: pull-requests
+            status: success
