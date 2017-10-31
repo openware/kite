@@ -56,7 +56,7 @@ jobs:
         trigger: true
       - put: <%= @name %>-image
         params:
-          build: bloomon-pms-repository
+          build: <%= @name %>-repository
 
   - name: test-pull-request
     plan:
