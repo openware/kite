@@ -21,8 +21,8 @@ run:
 	@docker run -d $(IMAGE)
 
 ci:
-	@fly -t ci set-pipeline -p <%= @name %> -c config/pipelines/review.yml -n
+	@fly -t ci set-pipeline -p <%= @name %> -c <%= @output %>/pipelines/review.yml -n
 	@fly -t ci unpause-pipeline -p <%= @name %>
 
 deploy: push
-	@helm install ./config/charts/<%= @name %> --set "image.tag=$(VERSION)"
+	@helm install ./<%= @output %>/charts/<%= @name %> --set "image.tag=$(VERSION)"

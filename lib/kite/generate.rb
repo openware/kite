@@ -48,23 +48,36 @@ module Kite
     end
 
     method_option :git, type: :string, desc: "Git repository", required: true
+    method_option :name, type: :string, desc: "Name of the service", required: false
     method_option :image, type: :string, desc: "Docker image full name", required: true
+    method_option :output, type: :string, desc: "Config output sub-directory", default: "config"
+    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
     method_option :image_version, type: :string, desc: "Docker image tag", required: false, default: '0.1.0'
     method_option :chart_version, type: :string, desc: "Chart version", required: false, default: '0.1.0'
-    method_option :name, type: :string, desc: "Name of the service", required: false
-    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
-    desc "service NAME", "Generate new service"
+    desc "service NAME", "Generate new micro-service pipeline"
     def service(path)
       @name     = options[:name] || File.basename(File.expand_path(path))
-      say "Generating service #{ @name }", :green
       @title    = @name.split(/\W/).map(&:capitalize).join(' ')
       @git      = options[:git]
       @image    = options[:image]
       @provider = options[:provider]
+      @output   = options[:output]
       @image_version = options[:image_version]
       @chart_version = options[:chart_version]
-      directory('service/skel', path)
-      directory('service/chart', "#{path}/config/charts/#{@name}")
+
+      say "Generating service #{ @name }", :green
+      directory('service', path)
     end
+
+    no_commands do
+      def output_path
+        @output ||= "config"
+      end
+
+      def app_name
+        @name ||= "app-name"
+      end
+    end
+
   end
 end
