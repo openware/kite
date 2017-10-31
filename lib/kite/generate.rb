@@ -53,7 +53,7 @@ module Kite
     method_option :chart_version, type: :string, desc: "Chart version", required: false, default: '0.1.0'
     method_option :name, type: :string, desc: "Name of the service", required: false
     method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
-    method_option :ci_dir, type: :string, desc: "Output sub-directory", default: "ci"
+    method_option :ci_dir, type: :string, desc: "Output sub-directory", default: "config"
     desc "service NAME", "Generate new service"
     def service(path)
       @name     = options[:name] || File.basename(File.expand_path(path))
