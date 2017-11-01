@@ -18,7 +18,8 @@ resources:
       access_token: ((github_token))
       base: master
       private_key: ((git_private_key))
-      repo: git@github.com:<%= @git.split(%r{\W}).last(2).join('/') %>
+      repo: <%= @git.gsub(/(.*:|.git)/, '') %>
+      uri: <%= @git %>
 
   - name: <%= @name %>-image
     type: docker-image
