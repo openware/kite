@@ -1,12 +1,24 @@
-IMAGE ?= kaigara/kitebox
-TAG   ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "1.0.0")
+VERSION := $(shell cat VERSION)
+IMAGE   := gcr.io/helios-devel/kitebox:$(VERSION)
 
-.PHONY: build
+.PHONY: default build push run ci deploy
+
+default: build run
 
 build:
-	echo "Building $(IMAGE):$(TAG)"
-	docker build -t "$(IMAGE):$(TAG)" .
-start: build
-	docker run -d --name="kitebox" $(IMAGE):$(TAG)
-clean:
-	docker rm $(docker stop {kitebox})
+	@echo '> Building "kite" docker image...'
+	@docker build -t $(IMAGE) .
+
+push: build
+	gcloud docker -- push $(IMAGE)
+
+run:
+	@echo '> Starting "kite" container...'
+	@docker run -d $(IMAGE)
+
+ci:
+	@fly -t ci set-pipeline -p kite -c config/pipelines/review.yml -n
+	@fly -t ci unpause-pipeline -p kite
+
+deploy: push
+	@helm install ./config/charts/kite --set "image.tag=$(VERSION)"
