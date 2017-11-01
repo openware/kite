@@ -11,3 +11,4 @@
 
 To deploy Ingress, use `./bin/ingress-deploy.sh`
 
+After each new component deployed, run `./bin/ingress-update`
