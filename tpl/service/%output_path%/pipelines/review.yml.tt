@@ -13,12 +13,12 @@ resources:
       branch: master
 
   - name: pull-requests
-      type: pull-request
-      source:
-        access_token: ((github_token))
-        base: master
-        private_key: ((git_private_key))
-        repo: git@github.com:<%= @git.split(%r{\W}).last(2).join('/') %>
+    type: pull-request
+    source:
+      access_token: ((github_token))
+      base: master
+      private_key: ((git_private_key))
+      repo: git@github.com:<%= @git.split(%r{\W}).last(2).join('/') %>
 
   - name: <%= @name %>-image
     type: docker-image
