@@ -5,8 +5,12 @@
 fly -t ci login -n TEAM_NAME -c CONCOURSE_URL
 ```
 
-
-## Create or update a pipeline
+## Create or update the pipeline
 ```
-fly -t ci set-pipeline -p <%= @name %> -c <%= @ci_dir %>/pipelines/review.yml -n
+fly -t ci set-pipeline -p <%= @name %> -c <%= output_path %>/pipelines/review.yml -n
+```
+
+## Un-pause the pipeline
+```
+fly -t ci unpause-pipeline -p <%= @name %>
 ```
