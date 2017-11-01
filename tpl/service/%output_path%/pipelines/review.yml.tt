@@ -1,5 +1,11 @@
 # Check `docs/pipeline.md` to get info about this file
 resource_types:
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+      tag: latest
+
   - name: pull-request
     type: docker-image
     source:
@@ -27,6 +33,11 @@ resources:
       repository: <%= @image %>
       username: _json_key
       password: ((gcr_password))
+
+  - name: slack-alert
+      type: slack-notification
+      source:
+        url: https://hooks.slack.com/services/((slack_webhook))
 
 jobs:
   - name: build-pull-request
@@ -59,6 +70,40 @@ jobs:
         params:
           build: <%= @name %>-repository
 
+  - name: build-master
+      serial: true
+      plan:
+        - get: <%= @name %>-repository
+          trigger: true
+        - task: tag
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source:
+                repository: alpine/git
+            run:
+              path: sh
+              args: ['-c', 'cd <%= @name %>-repository && (git describe --tags --abbrev=0 || echo 0.1.0) > ../tag/name']
+            inputs:
+              - name: <%= name %>-repository
+            outputs:
+              - name: tag
+        - put: <%= @name %>-image
+          params:
+            build: <%= @name %>-repository
+            tag: tag/name
+        - put: slack-alert
+          params:
+            channel: 'general'
+            text: |
+              <%= @name %> master branch was built and pushed!
+              Check it out at:
+              $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+
+
   - name: test-pull-request
     plan:
       - get: pull-requests
@@ -78,7 +123,7 @@ jobs:
               password: ((gcr_password))
           run:
             path: bash
-            args: ["-c", "pushd /pull-requests && npm test"]
+            args: ["-c", "pushd pull-requests && npm test"]
           inputs:
             - name: pull-requests
         on_failure:
