@@ -1,5 +1,6 @@
 # Kite
 
+![Build Status](https://ci.helioscloud.com/api/v1/teams/heliostech/pipelines/kite/jobs/build-master/badge)
 [![Build Status](https://travis-ci.org/helios-technologies/kite.svg?branch=master)](https://travis-ci.org/helios-technologies/kite)
 [![codecov](https://codecov.io/gh/helios-technologies/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/helios-technologies/kite)
 

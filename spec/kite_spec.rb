@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'tmpdir'
 
 RSpec.describe Kite do
   it "has a version number" do
