@@ -33,7 +33,7 @@ resources:
     source:
       repository: <%= @image %>
       username: _json_key
-      password: ((gcr_password))
+      password: ((gcr_password.hc_public))
 
   - name: slack-alert
     type: slack-notification
@@ -46,7 +46,7 @@ jobs:
       - get: pull-requests
         trigger: true
       - task: tag
-        file: pull-requests/.kite/pipelines/tasks/create-pull-requests-tag.yml
+        file: pull-requests/<%= @output %>/pipelines/tasks/create-pull-requests-tag.yml
       - put: <%= @name %>-image
         params:
           build: pull-requests
@@ -66,7 +66,7 @@ jobs:
           path: pull-requests
           status: pending
       - task: run-tests
-        file: pull-requests/.kite/pipelines/tasks/run-tests.yml
+        file: pull-requests/<%= @output %>/pipelines/tasks/run-tests.yml
         on_failure:
           put: pull-requests
           params:
@@ -84,7 +84,7 @@ jobs:
       - get: <%= @name %>-repository
         trigger: true
       - task: tag
-        file: <%= @name %>-repository/.kite/pipelines/tasks/create-repository-tag.yml
+        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/create-repository-tag.yml
       - put: <%= @name %>-image
         params:
           build: <%= @name %>-repository
@@ -109,4 +109,4 @@ jobs:
         passed: [master-build]
         trigger: true
       - task: run-tests
-        file: <%= @name %>-repository/.kite/pipelines/tasks/run-tests.yml
+        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-tests.yml
