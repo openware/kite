@@ -110,3 +110,13 @@ jobs:
         trigger: true
       - task: run-tests
         file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-tests.yml
+
+  - name: helm-deploy
+    serial: true
+    plan:
+      - get: <%= @name %>-repository
+      - task: helm-deploy
+        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/helm-deploy.yml
+        params:
+          GOOGLE_APPLICATION_JSON: ((gcr_password))
+          KUBECONFIG_FILE: ((kubeconfig))

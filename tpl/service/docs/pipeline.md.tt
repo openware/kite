@@ -3,6 +3,14 @@
 # About
 __Pipeline__ described in `<%= output_path %>/pipelines/review.yml`
 
+## Credentials overview
+
+  - git_private_key - RSA key with access to your repository
+  - github_token    - [Github token](https://github.com/settings/tokens) with access to web hooks
+  - gcr_password    - JSON containing your [GCP credentials](https://developers.google.com/identity/protocols/application-default-credentials)
+  - slack_webhook   - address of your [Slack Incoming Webhook](https://api.slack.com/incoming-webhooks)
+  - kubeconfig      - your Kubernetes config encoded in base64
+
 ## Configurations overview
 
 A pipeline is configured with __three sections__:
@@ -29,7 +37,7 @@ In `jobs` described actions of pipeline, how resources progress through it, and 
 - `build-master`
     - set `serial: true` to build and execute one-by-one, rather than executing in parallel
     - set `trigger: true` to make a new build of the job when new version available on git.
-    - configure <%= @name %>-repository `uri` to change ssh link to your respository. 
+    - configure <%= @name %>-repository `uri` to change ssh link to your respository.
     - configure <%= @name %>-repository `branch` to change building branch of your respository.
 
 # Getting stated
