@@ -66,17 +66,37 @@ jobs:
           path: pull-requests
           status: pending
       - task: run-tests
-        file: pull-requests/<%= @output %>/pipelines/tasks/run-tests.yml
-        on_failure:
-          put: pull-requests
-          params:
-            path: pull-requests
-            status: failure
+        file: pull-requests/<%= @output %>/pipelines/tasks/run-pr-tests.yml
         on_success:
-          put: pull-requests
-          params:
-            path: pull-requests
-            status: success
+          do:
+          - put: pull-requests
+            params:
+              path: pull-requests
+              status: success
+          - put: slack-alert
+            params:
+              channel: '#ci-alerts'
+              text: |
+                <%= @name %> PR tests have passed! :thumbsup_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
+        on_failure:
+          do:
+          - put: pull-requests
+            params:
+              path: pull-requests
+              status: failure
+          - put: slack-alert
+            params:
+              channel: '#ci-alerts'
+              text: |
+                <%= @name %> PR tests have failed! :thumbsdown_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
 
   - name: master-build
     serial: true
@@ -91,7 +111,7 @@ jobs:
           tag: tag/name
       - put: slack-alert
         params:
-          channel: 'general'
+          channel: '#ci-alerts'
           text: |
             <%= @name %> master branch was built and pushed!
             Check it out at:
@@ -109,7 +129,27 @@ jobs:
         passed: [master-build]
         trigger: true
       - task: run-tests
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-tests.yml
+        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-master-tests.yml
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#ci-alerts'
+            text: |
+              <%= @name %> master tests have passed! :thumbsup_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#ci-alerts'
+            text: |
+              <%= @name %> master tests have failed! :thumbsdown_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
 
   - name: helm-deploy
     serial: true
@@ -120,3 +160,13 @@ jobs:
         params:
           GOOGLE_APPLICATION_JSON: ((gcr_password))
           KUBECONFIG_FILE: ((kubeconfig))
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#ci-alerts'
+            text: |
+              <%= @name %> deployment has succeeded! :thumbsup_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
