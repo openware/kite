@@ -1,5 +1,5 @@
-VERSION := $(shell cat VERSION)
-IMAGE   := gcr.io/helios-devel/kitebox:$(VERSION)
+VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null | tr -d 'v')
+IMAGE   := heliostech/kite:$(VERSION)
 
 .PHONY: default build push run ci deploy
 
