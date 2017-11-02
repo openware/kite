@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  kitehelper:
+    build: ./kitehelper
+    image: kitehelper:0.0.2
+    volumes:
+      - ${KITE_CLOUDS_LOCAL_PATH}:/root/workspace
