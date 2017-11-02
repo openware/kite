@@ -13,4 +13,3 @@ RUN curl https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.31-linux-amd64
 COPY . /kite
 WORKDIR /kite
 RUN bundle && rake build && gem install pkg/kite-*
-RUN kite new test

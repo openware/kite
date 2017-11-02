@@ -12,10 +12,10 @@ resource_types:
       repository: jtarchie/pr
 
 resources:
-  - name: <%= @name %>-repository
+  - name: kite-repository
     type: git
     source:
-      uri: <%= @git %>
+      uri: git@github.com:helios-technologies/kite
       branch: master
       private_key: ((git_private_key))
 
@@ -25,13 +25,13 @@ resources:
       access_token: ((github_token))
       base: master
       private_key: ((git_private_key))
-      repo: <%= @git.gsub(/(.*:|.git)/, '') %>
-      uri: <%= @git %>
+      repo: helios-technologies/kite
+      uri: git@github.com:helios-technologies/kite
 
-  - name: <%= @name %>-image
+  - name: kite-image
     type: docker-image
     source:
-      repository: <%= @image %>
+      repository: gcr.io/helios-devel/kitebox
       username: _json_key
       password: ((gcr_password))
 
@@ -59,7 +59,7 @@ jobs:
             - name: pull-requests
           outputs:
             - name: tag
-      - put: <%= @name %>-image
+      - put: kite-image
         params:
           build: pull-requests
           tag: tag/name
@@ -67,7 +67,7 @@ jobs:
   - name: build-master
     serial: true
     plan:
-      - get: <%= @name %>-repository
+      - get: kite-repository
         trigger: true
       - task: tag
         config:
@@ -78,20 +78,20 @@ jobs:
               repository: alpine/git
           run:
             path: sh
-            args: ['-c', 'cd <%= @name %>-repository && (git describe --tags --abbrev=0 || echo 0.1.0) > ../tag/name']
+            args: ['-c', 'cd kite-repository && (git describe --tags --abbrev=0 || echo 0.1.0) > ../tag/name']
           inputs:
-            - name: <%= @name %>-repository
+            - name: kite-repository
           outputs:
             - name: tag
-      - put: <%= @name %>-image
+      - put: kite-image
         params:
-          build: <%= @name %>-repository
+          build: kite-repository
           tag: tag/name
       - put: slack-alert
         params:
           channel: 'general'
           text: |
-            <%= @name %> master branch was built and pushed!
+            kite master branch was built and pushed!
             Check it out at:
             $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
             or at:
@@ -114,13 +114,13 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: <%= @image %>
+              repository: gcr.io/helios-devel/kitebox
               tag: test
               username: _json_key
               password: ((gcr_password))
           run:
             path: bash
-            args: ["-c", "pushd pull-requests && npm test"]
+            args: ["-c", "pushd pull-requests && rspec"]
           inputs:
             - name: pull-requests
         on_failure:
