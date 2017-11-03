@@ -89,13 +89,15 @@ jobs:
           tag: tag/name
       - put: slack-alert
         params:
-          channel: 'general'
+          channel: 'ci-alerts'
           text: |
             kite master branch was built and pushed!
             Check it out at:
             $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
             or at:
             $ATC_EXTERNAL_URL/builds/$BUILD_ID
+            Review the github pull-request:
+            `git config --get pullrequest.url`
 
   - name: test-pull-request
     plan:
