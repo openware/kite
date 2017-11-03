@@ -51,6 +51,7 @@ module Kite
     method_option :name, type: :string, desc: "Name of the service", required: false
     method_option :image, type: :string, desc: "Docker image full name", required: true
     method_option :output, type: :string, desc: "Config output sub-directory", default: "config"
+    method_option :slack, type: :string, desc: "Slack notifications", requied: false, default: nil
     method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: false, default: nil
     method_option :image_version, type: :string, desc: "Docker image tag", required: false, default: '0.1.0'
     method_option :chart_version, type: :string, desc: "Chart version", required: false, default: '0.1.0'
@@ -62,6 +63,7 @@ module Kite
       @image    = options[:image]
       @provider = options[:provider]
       @output   = options[:output]
+      @slack    = options[:slack]
       @image_version = options[:image_version]
       @chart_version = options[:chart_version]
 

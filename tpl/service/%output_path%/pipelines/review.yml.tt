@@ -1,11 +1,12 @@
 # Check `docs/pipeline.md` to get info about this file
 resource_types:
+<% unless @slack.nil? or @slack.empty? -%>
   - name: slack-notification
     type: docker-image
     source:
       repository: cfcommunity/slack-notification-resource
       tag: latest
-
+<% end -%>
   - name: pull-request
     type: docker-image
     source:
@@ -34,11 +35,12 @@ resources:
       repository: <%= @image %>
       username: _json_key
       password: ((gcr_password))
-
+<% unless @slack.nil? or @slack.empty? -%>
   - name: slack-alert
     type: slack-notification
     source:
       url: https://hooks.slack.com/services/((slack_webhook))
+<% end -%>
 
 jobs:
   - name: pr-build
@@ -73,9 +75,10 @@ jobs:
             params:
               path: pull-requests
               status: success
+<% unless @slack.nil? or @slack.empty? -%>
           - put: slack-alert
             params:
-              channel: '#ci-alerts'
+              channel: '#<%= @slack %>'
               text: |
                 <%= @name %> PR tests have passed! :thumbsup_all:
                 Check it out at:
@@ -84,16 +87,17 @@ jobs:
                 $ATC_EXTERNAL_URL/builds/$BUILD_ID
                 see on github:
                 `cat pull-requests/.git/url`
-
+<% end -%>
         on_failure:
           do:
           - put: pull-requests
             params:
               path: pull-requests
               status: failure
+<% unless @slack.nil? or @slack.empty? -%>
           - put: slack-alert
             params:
-              channel: '#ci-alerts'
+              channel: '#<%= @slack %>'
               text: |
                 <%= @name %> PR tests have failed! :thumbsdown_all:
                 Check it out at:
@@ -102,6 +106,7 @@ jobs:
                 $ATC_EXTERNAL_URL/builds/$BUILD_ID
                 see on github:
                 `cat pull-requests/.git/url`
+<% end -%>
 
   - name: master-build
     serial: true
@@ -114,15 +119,17 @@ jobs:
         params:
           build: <%= @name %>-repository
           tag: tag/name
+<% unless @slack.nil? or @slack.empty? -%>
       - put: slack-alert
         params:
-          channel: '#ci-alerts'
+          channel: '#<%= @slack %>'
           text: |
             <%= @name %> master branch was built and pushed!
             Check it out at:
             $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
             or at:
             $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
 
   - name: master-unit
     serial: true
@@ -135,10 +142,11 @@ jobs:
         trigger: true
       - task: run-tests
         file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-master-tests.yml
+<% unless @slack.nil? or @slack.empty? -%>
         on_success:
           put: slack-alert
           params:
-            channel: '#ci-alerts'
+            channel: '#<%= @slack %>'
             text: |
               <%= @name %> master tests have passed! :thumbsup_all:
               Check it out at:
@@ -149,13 +157,14 @@ jobs:
         on_failure:
           put: slack-alert
           params:
-            channel: '#ci-alerts'
+            channel: '#<%= @slack %>'
             text: |
               <%= @name %> master tests have failed! :thumbsdown_all:
               Check it out at:
               $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
               or at:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
 
   - name: helm-deploy
     serial: true
@@ -166,13 +175,15 @@ jobs:
         params:
           GOOGLE_APPLICATION_JSON: ((gcr_password))
           KUBECONFIG_FILE: ((kubeconfig))
+<% unless @slack.nil? or @slack.empty? -%>
         on_success:
           put: slack-alert
           params:
-            channel: '#ci-alerts'
+            channel: '#<%= @slack %>'
             text: |
               <%= @name %> deployment has succeeded! :thumbsup_all:
               Check it out at:
               $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
               or at:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
