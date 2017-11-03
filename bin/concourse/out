@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+$: << (ENV['is_devel'] ? File.expand_path('../../../lib', __FILE__) : '/opt/lib')
+
+require 'kite/helpers/concourse'
+include Kite::Helpers::Concourse
+
+# uncomment when we need it
+# cwd    = ARGV[0]
+
+params = Kite::Helpers::Concourse.params(STDIN.read)
+
+key = params['source']['json_key']
+kubeconfig = params['source']['kubeconfig']
+command = params['params']['command']
+
+# Exit if any config missing
+
+if key.nil? || key.empty?
+  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty key'])
+  exit 1
+end
+
+if kubeconfig.nil? || kubeconfig.empty?
+  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty kubeconfig'])
+  exit 1
+end
+
+if command.nil? || command.empty?
+  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty command'])
+  exit 1
+end
+
+# Prepare files
+
+File.write('/tmp/key.json', key)
+
+home = `echo -n $HOME`
+Dir.mkdir("#{home}/.kube") unless Dir.exist?("#{home}/.kube")
+File.write("#{home}/.kube/config", kubeconfig)
+
+env = { 'GOOGLE_CREDENTIALS' => '/tmp/key.json' }
+
+# Run the command
+
+Kite::Helpers::Concourse.log("+ #{command}")
+Open3.popen2e(env, command) do |stdin, stdout, wait_thr|
+  Kite::Helpers::Concourse.log(stdout.read)
+
+  if wait_thr.value.exitstatus.zero?
+    Kite::Helpers::Concourse.respond(version: { status: 'ok' })
+  else
+    Kite::Helpers::Concourse.respond(
+      version: { status: 'error' },
+      metadata: ["Failed to execute command #{command}"]
+    )
+  end
+end

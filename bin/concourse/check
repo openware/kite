@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+$: << (ENV['is_devel'] ? File.expand_path('../../../lib', __FILE__) : '/opt/lib')
+
+require 'kite/helpers/concourse'
+include Kite::Helpers::Concourse
+
+# We'll use this variables later
+# cwd = ARGV[0]
+# params = Kite::Helpers::Concourse.params(STDIN.read)
+
+Kite::Helpers::Concourse.respond(version: { status: 'ok' })
