@@ -31,3 +31,7 @@ RUN curl -s https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get
 
 # Install Kite
 RUN gem install kite
+
+# Add concourse entrypoints
+ADD lib /opt/lib
+ADD bin/concourse /opt/resources/
