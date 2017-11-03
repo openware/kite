@@ -89,7 +89,7 @@ jobs:
           tag: tag/name
       - put: slack-alert
         params:
-          channel: 'general'
+          channel: '#ci-alerts'
           text: |
             kite master branch was built and pushed!
             Check it out at:

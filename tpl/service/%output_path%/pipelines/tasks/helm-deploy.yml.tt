@@ -17,6 +17,6 @@ run:
       helm init --client-only
       echo ${GOOGLE_APPLICATION_JSON} > gcr_credentials.json
       export GOOGLE_APPLICATION_CREDENTIALS="${PWD}/gcr_credentials.json"
-      echo ${KUBECONFIG_FILE} | base64 -d > kubeconfig
+      echo ${KUBECONFIG_FILE} | tr -d ' ' | base64 -d > kubeconfig
       export KUBECONFIG="${PWD}/kubeconfig"
       helm install <%= @name %>-repository/.kite/charts/<%= @name %>

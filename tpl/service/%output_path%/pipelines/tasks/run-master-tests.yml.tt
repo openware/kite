@@ -6,6 +6,7 @@ image_resource:
     repository: <%= @image %>
     username: _json_key
     password: ((gcr_password))
+
 run:
   path: sh
   args: ["-exc", "echo Success"]
