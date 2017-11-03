@@ -82,7 +82,7 @@ jobs:
                 $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
                 or at:
                 $ATC_EXTERNAL_URL/builds/$BUILD_ID
-                see on githib:
+                see on github:
                 `cat pull-requests/.git/url`
 
         on_failure:
