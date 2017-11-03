@@ -33,7 +33,7 @@ resources:
     source:
       repository: <%= @image %>
       username: _json_key
-      password: ((gcr_password.hc_public))
+      password: ((gcr_password))
 
   - name: slack-alert
     type: slack-notification
