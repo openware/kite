@@ -34,4 +34,4 @@ RUN gem install kite
 
 # Add concourse entrypoints
 ADD lib /opt/lib
-ADD bin/concourse /opt/resources/
+ADD bin/concourse /opt/resource/

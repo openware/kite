@@ -15,8 +15,12 @@ module Kite
       def self.respond(data)
         # keep only valid concourse values
         data.select! { |k, _| k.to_s =~ /(version|metadata)/ }
+        puts JSON.dump(data)
+      end
 
-        $stdout.print JSON.generate(data)
+      def self.fatal(message)
+        respond(version: { status: 'error' }, metadata: [message])
+        exit 1
       end
     end
   end

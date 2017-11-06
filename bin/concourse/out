@@ -1,47 +1,31 @@
 #!/usr/bin/env ruby
 
 require 'open3'
-
 $: << (ENV['is_devel'] ? File.expand_path('../../../lib', __FILE__) : '/opt/lib')
-
 require 'kite/helpers/concourse'
-include Kite::Helpers::Concourse
-
-# uncomment when we need it
-# cwd    = ARGV[0]
 
 params = Kite::Helpers::Concourse.params(STDIN.read)
+
+Kite::Helpers::Concourse.fatal '`source` missing' unless params['source']
 
 key = params['source']['json_key']
 kubeconfig = params['source']['kubeconfig']
 command = params['params']['command']
 
-# Exit if any config missing
+Kite::Helpers::Concourse.fatal '`kubeconfig` missing' if kubeconfig.to_s.empty?
+Kite::Helpers::Concourse.fatal '`command` missing' if command.to_s.empty?
 
-if key.nil? || key.empty?
-  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty key'])
-  exit 1
-end
+path_key = '/tmp/key.json'
+path_kubeconfig = '/tmp/kubeconfig'
 
-if kubeconfig.nil? || kubeconfig.empty?
-  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty kubeconfig'])
-  exit 1
-end
+File.write(path_key, key) if key
+File.write(path_kubeconfig, kubeconfig)
 
-if command.nil? || command.empty?
-  Kite::Helpers::Concourse.respond(version: { status: 'error' }, metadata: ['Empty command'])
-  exit 1
-end
+env = {
+  'KUBECONFIG' => path_kubeconfig,
+}
 
-# Prepare files
-
-File.write('/tmp/key.json', key)
-
-home = `echo -n $HOME`
-Dir.mkdir("#{home}/.kube") unless Dir.exist?("#{home}/.kube")
-File.write("#{home}/.kube/config", kubeconfig)
-
-env = { 'GOOGLE_CREDENTIALS' => '/tmp/key.json' }
+env['GOOGLE_CREDENTIALS'] = path_key if key
 
 # Run the command
 
