@@ -2,6 +2,7 @@
 $: << (ENV['is_devel'] ? File.expand_path('../../../lib', __FILE__) : '/opt/lib')
 require 'kite/helpers/concourse'
 
+Dir.chdir ARGV[0]
 params = Kite::Helpers::Concourse.params(STDIN.read)
 
 Kite::Helpers::Concourse.fatal '`source` missing' unless params['source']
