@@ -49,7 +49,7 @@ instance_groups:
             <%- end -%>
           }
           server {
-             listen 443;
+             listen 443 ssl http2;
              server_name <%= hostname %>;
              ssl_certificate_key /var/vcap/jobs/nginx/etc/<%= hostname %>/key.pem;
              ssl_certificate     /var/vcap/jobs/nginx/etc/<%= hostname %>/cert.pem;
@@ -63,10 +63,14 @@ instance_groups:
              error_log /var/vcap/sys/log/nginx/<%= hostname %>-error.log;
 
              location / {
+               proxy_http_version 1.1;
+
                proxy_set_header        Host $host;
                proxy_set_header        X-Real-IP $remote_addr;
                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
                proxy_set_header        X-Forwarded-Proto $scheme;
+               proxy_set_header        Upgrade $http_upgrade;
+               proxy_set_header        Connection "upgrade";
 
                proxy_pass          <%= config[:protocol] %>://<%= upstream_name%>;
                proxy_read_timeout  90;
