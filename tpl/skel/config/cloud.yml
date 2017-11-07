@@ -60,3 +60,7 @@ concourse:
   hostname: "concourse.example.com"
   url: "https://concourse.example.com"
   auth_username: "concourse"
+
+oauth:
+  hostname: "oauth.example.com"
+  url: "https://oauth.example.com"

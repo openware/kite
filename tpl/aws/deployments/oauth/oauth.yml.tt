@@ -1,0 +1,95 @@
+---
+name: oauth
+
+releases:
+  - name: uaa
+    version: latest
+
+instance_groups:
+  - name: uaa
+    instances: 1
+    vm_type: default
+    persistent_disk_type: default
+    azs: [z1]
+    stemcell: trusty
+    networks:
+      - name: platform_net
+        static_ips: [<%= @static_ip_oauth %>]
+        default: [dns, gateway]
+    jobs:
+      - name: uaa_postgres
+        release: uaa
+        properties:
+          postgres:
+            port: 5524
+            roles:
+              - tag: admin
+                name: uaaadmin
+                password: ((uaa_db_password))
+            databases:
+              - tag: uaa
+                name: uaadb
+                citext: true
+      - name: uaa
+        release: uaa
+        properties:
+          login:
+            saml:
+              activeKeyId: key2
+              keys:
+                key2:
+                  key: ((uaa_saml_certificate.private_key))
+                  passphrase: ((uaa_saml_passphrase))
+                  certificate: ((uaa_saml_certificate.certificate))
+          uaa:
+            url: "<%= @values['oauth']['url'] %>"
+            sslPrivateKey: ((uaa_ssl.private_key))
+            sslCertificate: ((uaa_ssl.certificate))
+            jwt:
+              policy:
+                active_key_id: key-1
+                keys:
+                  key-1:
+                    signingKey: ((uaa_saml_certificate.private_key))
+          uaadb:
+          uaadb:
+            address: 127.0.0.1
+            databases:
+              - name: uaadb
+                tag: uaa
+            db_scheme: postgresql
+            port: 5524
+            roles:
+              - name: uaaadmin
+                password: ((uaa_db_password))
+                tag: admin
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+stemcells:
+  - alias: trusty
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    version: latest
+
+variables:
+  - name: uaa_db_password
+    type: password
+  - name: uaa_saml_passphrase
+    type: password
+  - name: uaa_ssl
+    type: certificate
+    options:
+      ca: default_ca
+      common_name: "<%= @values['oauth']['url'] %>"
+      alternative_names: ["<%= @values['oauth']['url'] %>"]
+  - name: uaa_saml_certificate
+    type: certificate
+    options:
+      ca: default_ca
+      common_name: "<%= @values['oauth']['url'] %>"
+      alternative_names: ["<%= @values['oauth']['url'] %>"]
