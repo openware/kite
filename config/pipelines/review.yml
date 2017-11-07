@@ -41,48 +41,75 @@ resources:
       url: https://hooks.slack.com/services/((slack_webhook))
 
 jobs:
-  - name: build-pull-request
+  - name: pr-build
     plan:
       - get: pull-requests
         trigger: true
       - task: tag
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: alpine/git
-          run:
-            path: sh
-            args: ['-c', 'cd pull-requests && (git describe || echo 0.1.0-test) > ../tag/name']
-          inputs:
-            - name: pull-requests
-          outputs:
-            - name: tag
+        file: pull-requests/config/pipelines/tasks/create-pull-requests-tag.yml
       - put: kite-image
         params:
           build: pull-requests
           tag: tag/name
 
-  - name: build-master
+  - name: pr-unit
+    serial: true
+    plan:
+      - get: pull-requests
+        passed: [pr-build]
+        trigger: true
+      - get: kite-image
+        passed: [pr-build]
+        trigger: true
+      - put: pull-requests
+        params:
+          path: pull-requests
+          status: pending
+      - task: run-tests
+        file: pull-requests/config/pipelines/tasks/run-pr-tests.yml
+        on_success:
+          do:
+          - put: pull-requests
+            params:
+              path: pull-requests
+              status: success
+          - put: slack-alert
+            params:
+              channel: '#ci-alerts'
+              text: |
+                kite PR tests have passed! :thumbsup_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
+                see on github:
+                `cat pull-requests/.git/url`
+
+        on_failure:
+          do:
+          - put: pull-requests
+            params:
+              path: pull-requests
+              status: failure
+          - put: slack-alert
+            params:
+              channel: '#ci-alerts'
+              text: |
+                kite PR tests have failed! :thumbsdown_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
+                see on github:
+                `cat pull-requests/.git/url`
+
+  - name: master-build
     serial: true
     plan:
       - get: kite-repository
         trigger: true
       - task: tag
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: alpine/git
-          run:
-            path: sh
-            args: ['-c', 'cd kite-repository && (git describe --tags --abbrev=0 || echo 0.1.0) > ../tag/name']
-          inputs:
-            - name: kite-repository
-          outputs:
-            - name: tag
+        file: kite-repository/config/pipelines/tasks/create-repository-tag.yml
       - put: kite-image
         params:
           build: kite-repository
@@ -97,39 +124,35 @@ jobs:
             or at:
             $ATC_EXTERNAL_URL/builds/$BUILD_ID
 
-  - name: test-pull-request
+  - name: master-unit
+    serial: true
     plan:
-      - get: pull-requests
-        passed:
-          - build-pull-request
+      - get: kite-repository
+        passed: [master-build]
         trigger: true
-      - put: pull-requests
-        params:
-          path: pull-requests
-          status: pending
+      - get: kite-image
+        passed: [master-build]
+        trigger: true
       - task: run-tests
-        privileged: true
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: gcr.io/helios-devel/kitebox
-              tag: test
-              username: _json_key
-              password: ((gcr_password))
-          run:
-            path: bash
-            args: ["-c", "pushd pull-requests && rspec"]
-          inputs:
-            - name: pull-requests
-        on_failure:
-          put: pull-requests
-          params:
-            path: pull-requests
-            status: failure
+        file: kite-repository/config/pipelines/tasks/run-master-tests.yml
         on_success:
-          put: pull-requests
+          put: slack-alert
           params:
-            path: pull-requests
-            status: success
+            channel: '#ci-alerts'
+            text: |
+              kite master tests have passed! :thumbsup_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#ci-alerts'
+            text: |
+              kite master tests have failed! :thumbsdown_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
