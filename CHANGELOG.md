@@ -1,5 +1,40 @@
 # Change Log
 
+## [v0.2.0](https://github.com/helios-technologies/kite/tree/v0.2.0) (2017-11-07)
+[Full Changelog](https://github.com/helios-technologies/kite/compare/v0.1.0...v0.2.0)
+
+**Merged pull requests:**
+
+- Add OAuth \(UAA\) manifest for AWS and GCP [\#94](https://github.com/helios-technologies/kite/pull/94) ([vshatravenko](https://github.com/vshatravenko))
+- Change the ingress configuration to have a SSL proxy for concourse [\#93](https://github.com/helios-technologies/kite/pull/93) ([calj](https://github.com/calj))
+- Fix concourse for kite [\#92](https://github.com/helios-technologies/kite/pull/92) ([ashanaakh](https://github.com/ashanaakh))
+- Add github link to slack notification on pull-request [\#91](https://github.com/helios-technologies/kite/pull/91) ([ashanaakh](https://github.com/ashanaakh))
+- Add concourse kite resource [\#89](https://github.com/helios-technologies/kite/pull/89) ([dkkoval](https://github.com/dkkoval))
+- bugfix review pipeline [\#88](https://github.com/helios-technologies/kite/pull/88) ([calj](https://github.com/calj))
+- Added Slack notifications after tests [\#85](https://github.com/helios-technologies/kite/pull/85) ([vshatravenko](https://github.com/vshatravenko))
+- Added Helm-deploy job template [\#84](https://github.com/helios-technologies/kite/pull/84) ([vshatravenko](https://github.com/vshatravenko))
+- Implement the git-ref tag workflow in default concourse pipeline [\#83](https://github.com/helios-technologies/kite/pull/83) ([calj](https://github.com/calj))
+- Added slack as parameter to kite generate service [\#82](https://github.com/helios-technologies/kite/pull/82) ([ashanaakh](https://github.com/ashanaakh))
+- Fixes [\#81](https://github.com/helios-technologies/kite/pull/81) ([ashanaakh](https://github.com/ashanaakh))
+- Added pipeline for kite; refined pipeline template [\#80](https://github.com/helios-technologies/kite/pull/80) ([vshatravenko](https://github.com/vshatravenko))
+- Added Slack alerts and image tagging to pipeline; fixed tests [\#79](https://github.com/helios-technologies/kite/pull/79) ([vshatravenko](https://github.com/vshatravenko))
+- describe pipeline [\#78](https://github.com/helios-technologies/kite/pull/78) ([ashanaakh](https://github.com/ashanaakh))
+- Improve concourse review pipeline and documentation [\#77](https://github.com/helios-technologies/kite/pull/77) ([calj](https://github.com/calj))
+- Generate service fix pipeline template [\#76](https://github.com/helios-technologies/kite/pull/76) ([ashanaakh](https://github.com/ashanaakh))
+- Added pr hook and unit tests to pipeline template [\#75](https://github.com/helios-technologies/kite/pull/75) ([vshatravenko](https://github.com/vshatravenko))
+- Hotfixes [\#73](https://github.com/helios-technologies/kite/pull/73) ([calj](https://github.com/calj))
+- Improve generate service outputs [\#72](https://github.com/helios-technologies/kite/pull/72) ([calj](https://github.com/calj))
+- Added ingress-update script [\#70](https://github.com/helios-technologies/kite/pull/70) ([vshatravenko](https://github.com/vshatravenko))
+- Add docker registry and git repository required parameters [\#69](https://github.com/helios-technologies/kite/pull/69) ([calj](https://github.com/calj))
+- Added Prometheus with k8s metrics support to GCP [\#67](https://github.com/helios-technologies/kite/pull/67) ([vshatravenko](https://github.com/vshatravenko))
+- Added Prometheus manifest with Kubernetes monitor support [\#66](https://github.com/helios-technologies/kite/pull/66) ([vshatravenko](https://github.com/vshatravenko))
+- Added pipeline to generator Makefile [\#65](https://github.com/helios-technologies/kite/pull/65) ([vshatravenko](https://github.com/vshatravenko))
+-  Allocate VIP with terraform for GCP platform [\#64](https://github.com/helios-technologies/kite/pull/64) ([calj](https://github.com/calj))
+- Add service generator [\#63](https://github.com/helios-technologies/kite/pull/63) ([dkkoval](https://github.com/dkkoval))
+- Add a HTTPS proxy for concourse on GCP [\#62](https://github.com/helios-technologies/kite/pull/62) ([calj](https://github.com/calj))
+- Added kops deploy and delete scripts + S3 bucket IaC [\#61](https://github.com/helios-technologies/kite/pull/61) ([vshatravenko](https://github.com/vshatravenko))
+- Added BOSH password generation for Concourse [\#60](https://github.com/helios-technologies/kite/pull/60) ([vshatravenko](https://github.com/vshatravenko))
+
 ## [v0.1.0](https://github.com/helios-technologies/kite/tree/v0.1.0) (2017-10-09)
 [Full Changelog](https://github.com/helios-technologies/kite/compare/v0.0.9...v0.1.0)
 
