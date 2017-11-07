@@ -25,7 +25,21 @@ env = {
 
 if key
   env['GOOGLE_CREDENTIALS'] = path_key
-  Kite::Helpers::Concourse.execute("gcloud auth activate-service-account --key-file=#{ path_key }", env)
+  unless Kite::Helpers::Concourse.execute("gcloud auth activate-service-account --key-file=#{ path_key }", env)
+    ::Kite::Helpers::Concourse.respond(
+      version: { status: 'error' },
+      metadata: ["Failed to execute command #{ command }"]
+    )
+    exit 1
+  end
 end
 
-Kite::Helpers::Concourse.execute(command, env)
+if Kite::Helpers::Concourse.execute(command, env)
+  ::Kite::Helpers::Concourse.respond(version: { status: 'ok' })
+else
+  ::Kite::Helpers::Concourse.respond(
+    version: { status: 'error' },
+    metadata: ["Failed to execute command #{ command }"]
+  )
+  exit 1
+end

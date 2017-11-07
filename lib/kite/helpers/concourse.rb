@@ -28,15 +28,7 @@ module Kite
         log("+ #{ command }")
         Open3.popen2e(env, command) do |stdin, stdout, wait_thr|
           ::Kite::Helpers::Concourse.log(stdout.read)
-
-          if wait_thr.value.exitstatus.zero?
-            ::Kite::Helpers::Concourse.respond(version: { status: 'ok' })
-          else
-            ::Kite::Helpers::Concourse.respond(
-              version: { status: 'error' },
-              metadata: ["Failed to execute command #{ command }"]
-            )
-          end
+          return wait_thr.value.exitstatus.zero?
         end
       end
     end
