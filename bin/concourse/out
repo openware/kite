@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-
-require 'open3'
 $: << (ENV['is_devel'] ? File.expand_path('../../../lib', __FILE__) : '/opt/lib')
 require 'kite/helpers/concourse'
 
@@ -25,20 +23,9 @@ env = {
   'KUBECONFIG' => path_kubeconfig,
 }
 
-env['GOOGLE_CREDENTIALS'] = path_key if key
-
-# Run the command
-
-Kite::Helpers::Concourse.log("+ #{command}")
-Open3.popen2e(env, command) do |stdin, stdout, wait_thr|
-  Kite::Helpers::Concourse.log(stdout.read)
-
-  if wait_thr.value.exitstatus.zero?
-    Kite::Helpers::Concourse.respond(version: { status: 'ok' })
-  else
-    Kite::Helpers::Concourse.respond(
-      version: { status: 'error' },
-      metadata: ["Failed to execute command #{command}"]
-    )
-  end
+if key
+  env['GOOGLE_CREDENTIALS'] = path_key
+  Kite::Helpers::Concourse.execute("gcloud auth activate-service-account --key-file=#{ path_key }", env)
 end
+
+Kite::Helpers::Concourse.execute(command, env)

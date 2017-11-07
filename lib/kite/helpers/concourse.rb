@@ -1,4 +1,5 @@
 require 'json'
+require 'open3'
 
 module Kite
   module Helpers
@@ -21,6 +22,22 @@ module Kite
       def self.fatal(message)
         respond(version: { status: 'error' }, metadata: [message])
         exit 1
+      end
+
+      def self.execute(command, env = {})
+        log("+ #{ command }")
+        Open3.popen2e(env, command) do |stdin, stdout, wait_thr|
+          ::Kite::Helpers::Concourse.log(stdout.read)
+
+          if wait_thr.value.exitstatus.zero?
+            ::Kite::Helpers::Concourse.respond(version: { status: 'ok' })
+          else
+            ::Kite::Helpers::Concourse.respond(
+              version: { status: 'error' },
+              metadata: ["Failed to execute command #{ command }"]
+            )
+          end
+        end
       end
     end
   end

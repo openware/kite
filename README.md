@@ -78,7 +78,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 To use resource scripts locally, set env variable `is_devel` to `true`, e.h.:
 
 ```sh
-$ is_devel=true ./bin/concourse/in
+$ ruby -Ilib ./bin/concourse/in
 ```
 
 ## Contributing
