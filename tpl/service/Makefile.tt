@@ -24,5 +24,5 @@ ci:
 	@fly -t ci set-pipeline -p <%= @name %> -c <%= @output %>/pipelines/review.yml -n
 	@fly -t ci unpause-pipeline -p <%= @name %>
 
-deploy: push
+deploy:
 	@helm install ./<%= @output %>/charts/<%= @name %> --set "image.tag=$(VERSION)"
