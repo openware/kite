@@ -12,7 +12,19 @@ resource_types:
     source:
       repository: jtarchie/pr
 
+  - name: kite
+    type: docker-image
+    source:
+      repository: heliostech/kite
+      tag: v0.2.0
+
 resources:
+  - name: k8s
+    type: kite
+    source:
+      json_key: ((gcr_password))
+      kubeconfig: ((kubeconfig))
+
   - name: <%= @name %>-repository
     type: git
     source:
@@ -68,7 +80,8 @@ jobs:
           path: pull-requests
           status: pending
       - task: run-tests
-        file: pull-requests/<%= @output %>/pipelines/tasks/run-pr-tests.yml
+        image: <%= @name %>-image
+        file: pull-requests/<%= @output %>/pipelines/tasks/run-unit.yml
         on_success:
           do:
           - put: pull-requests
@@ -119,16 +132,18 @@ jobs:
         params:
           build: <%= @name %>-repository
           tag: tag/name
-<% unless @slack.nil? or @slack.empty? -%>
-      - put: slack-alert
-        params:
-          channel: '#<%= @slack %>'
-          text: |
-            <%= @name %> master branch was built and pushed!
-            Check it out at:
-            $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-            or at:
-            $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% unless @slack.to_s.empty? -%>
+        on_success:
+          try:
+            put: slack-alert
+            params:
+              channel: '#<%= @slack %>'
+              text: |
+                <%= @name %> master branch was built and pushed!
+                Check it out at:
+                $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
 
   - name: master-unit
@@ -141,18 +156,20 @@ jobs:
         passed: [master-build]
         trigger: true
       - task: run-tests
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-master-tests.yml
-<% unless @slack.nil? or @slack.empty? -%>
+        image: <%= @name %>-image
+        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-unit.yml
+<% unless @slack.to_s.empty? -%>
         on_success:
-          put: slack-alert
-          params:
-            channel: '#<%= @slack %>'
-            text: |
-              <%= @name %> master tests have passed! :thumbsup_all:
-              Check it out at:
-              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-              or at:
-              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+          try:
+            put: slack-alert
+            params:
+              channel: '#<%= @slack %>'
+              text: |
+                <%= @name %> master tests have passed! :thumbsup_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
 
         on_failure:
           put: slack-alert
@@ -166,24 +183,25 @@ jobs:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
 
-  - name: helm-deploy
+  - name: master-deploy
     serial: true
     plan:
       - get: <%= @name %>-repository
-      - task: helm-deploy
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/helm-deploy.yml
+        passed: [master-unit]
+        trigger: true
+      - put: k8s
         params:
-          GOOGLE_APPLICATION_JSON: ((gcr_password))
-          KUBECONFIG_FILE: ((kubeconfig))
-<% unless @slack.nil? or @slack.empty? -%>
+          command: "bash -xc 'cd /tmp/build/put/<%= @name %>-repository && VERSION=$(git rev-parse --short=8 HEAD) make deploy'"
+<% unless @slack.to_s.empty? -%>
         on_success:
-          put: slack-alert
-          params:
-            channel: '#<%= @slack %>'
-            text: |
-              <%= @name %> deployment has succeeded! :thumbsup_all:
-              Check it out at:
-              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-              or at:
-              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+          try:
+            put: slack-alert
+            params:
+              channel: '#<%= @slack %>'
+              text: |
+                <%= @name %> deployment has succeeded! :thumbsup_all:
+                Check it out at:
+                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                or at:
+                $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
