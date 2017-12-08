@@ -2,9 +2,11 @@ name: concourse
 
 releases:
 - name: concourse
-  version: 3.4.1
+  version: 3.8.0
 - name: garden-runc
-  version: 1.6.0
+  version: 1.9.0
+- name: postgres
+  version: latest
 
 instance_groups:
 - name: web
@@ -22,10 +24,12 @@ instance_groups:
   - name: atc
     release: concourse
     properties:
+      log_level: debug
       bind_port: 8080
       external_url: <%= @values['concourse']['url'] %>
       basic_auth_username: <%= @values['concourse']['auth_username'] %>
       basic_auth_password: ((auth_password))
+      token_signing_key: ((token_signing_key))
       publicly_viewable: true
 
       vault:
@@ -35,11 +39,19 @@ instance_groups:
         path_prefix: /concourse
         url: "http://<%= @static_ip_vault %>:8200" # expecting Vault to be deployed first
 
-      postgresql_database: &atc_db atc
+      postgresql:
+        database: &atc_db atc
+        role:
+          name: admin
+          password: ((db_password))
 
   - name: tsa
     release: concourse
-    properties: {}
+    properties:
+      log_level: debug
+      host_key: ((tsa_host_key))
+      token_signing_key: ((token_signing_key))
+      authorized_keys: [((worker_key.public_key))]
 
 - name: db
   instances: 1
@@ -51,16 +63,19 @@ instance_groups:
   - name: public
     default: [dns, gateway]
   jobs:
-  - name: postgresql
-    release: concourse
+  - name: postgres
+    release: postgres
     properties:
       databases:
-      - name: *atc_db
-        role: admin
-        password: ((db_password))
+        port: 5432
+        databases:
+          - name: *atc_db
+        roles:
+          - name: admin
+            password: ((db_password))
 
 - name: worker
-  instances: 1
+  instances: 2
   vm_type: worker
   azs: [z1]
   stemcell: trusty
@@ -71,9 +86,12 @@ instance_groups:
   - name: groundcrew
     release: concourse
     properties:
+      drain_timeout: 10m
+      tsa:
+        worker_key: ((worker_key))
       additional_resource_types:
-      - type: gcs-resource
-        image: docker:///frodenas/gcs-resource
+        - type: gcs-resource
+          image: docker:///frodenas/gcs-resource
   - name: baggageclaim
     release: concourse
     properties: {}
@@ -102,3 +120,9 @@ variables:
   type: password
 - name: auth_password
   type: password
+- name: token_signing_key
+  type: rsa
+- name: tsa_host_key
+  type: ssh
+- name: worker_key
+  type: ssh
