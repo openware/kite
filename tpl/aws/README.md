@@ -22,10 +22,10 @@ If you want to access components outside of your VPC, use the Ingress deployment
 
 Render Ingress deployment files
 ```
-kite render manifest prometheus --cloud aws
+kite render manifest ingress --cloud aws
 ```
 
-Follow instructions from [docs/prometheus.md](docs/prometheus.md) to deploy Prometheus
+Follow instructions from [docs/ingress.md](docs/ingress.md) to deploy Ingress
 
 [Note]
 If you're using Ingress, create CNAME DNS records for each deployment as listed in `config/cloud.yml`(e.g. vault.example.com pointing to ingress.example.com)
