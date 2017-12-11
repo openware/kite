@@ -1,12 +1,16 @@
 VERSION ?= $(shell cat VERSION)
+ENV     ?= staging
+SERVICE := <%= @name %>
 IMAGE   := <%= @image %>:$(VERSION)
+CURRENT_CONTEXT := $(shell kubectl config current-context)
 
 .PHONY: default build push run ci deploy
 
 default: build run
 
 build:
-	@echo '> Building "<%= @name %>" docker image...'
+	@echo '> Using ENV: $(ENV) and context: $(CURRENT_CONTEXT)'
+	@echo '> Building "$(SERVICE)" docker image...'
 	@docker build -t $(IMAGE) .
 
 push: build
@@ -17,12 +21,12 @@ push: build
 <% end -%>
 
 run:
-	@echo '> Starting "<%= @name %>" container...'
+	@echo '> Starting "$(SERVICE)" container...'
 	@docker run -d $(IMAGE)
 
 ci:
-	@fly -t ci set-pipeline -p <%= @name %> -c <%= @output %>/pipelines/review.yml -n
-	@fly -t ci unpause-pipeline -p <%= @name %>
+	@fly -t ci set-pipeline -p $(SERVICE) -c <%= @output %>/pipelines/review.yml -n
+	@fly -t ci unpause-pipeline -p $(SERVICE)
 
 deploy:
-	@helm install ./<%= @output %>/charts/<%= @name %> --set "image.tag=$(VERSION)"
+	@helm install ./<%= @output %>/charts/$(SERVICE) --set "image.tag=$(VERSION)"
