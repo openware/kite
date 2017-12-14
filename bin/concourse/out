@@ -38,7 +38,7 @@ unless token.to_s.empty?
   Kite::Helpers::Concourse.execute("kubectl config set-cluster #{ cluster }" \
                                    "--embed-certs=true --sever=#{ endpoint }" \
                                    " --certificate-authority=./ca.crt", env)
-  Kite::Helpers::Concourse.execute("kubectl config set-credentials #{ user } --token=$#{ token }", env) # Setting a user entry in kubeconfig
+  Kite::Helpers::Concourse.execute("kubectl config set-credentials #{ user } --token=#{ token }", env) # Setting a user entry in kubeconfig
   Kite::Helpers::Concourse.execute("kubectl config set-context #{ user } --cluster=#{ cluster } --user=#{ user } ", env) # Setting a context entry in kubeconfig
   Kite::Helpers::Concourse.execute("kubectl config use-context #{ user }", env) # Setting the current-context in the kubeconfig file
 else
