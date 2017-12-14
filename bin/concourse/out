@@ -7,54 +7,28 @@ params = Kite::Helpers::Concourse.params(STDIN.read)
 
 Kite::Helpers::Concourse.fatal '`source` missing' unless params['source']
 
-key = params['source']['json_key']
-kubeconfig = params['source']['kubeconfig']
 token = params['source']['token'] # kubectl service account token
 endpoint = params['source']['endpoint']
-certificate-authority = params['source']['certificate-authority']
-cluster = ['source']['cluster']
-user = params['source']['user']
+cert = params['source']['certificate-authority']
 command = params['params']['command']
 
-Kite::Helpers::Concourse.fatal '`kubeconfig` and `token` missing' if kubeconfig.to_s.empty? && token.to_s.empty?
 Kite::Helpers::Concourse.fatal '`command` missing' if command.to_s.empty?
 
 path_certificate = '/tmp/ca.crt'
 path_key = '/tmp/key.json'
 path_kubeconfig = '/tmp/kubeconfig'
 
-File.write(path_key, key) if key
+env = {}
 
-unless token.to_s.empty?
-  token = `#{ token } | base64 -d` # decode token
-  certificate-authority = `#{ certificate-authority } | base64 -d` # decode certicate
+File.write(path_certificate, cert)
+env['KUBECONFIG'] = path_kubeconfig
 
-  File.write(path_certificate, certificate-authority) # save certificate to file
-
-  env = {
-    'KUBECONFIG' => path_kubeconfig,
-  }
-
-  Kite::Helpers::Concourse.execute("kubectl config set-cluster #{ cluster }" \
-                                   "--embed-certs=true --sever=#{ endpoint }" \
-                                   " --certificate-authority=./ca.crt", env)
-  Kite::Helpers::Concourse.execute("kubectl config set-credentials #{ user } --token=#{ token }", env) # Setting a user entry in kubeconfig
-  Kite::Helpers::Concourse.execute("kubectl config set-context #{ user } --cluster=#{ cluster } --user=#{ user } ", env) # Setting a context entry in kubeconfig
-  Kite::Helpers::Concourse.execute("kubectl config use-context #{ user }", env) # Setting the current-context in the kubeconfig file
-else
- File.write(path_kubeconfig, kubeconfig)
-end
-
-if key
-  env['GOOGLE_CREDENTIALS'] = path_key
-  unless Kite::Helpers::Concourse.execute("gcloud auth activate-service-account --key-file=#{ path_key }", env)
-    ::Kite::Helpers::Concourse.respond(
-      version: { status: 'error' },
-      metadata: ["Failed to execute command #{ command }"]
-    )
-    exit 1
-  end
-end
+Kite::Helpers::Concourse.execute("kubectl config set-cluster concourse " \
+                                 "--embed-certs=true --server=#{ endpoint } " \
+                                 "--certificate-authority=#{ path_certificate }", env)
+Kite::Helpers::Concourse.execute("kubectl config set-credentials concourse --token='#{ token }'", env)
+Kite::Helpers::Concourse.execute("kubectl config set-context concourse --cluster=concourse --user=concourse", env)
+Kite::Helpers::Concourse.execute("kubectl config use-context concourse", env)
 
 if Kite::Helpers::Concourse.execute(command, env)
   ::Kite::Helpers::Concourse.respond(version: { status: 'ok' })
