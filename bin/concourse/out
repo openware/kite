@@ -17,6 +17,7 @@ Kite::Helpers::Concourse.fatal '`command` missing' if command.to_s.empty?
 path_certificate = '/tmp/ca.crt'
 path_key = '/tmp/key.json'
 path_kubeconfig = '/tmp/kubeconfig'
+cleaner = [/(token)=[^ ]*/, '\1=REDACTED']
 
 env = {}
 
@@ -26,7 +27,7 @@ env['KUBECONFIG'] = path_kubeconfig
 Kite::Helpers::Concourse.execute("kubectl config set-cluster concourse " \
                                  "--embed-certs=true --server=#{ endpoint } " \
                                  "--certificate-authority=#{ path_certificate }", env)
-Kite::Helpers::Concourse.execute("kubectl config set-credentials concourse --token='#{ token }'", env)
+Kite::Helpers::Concourse.execute("kubectl config set-credentials concourse --token='#{ token }'", env, cleaner)
 Kite::Helpers::Concourse.execute("kubectl config set-context concourse --cluster=concourse --user=concourse", env)
 Kite::Helpers::Concourse.execute("kubectl config use-context concourse", env)
 

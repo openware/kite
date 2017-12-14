@@ -24,8 +24,9 @@ module Kite
         exit 1
       end
 
-      def self.execute(command, env = {})
-        log("+ #{ command }")
+      def self.execute(command, env = {}, gsub_log_args = nil)
+        command_log = gsub_log_args ? command.gsub(*gsub_log_args) : command
+        log("+ #{ command_log }")
         Open3.popen2e(env, command) do |stdin, stdout, wait_thr|
           ::Kite::Helpers::Concourse.log(stdout.read)
           return wait_thr.value.exitstatus.zero?
