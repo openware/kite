@@ -7,6 +7,7 @@ resource_types:
       repository: cfcommunity/slack-notification-resource
       tag: latest
 <% end -%>
+
   - name: pull-request
     type: docker-image
     source:
@@ -16,14 +17,24 @@ resource_types:
     type: docker-image
     source:
       repository: heliostech/kite
-      tag: v0.2.0
+      tag: v0.2.2
 
 resources:
   - name: k8s
     type: kite
     source:
-      json_key: ((gcr_password))
-      kubeconfig: ((kubeconfig))
+      certificate-authority: ((gcr_cert))
+      token: ((kube_token))
+      endpoint: ((endpoint))
+
+  - name: version
+    type: semver
+    source:
+      driver: gcs
+      bucket: <%= @name %>-bucket
+      key: <%= @name %>-version
+      json_key: ((gcr_password_staging))
+      initial_version: <%= @chart_version %>
 
   - name: <%= @name %>-repository
     type: git
@@ -126,12 +137,13 @@ jobs:
     plan:
       - get: <%= @name %>-repository
         trigger: true
-      - task: tag
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/create-repository-tag.yml
+      - get: version
+        params:
+          bump: patch
       - put: <%= @name %>-image
         params:
           build: <%= @name %>-repository
-          tag: tag/name
+          tag: version/version
 <% unless @slack.to_s.empty? -%>
         on_success:
           try:
@@ -155,6 +167,13 @@ jobs:
       - get: <%= @name %>-image
         passed: [master-build]
         trigger: true
+      - get: version
+        passed: [master-build]
+        trigger: true
+      - put: <%= @name %>-repository
+        params:
+          tag: version/version
+          repository: <%= @name %>-repository
       - task: run-tests
         image: <%= @name %>-image
         file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-unit.yml
@@ -170,7 +189,6 @@ jobs:
                 $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
                 or at:
                 $ATC_EXTERNAL_URL/builds/$BUILD_ID
-
         on_failure:
           put: slack-alert
           params:
@@ -182,6 +200,9 @@ jobs:
               or at:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
+      - put: version
+        params:
+          file: version/version
 
   - name: master-deploy
     serial: true
@@ -191,7 +212,7 @@ jobs:
         trigger: true
       - put: k8s
         params:
-          command: "bash -xc 'cd /tmp/build/put/<%= @name %>-repository && VERSION=$(git rev-parse --short=8 HEAD) make deploy'"
+          command: "bash -xc 'cd /tmp/build/put/<%= @name %>-repository && VERSION=$(git describe --tags --abbrev=0     2>/dev/null | tr -d 'v') make deploy'"
 <% unless @slack.to_s.empty? -%>
         on_success:
           try:

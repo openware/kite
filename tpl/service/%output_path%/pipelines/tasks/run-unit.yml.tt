@@ -1,7 +1,17 @@
 ---
 platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: <%= @image %>
+    tag: version
+    username: _json_key
+    password: ((gcp_sa_bloomon_stage))
 
 run:
   path: sh
-  args: ["-exc", "cd /app && npm test"]
+  args: ["-exc", "cd <%= @name %>-repository && npm test"]
 
+inputs:
+  - name: <%= @name %>-repository
+  - name: version
