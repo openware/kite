@@ -1,10 +1,10 @@
-VERSION ?= $(shell cat VERSION)
-ENV     ?= staging
-SERVICE := <%= @name %>
-IMAGE   := <%= @image %>:$(VERSION)
+VERSION         ?= $(shell git describe --tags --abbrev=0 2>/dev/null)
+ENV             ?= staging
+SERVICE         := <%= @name %>
+IMAGE           := <%= @image %>:$(VERSION)
 CURRENT_CONTEXT := $(shell kubectl config current-context)
 
-.PHONY: default build push run ci deploy
+.PHONY: default build push run ci deploy upgrade
 
 default: build run
 
@@ -30,3 +30,6 @@ ci:
 
 deploy:
 	@helm install ./<%= @output %>/charts/$(SERVICE) --set "image.tag=$(VERSION)"
+
+upgrade:
+	helm upgrade $(SERVICE) ./<%= @output %>/charts/$(SERVICE) --set "image.tag=$(VERSION)"
