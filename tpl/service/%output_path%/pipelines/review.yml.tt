@@ -23,8 +23,8 @@ resources:
   - name: k8s
     type: kite
     source:
-      certificate-authority: ((gcr_cert))
-      token: ((kube_token))
+      certificate-authority: ((gcr_certificate))
+      token: ((k8s_token))
       endpoint: ((endpoint))
 
   - name: version
@@ -92,7 +92,7 @@ jobs:
           status: pending
       - task: run-tests
         image: <%= @name %>-image
-        file: pull-requests/<%= @output %>/pipelines/tasks/run-unit.yml
+        file: pull-requests/<%= @output %>/pipelines/tasks/run-pr-unit.yml
         on_success:
           do:
           - put: pull-requests
@@ -140,6 +140,14 @@ jobs:
       - get: version
         params:
           bump: patch
+      - put: <%= @name %>-repository
+        params:
+          tag: version/version
+          repository: <%= @name %>-repository
+      - put: version
+        params:
+          file: version/version
+
       - put: <%= @name %>-image
         params:
           build: <%= @name %>-repository
@@ -170,10 +178,6 @@ jobs:
       - get: version
         passed: [master-build]
         trigger: true
-      - put: <%= @name %>-repository
-        params:
-          tag: version/version
-          repository: <%= @name %>-repository
       - task: run-tests
         image: <%= @name %>-image
         file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-unit.yml
@@ -200,9 +204,6 @@ jobs:
               or at:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
-      - put: version
-        params:
-          file: version/version
 
   - name: master-deploy
     serial: true
@@ -210,9 +211,12 @@ jobs:
       - get: <%= @name %>-repository
         passed: [master-unit]
         trigger: true
+      - get: version
+        passed: [master-unit]
+        trigger: true
       - put: k8s
         params:
-          command: "bash -xc 'cd /tmp/build/put/<%= @name %>-repository && VERSION=$(git describe --tags --abbrev=0     2>/dev/null | tr -d 'v') make deploy'"
+          command: "bash -xc 'cd <%= @name %>-repository && make upgrade'"
 <% unless @slack.to_s.empty? -%>
         on_success:
           try:
@@ -226,3 +230,31 @@ jobs:
                 or at:
                 $ATC_EXTERNAL_URL/builds/$BUILD_ID
 <% end -%>
+
+  - name: master-increment-minor
+    plan:
+      - get: <%= @name %>-repository
+      - get: version
+        params:
+          bump: minor
+      - put: <%= @name %>-repository
+        params:
+          tag: version/version
+          repository: <%= @name %>-repository
+      - put: version
+        params:
+          file: version/version
+
+  - name: master-increment-major
+    plan:
+      - get: <%= @name %>-repository
+      - get: version
+        params:
+          bump: major
+      - put: <%= @name %>-repository
+        params:
+          tag: version/version
+          repository: <%= @name %>-repository
+      - put: version
+        params:
+          file: version/version
