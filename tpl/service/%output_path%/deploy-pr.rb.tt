@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+require 'yaml'
+
+# Check number of arguments
+if ARGV.length != 2
+  puts 'Usage: deploy-pr.rb <id> <tag>'
+  exit 1
+end
+
+component  = '<%= @name %>'
+chart_path = '<%= @output %>/charts/<%= @name %>'
+
+id  = ARGV[0]
+tag = ARGV[1]
+
+file_path = Dir["#{chart_path}/values.{yaml,yml}"].first
+values    = YAML.load(File.read(file_path))
+namespace = "#{component}-pr-#{id}"
+pattern   = /(stage|staging\.\w+\..*)/
+
+values['ingress']['hosts'].map! { |h| h.gsub(pattern, "#{namespace}.\\1") }
+values['ingress']['tls'].map! do |x|
+  x['secretName'].gsub!(pattern, "#{namespace}.\\1")
+  x['hosts'].map! { |h| h.gsub(pattern, "#{namespace}.\\1") }
+  x
+end
+
+File.open(file_path, 'w') { |f| f.write values.to_yaml }
+
+if system "helm ls | grep '#{namespace}'"
+  system "helm upgrade #{namespace} #{chart_path} --set 'image.tag=#{tag}'"
+else
+  system "helm install #{chart_path} -n #{namespace} --namespace #{namespace} --set 'image.tag=#{tag}'"
+end

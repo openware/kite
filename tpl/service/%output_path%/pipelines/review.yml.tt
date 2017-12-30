@@ -1,207 +1,295 @@
 # Check `docs/pipeline.md` to get info about this file
 resource_types:
 <% unless @slack.nil? or @slack.empty? -%>
-  - name: slack-notification
-    type: docker-image
-    source:
-      repository: cfcommunity/slack-notification-resource
-      tag: latest
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
 <% end -%>
-  - name: pull-request
-    type: docker-image
-    source:
-      repository: jtarchie/pr
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
 
-  - name: kite
-    type: docker-image
-    source:
-      repository: heliostech/kite
-      tag: v0.2.0
+- name: kite
+  type: docker-image
+  source:
+    repository: heliostech/kite
+    tag: v0.2.2
 
 resources:
-  - name: k8s
-    type: kite
-    source:
-      json_key: ((gcr_password))
-      kubeconfig: ((kubeconfig))
+- name: k8s
+  type: kite
+  source:
+    certificate-authority: ((k8s_cert))
+    token: ((k8s_token))
+    endpoint: ((cluster_ip))
 
-  - name: <%= @name %>-repository
-    type: git
-    source:
-      uri: <%= @git %>
-      branch: master
-      private_key: ((git_private_key))
+- name: version
+  type: semver
+  source:
+    driver: gcs
+    bucket: ((gcp_bucket_name))
+    key: <%= @name %>-version
+    json_key: ((gcr_password))
+    initial_version: <%= @image_version %>
 
-  - name: pull-requests
-    type: pull-request
-    source:
-      access_token: ((github_token))
-      base: master
-      private_key: ((git_private_key))
-      repo: <%= @git.gsub(/(.*:|.git)/, '').split('/').last(2).join('/') %>
-      uri: <%= @git %>
+- name: <%= @name %>-repository
+  type: git
+  source:
+    uri: <%= @git %>
+    branch: master
+    private_key: ((git_private_key))
 
-  - name: <%= @name %>-image
-    type: docker-image
-    source:
-      repository: <%= @image %>
-      username: _json_key
-      password: ((gcr_password))
+- name: pull-requests
+  type: pull-request
+  source:
+    access_token: ((github_token))
+    base: master
+    private_key: ((git_private_key))
+    repo: <%= @git.gsub(/(.*:|.git)/, '').split('/').last(2).join('/') %>
+    uri: <%= @git %>
+
+- name: <%= @name %>-image
+  type: docker-image
+  source:
+    repository: <%= @image %>
+    username: _json_key
+    password: ((gcr_password))
+
 <% unless @slack.nil? or @slack.empty? -%>
-  - name: slack-alert
-    type: slack-notification
-    source:
-      url: https://hooks.slack.com/services/((slack_webhook))
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/((slack_webhook))
 <% end -%>
 
 jobs:
-  - name: pr-build
-    plan:
-      - get: pull-requests
-        trigger: true
-      - task: tag
-        file: pull-requests/<%= @output %>/pipelines/tasks/create-pull-requests-tag.yml
-      - put: <%= @name %>-image
-        params:
-          build: pull-requests
-          tag: tag/name
+- name: pr-build
+  plan:
+    - get: pull-requests
+      trigger: true
+    - task: tag
+      file: pull-requests/<%= @output %>/pipelines/tasks/create-pr-tag.yml
+    - put: <%= @name %>-image
+      params:
+        build: pull-requests
+        tag: tag/name
 
-  - name: pr-unit
-    serial: true
-    plan:
-      - get: pull-requests
-        passed: [pr-build]
-        trigger: true
-      - get: <%= @name %>-image
-        passed: [pr-build]
-        trigger: true
-      - put: pull-requests
-        params:
-          path: pull-requests
-          status: pending
-      - task: run-tests
-        image: <%= @name %>-image
-        file: pull-requests/<%= @output %>/pipelines/tasks/run-unit.yml
-        on_success:
-          do:
-          - put: pull-requests
-            params:
-              path: pull-requests
-              status: success
+- name: pr-unit
+  serial: true
+  plan:
+    - get: pull-requests
+      passed: [pr-build]
+      trigger: true
+    - get: <%= @name %>-image
+      passed: [pr-build]
+      trigger: true
+    - put: pull-requests
+      params:
+        path: pull-requests
+        status: pending
+    - task: run-tests
+      image: <%= @name %>-image
+      file: pull-requests/<%= @output %>/pipelines/tasks/run-pr-unit.yml
+      on_success:
+        do:
+        - put: pull-requests
+          params:
+            path: pull-requests
+            status: success
 <% unless @slack.nil? or @slack.empty? -%>
-          - put: slack-alert
-            params:
-              channel: '#<%= @slack %>'
-              text: |
-                <%= @name %> PR tests have passed! :thumbsup_all:
-                Check it out at:
-                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-                or at:
-                $ATC_EXTERNAL_URL/builds/$BUILD_ID
-                see on github:
-                `cat pull-requests/.git/url`
-<% end -%>
-        on_failure:
-          do:
-          - put: pull-requests
-            params:
-              path: pull-requests
-              status: failure
-<% unless @slack.nil? or @slack.empty? -%>
-          - put: slack-alert
-            params:
-              channel: '#<%= @slack %>'
-              text: |
-                <%= @name %> PR tests have failed! :thumbsdown_all:
-                Check it out at:
-                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-                or at:
-                $ATC_EXTERNAL_URL/builds/$BUILD_ID
-                see on github:
-                `cat pull-requests/.git/url`
-<% end -%>
-
-  - name: master-build
-    serial: true
-    plan:
-      - get: <%= @name %>-repository
-        trigger: true
-      - task: tag
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/create-repository-tag.yml
-      - put: <%= @name %>-image
-        params:
-          build: <%= @name %>-repository
-          tag: tag/name
-<% unless @slack.to_s.empty? -%>
-        on_success:
-          try:
-            put: slack-alert
-            params:
-              channel: '#<%= @slack %>'
-              text: |
-                <%= @name %> master branch was built and pushed!
-                Check it out at:
-                $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-                or at:
-                $ATC_EXTERNAL_URL/builds/$BUILD_ID
-<% end -%>
-
-  - name: master-unit
-    serial: true
-    plan:
-      - get: <%= @name %>-repository
-        passed: [master-build]
-        trigger: true
-      - get: <%= @name %>-image
-        passed: [master-build]
-        trigger: true
-      - task: run-tests
-        image: <%= @name %>-image
-        file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-unit.yml
-<% unless @slack.to_s.empty? -%>
-        on_success:
-          try:
-            put: slack-alert
-            params:
-              channel: '#<%= @slack %>'
-              text: |
-                <%= @name %> master tests have passed! :thumbsup_all:
-                Check it out at:
-                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-                or at:
-                $ATC_EXTERNAL_URL/builds/$BUILD_ID
-
-        on_failure:
-          put: slack-alert
+        - put: slack-alert
           params:
             channel: '#<%= @slack %>'
             text: |
-              <%= @name %> master tests have failed! :thumbsdown_all:
+              <%= @name %> PR tests have passed! :thumbsup_all:
               Check it out at:
               $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
               or at:
               $ATC_EXTERNAL_URL/builds/$BUILD_ID
+              see on github:
+              `cat pull-requests/.git/url`
+<% end -%>
+      on_failure:
+        do:
+        - put: pull-requests
+          params:
+            path: pull-requests
+            status: failure
+<% unless @slack.nil? or @slack.empty? -%>
+        - put: slack-alert
+          params:
+            channel: '#<%= @slack %>'
+            text: |
+              <%= @name %> PR tests have failed! :thumbsdown_all:
+              Check it out at:
+              $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+              see on github:
+              `cat pull-requests/.git/url`
 <% end -%>
 
-  - name: master-deploy
-    serial: true
-    plan:
-      - get: <%= @name %>-repository
-        passed: [master-unit]
-        trigger: true
-      - put: k8s
-        params:
-          command: "bash -xc 'cd /tmp/build/put/<%= @name %>-repository && VERSION=$(git rev-parse --short=8 HEAD) make deploy'"
+- name: pr-deploy
+  serial: true
+  plan:
+    - get: pull-requests
+      passed: [pr-unit]
+      trigger: true
+    - get: <%= @name %>-image
+      passed: [pr-unit]
+      trigger: true
+    - put: k8s
+      params:
+        command: "bash -xc 'cd pull-requests && .kite/deploy-pr.rb `cat .git/id` `cat ../tag/name`'"
+      on_success:
+        do:
+        - put: pull-requests
+          params:
+            path: pull-requests
+            status: success
+<% unless @slack.nil? or @slack.empty? -%>
+        - put: slack-alert
+          params:
+            channel: '#<%= @slack %>'
+            text: |
+              <%= @name %> pull request #`cat pull-requests/.git/id` deployment succeeded
+              Check it out at:
+              `cat pull-requests/.git/url`
+<% end -%>
+      on_failure:
+        do:
+        - put: pull-requests
+          params:
+            path: pull-requests
+            status: failure
+<% unless @slack.nil? or @slack.empty? -%>
+        - put: slack-alert
+          params:
+            channel: '#<%= @slack %>'
+            text: |
+              <%= @name %> pull request #`cat pull-requests/.git/id` deployment failed
+              Check it out at:
+              `cat pull-requests/.git/url`
+<% end -%>
+
+- name: master-build
+  serial: true
+  plan:
+    - get: <%= @name %>-repository
+      trigger: true
+    - get: version
+    - put: <%= @name %>-image
+      params:
+        build: <%= @name %>-repository
+        tag: version/version
 <% unless @slack.to_s.empty? -%>
-        on_success:
-          try:
-            put: slack-alert
-            params:
-              channel: '#<%= @slack %>'
-              text: |
-                <%= @name %> deployment has succeeded! :thumbsup_all:
-                Check it out at:
-                $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-                or at:
-                $ATC_EXTERNAL_URL/builds/$BUILD_ID
+      on_success:
+        do:
+        - put: slack-alert
+          params:
+            channel: '#<%= @slack %>'
+            text: |
+              <%= @name %> master branch was built and pushed!
+              Check it out at:
+              $ATC_EXTERNAL_URL/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+              or at:
+              $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
+
+- name: master-unit
+  serial: true
+  plan:
+  - get: <%= @name %>-repository
+    passed: [master-build]
+    trigger: true
+  - get: <%= @name %>-image
+    passed: [master-build]
+    trigger: true
+  - get: version
+    passed: [master-build]
+    trigger: true
+  - task: run-tests
+    image: <%= @name %>-image
+    file: <%= @name %>-repository/<%= @output %>/pipelines/tasks/run-master-unit.yml
+<% unless @slack.to_s.empty? -%>
+    on_success:
+      do:
+      - put: slack-alert
+        params:
+          channel: '#<%= @slack %>'
+          text: |
+            <%= @name %> master tests have passed! :thumbsup_all:
+            Check it out at:
+            $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            or at:
+            $ATC_EXTERNAL_URL/builds/$BUILD_ID
+    on_failure:
+      do:
+      - put: slack-alert
+        params:
+          channel: '#<%= @slack %>'
+          text: |
+            <%= @name %> master tests have failed! :thumbsdown_all:
+            Check it out at:
+            $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            or at:
+            $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
+
+- name: master-deploy
+  serial: true
+  plan:
+  - get: <%= @name %>-repository
+    passed: [master-unit]
+    trigger: true
+  - get: version
+    passed: [master-unit]
+    trigger: true
+  - put: k8s
+    params:
+      command: "bash -xc 'cd <%= @name %>-repository && VERSION=`cat ../version/version` make upgrade'"
+<% unless @slack.to_s.empty? -%>
+    on_success:
+      do:
+      - put: slack-alert
+        params:
+          channel: '#<%= @slack %>'
+          text: |
+            <%= @name %> deployment has succeeded!
+            Check it out at:
+            $ATC_EXTERNAL_URL/builds/$BUILD_ID
+    on_failure:
+      do:
+      - put: slack-alert
+        params:
+          channel: '#<%= @slack %>'
+          text: |
+            <%= @name %> deployment has failed!
+            Check it out at:
+            $ATC_EXTERNAL_URL/builds/$BUILD_ID
+<% end -%>
+  - put: <%= @name %>-repository
+    params:
+      tag: version/version
+      repository: <%= @name %>-repository
+  - put: version
+    params:
+      bump: patch
+<% ['minor', 'major'].each do |type| %>
+- name: increment-<%= type %>-version
+  plan:
+  - get: <%= @name %>-repository
+  - get: version
+    params:
+      bump: <%= type %>
+  - put: <%= @name %>-repository
+    params:
+      tag: version/version
+      repository: <%= @name %>-repository
+  - put: version
+    params:
+      file: version/version
 <% end -%>

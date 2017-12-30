@@ -1,15 +1,16 @@
-VERSION ?= $(shell cat VERSION)
-ENV     ?= staging
-SERVICE := <%= @name %>
-IMAGE   := <%= @image %>:$(VERSION)
+VERSION         ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo latest)
 CURRENT_CONTEXT := $(shell kubectl config current-context)
+ENV             ?= staging
+SERVICE         ?= <%= @name %>
+IMAGE           := <%= @image %>:$(VERSION)
+NAMESPACE       ?= default
 
-.PHONY: default build push run ci deploy
+.PHONY: default build push run ci deploy upgrade
 
 default: build run
 
 build:
-	@echo '> Using ENV: $(ENV) and context: $(CURRENT_CONTEXT)'
+	@echo '> Using ENV: "$(ENV)" and context: "$(CURRENT_CONTEXT)"'
 	@echo '> Building "$(SERVICE)" docker image...'
 	@docker build -t $(IMAGE) .
 
@@ -29,4 +30,7 @@ ci:
 	@fly -t ci unpause-pipeline -p $(SERVICE)
 
 deploy:
-	@helm install ./<%= @output %>/charts/$(SERVICE) --set "image.tag=$(VERSION)"
+	@helm install <%= @output %>/charts/$(SERVICE) -n $(SERVICE) --namespace $(NAMESPACE)  --set "image.tag=$(VERSION)"
+
+upgrade:
+	@helm upgrade $(SERVICE) <%= @output %>/charts/$(SERVICE) --set "image.tag=$(VERSION)"

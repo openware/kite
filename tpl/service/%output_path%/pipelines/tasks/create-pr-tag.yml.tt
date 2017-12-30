@@ -6,8 +6,9 @@ image_resource:
     repository: heliostech/kite
 run:
   path: sh
-  args: ['-xc', 'cd <%= @name %>-repository && git rev-parse --short=8 HEAD > ../tag/name']
+  args: ['-xc', 'cd pull-requests && git rev-parse --short=8 HEAD > ../tag/name']
 inputs:
-  - name: <%= @name %>-repository
+  - name: pull-requests
 outputs:
   - name: tag
+    path: ../tag/name

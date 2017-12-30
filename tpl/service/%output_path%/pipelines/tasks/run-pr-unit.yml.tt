@@ -1,0 +1,17 @@
+---
+platform: linux
+image_resource:
+ type: docker-image
+ source:
+   repository: <%= @image %>
+   tag: tag/name
+   username: _json_key
+   password: ((gcr_password))
+
+run:
+  path: sh
+  args: ["-exc", "cd pull-requests && echo Success"]
+
+inputs:
+  - name: pull-requests
+  - name: tag

@@ -1,0 +1,17 @@
+---
+platform: linux
+image_resource:
+ type: docker-image
+ source:
+   repository: <%= @image %>
+   tag: version
+   username: _json_key
+   password: ((gcr_password))
+
+run:
+  path: sh
+  args: ["-exc", "cd bloomon-login-repository && echo Success"]
+
+inputs:
+  - name: bloomon-login-repository
+  - name: version
