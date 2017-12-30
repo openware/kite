@@ -5,11 +5,18 @@ __Pipeline__ described in `<%= output_path %>/pipelines/review.yml`
 
 ## Credentials overview
 
-  - git_private_key - RSA key with access to your repository
-  - github_token    - [Github token](https://github.com/settings/tokens) with access to web hooks
+More about first 3 keys you can find in the [kite-concourse-resource docs](https://github.com/ashanaakh/kite/blob/master/docs/kite-concourse-resource.md).
+
+  - k8s_cert   - Service account certificate for cluster.
+  - k8s_token  - Service account token for your cluste.
+  - cluster_ip - Cluster server adress.
+
+  - gcp_bucket_name - Google bucket name where you will store current version of your repository.
+  - git_private_key - RSA key with access to your repository.
+  - github_token    - An access [Github token](https://github.com/settings/tokens) with `repo:status` access is required for public repos. An access token with `repo` access is required for _private_ repos.
+  - slack_webhook   - Address of your [Slack Incoming Webhook](https://api.slack.com/incoming-webhooks)
   - gcr_password    - JSON containing your [GCP credentials](https://developers.google.com/identity/protocols/application-default-credentials)
-  - slack_webhook   - address of your [Slack Incoming Webhook](https://api.slack.com/incoming-webhooks)
-  - kubeconfig      - your Kubernetes config encoded in base64
+
 
 ## Configurations overview
 
@@ -30,7 +37,7 @@ In `jobs` described actions of pipeline, how resources progress through it, and 
 
 ## Configure jobs
 
-- `build-pull-request`
+- `build-pr`
     - set `trigger: true` to make a new build of the job when new pull request available
     - configure `base: <branch_name>` to change which branch should be watched
 
