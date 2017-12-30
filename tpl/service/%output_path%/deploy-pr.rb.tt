@@ -7,28 +7,28 @@ if ARGV.length != 2
   exit 1
 end
 
-component  = '<%= @name %>'
-chart_path = '<%= @output %>/charts/<%= @name %>'
-
 id  = ARGV[0]
 tag = ARGV[1]
 
+chart_path = '<%= @output %>/charts/<%= @name %>'
+hostname   = "<%= @name %>.local"
+name       = "pr#{id}"
+namespace  = "<%= @name %>"
+
 file_path = Dir["#{chart_path}/values.{yaml,yml}"].first
 values    = YAML.load(File.read(file_path))
-namespace = "#{component}-pr-#{id}"
-pattern   = /(stage|staging\.\w+\..*)/
 
-values['ingress']['hosts'].map! { |h| h.gsub(pattern, "#{namespace}.\\1") }
+values['ingress']['hosts'].map! { |h| h.gsub(/#{hostname}/, "#{name}.#{hostname}") }
 values['ingress']['tls'].map! do |x|
-  x['secretName'].gsub!(pattern, "#{namespace}.\\1")
-  x['hosts'].map! { |h| h.gsub(pattern, "#{namespace}.\\1") }
+  x['secretName'].gsub!(/#{hostname}/, "#{name}.#{hostname}")
+  x['hosts'].map! { |h| h.gsub(/#{hostname}/, "#{name}.#{hostname}") }
   x
 end
 
 File.open(file_path, 'w') { |f| f.write values.to_yaml }
 
-if system "helm ls | grep '#{namespace}'"
-  system "helm upgrade #{namespace} #{chart_path} --set 'image.tag=#{tag}'"
+if system "helm ls | grep '#{name}'"
+  system "helm upgrade #{name} #{chart_path} --set 'image.tag=#{tag}'"
 else
-  system "helm install #{chart_path} -n #{namespace} --namespace #{namespace} --set 'image.tag=#{tag}'"
+  system "helm install #{chart_path} -n #{name} --namespace #{namespace} --set 'image.tag=#{tag}'"
 end

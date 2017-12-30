@@ -144,7 +144,7 @@ jobs:
       trigger: true
     - put: k8s
       params:
-        command: "bash -xc 'cd pull-requests && .kite/deploy-pr.rb `cat .git/id` `cat ../tag/name`'"
+        command: "bash -xc 'cd pull-requests && <%= @output %>/deploy-pr.rb `cat .git/id` `git rev-parse --short=8 HEAD`'"
       on_success:
         do:
         - put: pull-requests
