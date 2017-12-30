@@ -5,7 +5,7 @@ When you define kite resource you should defind `kubeconfig` or kite can generat
 Here is description of parameters:
 - __token__ - service account token for your cluster
 - __endpoint__ - cluster server adress
-- __certificate-autority__ - service account certificate for cluster
+- __certificate-authority__ - service account certificate for cluster
 
 ### Where to get this parameters ?
 
@@ -34,12 +34,13 @@ resource_types:
     type: docker-image
     source:
       repository: heliostech/kite
+      tag: v0.2.2
 
 resources:
-  - name: kite-test
+  - name: k8s
     type: kite
     source:
-      token: {{sa_token}}
-      endpoint: {{server_ip}}
-      certificate-autority: {{certificate-autority}}
+      token: ((sa_token))
+      endpoint: ((server_ip))
+      certificate-authority: ((certificate-authority))
 ```

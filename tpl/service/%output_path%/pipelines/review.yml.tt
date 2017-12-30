@@ -7,6 +7,7 @@ resource_types:
     repository: cfcommunity/slack-notification-resource
     tag: latest
 <% end -%>
+
 - name: pull-request
   type: docker-image
   source:

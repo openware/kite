@@ -10,8 +10,8 @@ image_resource:
 
 run:
   path: sh
-  args: ["-exc", "cd bloomon-login-repository && echo Success"]
+  args: ["-exc", "cd <%= @name %>-repository && echo Success"]
 
 inputs:
-  - name: bloomon-login-repository
+  - name: <%= @name %>-repository
   - name: version
