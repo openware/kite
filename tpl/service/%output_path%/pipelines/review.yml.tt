@@ -30,10 +30,11 @@ resources:
 - name: version
   type: semver
   source:
-    driver: gcs
-    bucket: ((gcp_bucket_name))
-    key: <%= @name %>-version
-    json_key: ((gcr_password))
+    driver: git
+    uri: <%= @git %>
+    branch: version
+    file: VERSION
+    private_key: ((git_private_key))
     initial_version: <%= @image_version %>
 
 - name: <%= @name %>-repository
