@@ -1,0 +1,15 @@
+# Kite config
+keypair_name = "kitekey"
+public_key = "~/safe/kite.key.pub"
+private_key = "~/safe/kite.key"
+
+# Credentials
+credentials = "<%= @values['gcp']['service_account'] %>"
+project = "<%= @values['gcp']['project'] %>"
+region = "<%= @values['region'] %>"
+zone = "<%= @values['zone'] %>"
+
+# Network Config
+vpc_name = "kube-platform"
+platform_subnet_name = "platform-net"
+subnet_cidr = "10.0.20.0/24"

@@ -71,6 +71,16 @@ module Kite
       directory('service', path)
     end
 
+    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
+    desc 'environment NAME', 'Generate an environment with base terraform files'
+    def environment(name)
+      @env_name = name
+      @values   = parse_cloud_config[name]
+
+      say "Generating environment for #{options[:provider]}"
+      directory("#{options[:provider]}/environment", "config/environments/#{name}")
+    end
+
     no_commands do
       def output_path
         @output ||= "config"

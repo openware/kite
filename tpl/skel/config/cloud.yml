@@ -1,66 +1,17 @@
-kite:
-  keypair_name: "kitekey"
-  public_key_path: "~/.ssh/kite.key.pub"
-  private_key_path: "~/.ssh/kite.key"
-  bucket_name: "kite-state-project-example"
-
-aws:
-  access_key: "enter your amazon key"
-  secret_key: "enter your secret key"
-  region: "eu-central-1"
-  zone: "eu-central-1a"
-  vpc_name: "platform-tools"
-  vpc_cidr_block: "10.0.0.0/16"
-  vpc_id: "" # submit vpc id if you want to use an existing vpc
-  public_subnet:
-    name: "platform-dmz"
-    gateway: "10.0.10.1"
-    network: "10.0.10.0/26"
-    id: "" # submit id if you want to use an existing public subnet
-  private_subnet:
-    name: "platform-net"
-    gateway: "10.0.20.1"
-    network: "10.0.20.0/26"
-
-gcp:
-  project: "gcp-project"
-  region: "europe-west1"
-  zone: "europe-west1-c"
-  service_account: "~/safe/terraform.json"
-  vpc_name: "platform-tools"
-  subnet_name: "platform-net"
-  subnet_cidr: "10.0.20.0/24"
-  internal_gw: "10.0.20.2"
-
-bosh:
-  name: "bosh-director"
-  static_ip: "10.0.20.10"
-
-k8s:
-  config_path: "~/.kube/config"
-  cluster_address: "k8s.example.com"
-  api_server_address: "https://api.k8s.example.com"
-
-ingress:
-  vip: "42.42.42.42"
-
-vault:
-  hostname: "vault.example.com"
-
-prometheus:
-  hostname: "prometheus.example.com"
-
-grafana:
-  hostname: "grafana.example.com"
-
-alertmanager:
-  hostname: "alertmanager.example.com"
-
-concourse:
-  hostname: "concourse.example.com"
-  url: "https://concourse.example.com"
-  auth_username: "concourse"
-
-oauth:
-  hostname: "oauth.example.com"
-  url: "https://oauth.example.com"
+default: &default
+  region: "us-east1"
+  zone: "us-east1-a"
+  gcp:
+    project: "hc-public"
+    service_account: "~/safe/hc-public/terraform.json"
+    bucket_name: "kite-state-helios-devel"
+# aws:
+#   access_key: "********************"
+#   secret_key: "****************************************"
+#   vpc_cidr_block: "10.0.0.0/16"
+dev:
+  <<: *default
+  gcp:
+    project: "helios-devel"
+    service_account: "~/safe/helios-devel.json"
+    bucket_name: "kite-state-helios-devel"
