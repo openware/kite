@@ -1,0 +1,15 @@
+# Kite config
+keypair_name = "kitekey"
+public_key = "~/safe/kite.key.pub"
+private_key = "~/safe/kite.key"
+
+# Credentials
+credentials = "~/safe/helios-devel.json"
+project = "helios-devel"
+region = "europe-west1"
+zone = "europe-west1-c"
+
+# Network Config
+vpc_name = "kube-platform"
+platform_subnet_name = "platform-net"
+subnet_cidr = "10.0.20.0/24"
