@@ -1,7 +1,7 @@
 azs:
 - name: z1
   cloud_properties:
-    zone: <%= @values['gcp']['zone'] %>
+    zone: <%= @tf_vars['zone'] %>
 
 vm_types:
 - name: common
@@ -52,13 +52,13 @@ networks:
     type: manual
     subnets:
     - az: z1
-      range: <%= @values['gcp']['subnet_cidr'] %>
-      gateway: <%= @values['gcp']['internal_gw'] %>
+      range: <%= @tf_vars['subnet_cidr'] %>
+      gateway: <%= @bosh_vars['internal_gw'] %>
       reserved: [<%= ip_range(@private_subnet, (1..10)) %>] # Reserved range for the gateway, BOSH Director etc
       static: [<%= ip_range(@private_subnet, (11..13)) %>] # Static IP range for Vault, Concourse web panel, nginx etc
       cloud_properties:
-        network_name: <%= @values['gcp']['vpc_name'] %>
-        subnetwork_name: <%= @values['gcp']['subnet_name'] %>
+        network_name: <%= @tf_vars['vpc_name'] %>
+        subnetwork_name: <%= @tf_vars['platform_subnet_name'] %>
         ephemeral_external_ip: false
         tags:
           - platform-internal

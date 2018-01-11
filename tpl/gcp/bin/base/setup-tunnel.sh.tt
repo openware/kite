@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
-pushd terraform
-BASTION_IP="$(terraform output bastion_ip)"
-popd
+BASTION_IP="$(terraform output -module bosh bastion_ip)"
 
 if [[ -z "${BASTION_IP}" ]]; then
   echo "Something goes wrong, please check terraform environement" 1>&2
   false
 else
-  ssh -D 5000 -fNC kite@${BASTION_IP} -i <%= @values['kite']['private_key_path'] %>
+  ssh -D 5000 -fNC kite@${BASTION_IP} -i <%= @tf_vars['private_key'] %>
   export BOSH_ALL_PROXY=socks5://localhost:5000
 fi

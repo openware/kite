@@ -41,18 +41,18 @@ module Kite
       \x5  OAUTH       Render OAuth (UAA) deployment
     LONGDESC
     method_option :cloud, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
+#   method_option :env, type: :string, desc: "Environment", required: true
     # Render a manifest of selected type based on <b>config/cloud.yml</b> and <b>terraform apply</b> results
     def manifest(type)
       type = type.downcase
       say "Rendering #{type} manifest", :green
-      @values = parse_cloud_config
-      @tf_output = parse_tf_state('terraform/terraform.tfstate') if options[:cloud] == 'aws'
+      @tf_vars = parse_tf_vars
 
       if options[:cloud] == 'aws'
         @private_subnet = IPAddr.new(@values['aws']['private_subnet']['network']).to_range.to_a
         @public_subnet = IPAddr.new(@values['aws']['public_subnet']['network']).to_range.to_a
       else
-        @private_subnet = IPAddr.new(@values['gcp']['subnet_cidr']).to_range.to_a
+        @private_subnet = IPAddr.new(@tf_vars['subnet_cidr']).to_range.to_a
       end
 
       @static_ip_vault            = @private_subnet[11].to_s
@@ -60,13 +60,20 @@ module Kite
       @static_ip_prometheus_stack = @private_subnet[18].to_s
       @static_ip_oauth            = @private_subnet[23].to_s
 
+
+      @bosh_vars  = YAML.load(File.read('bosh-vars.yml'))
+
       case type
       when "bosh"
-        directory("#{options[:cloud]}/deployments/bosh",                          'deployments/bosh')
-        template("#{options[:cloud]}/bosh-vars.yml.erb",                          'config/bosh-vars.yml')
+        directory("#{options[:cloud]}/deployments/bosh",                          "deployments/bosh")
+#       template("#{options[:cloud]}/bosh-vars.yml.erb",                          "config/bosh-vars.yml")
         copy_file("#{options[:cloud]}/docs/bosh.md",                              "docs/bosh.md")
         template("#{options[:cloud]}/bin/bosh-install.sh.tt",                     "bin/bosh-install.sh")
-        chmod('bin/bosh-install.sh', 0755)
+        template("#{options[:cloud]}/bin/base/setup-tunnel.sh.tt",                "bin/setup-tunnel.sh")
+        template("#{options[:cloud]}/bin/base/set-env.sh.tt",                     "bin/set-env.sh")
+        chmod("bin/bosh-install.sh", 0755)
+        chmod("bin/setup-tunnel.sh", 0755)
+        chmod("bin/set-env.sh", 0755)
 
       when "concourse"
         directory("#{options[:cloud]}/deployments/concourse",                     "deployments/concourse")

@@ -20,6 +20,19 @@ module Kite::Helpers
     tf_output
   end
 
+  # Parse terraform.tfvars, returning the output hash
+  def parse_tf_vars()
+    raise Kite::Error, 'Are you in the env directory? terraform.tfvars is missing!' unless File.file? 'terraform.tfvars'
+
+    lines = File.read('terraform.tfvars').lines.select { |line| line[0] != "#" && line != "\n" } # Read all lines excluding comments and blank lines
+    lines.map { |line| line.tr!("\"", ""); line.tr!("\n", "") } # Strip the lines of quotes and line breaks
+
+    res_vars = Hash.new
+    lines.map { |line| line.split(" = ") }.each { |line| res_vars[line.first] = line.last } # Convert all variables into a hash
+
+    res_vars
+  end
+
   # Parse config/cloud.yml, returning the output hash
   def parse_cloud_config
     cloud_config = YAML.load(File.read('config/cloud.yml'))
