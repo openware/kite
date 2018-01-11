@@ -3,6 +3,7 @@
 ![Build Status](https://ci.helioscloud.com/api/v1/teams/heliostech/pipelines/kite/jobs/build-master/badge)
 [![Build Status](https://travis-ci.org/helios-technologies/kite.svg?branch=master)](https://travis-ci.org/helios-technologies/kite)
 [![codecov](https://codecov.io/gh/helios-technologies/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/helios-technologies/kite)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frubykube%2Fkite.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Frubykube%2Fkite?ref=badge_shield)
 
 
 Kite is a CLI for scaffolding and managing devops modules
@@ -84,3 +85,7 @@ $ ruby -Ilib ./bin/concourse/in
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/helios-technologies/kite.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frubykube%2Fkite.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Frubykube%2Fkite?ref=badge_large)
