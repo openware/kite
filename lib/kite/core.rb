@@ -16,6 +16,9 @@ module Kite
     desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
     subcommand "render", Kite::Render
 
+    desc 'module', 'Use kite modules with environments'
+    subcommand "module", Kite::Module
+
     desc "version", "Return kite version"
     # Return kite version
     def version

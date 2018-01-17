@@ -1,6 +1,7 @@
 require 'erb'
 require 'yaml'
 require 'ipaddr'
+require 'git'
 require 'thor'
 
 require 'kite/version'
@@ -8,6 +9,7 @@ require 'kite/helpers'
 require 'kite/error'
 
 require 'kite/base'
+require 'kite/module'
 require 'kite/render'
 require 'kite/generate'
 require 'kite/core'
