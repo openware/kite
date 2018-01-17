@@ -3,30 +3,58 @@ module Kite
     include Kite::Helpers
 
     method_option :env, type: :string, desc: "Environment", required: true
-    desc 'init', 'Initialize a kite module and render its vars.module.yml'
+    desc 'init NAME https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
     def init(name, uri)
-      say "Cloning the #{name} module"
-      clone_module("modules/#{name}", uri)
+      @name = name
+      @env  = options[:env]
+
+      say "Cloning the #{@name} module"
+      clone_module("modules/#{@name}", uri)
 
       say "Rendering vars"
-      render_vars(name, options[:env])
+      render_vars
 
-      say "Rendered successfully, please fill out config/environments/#{options[:env]}/vars.#{name}.yml with correct values", :green
+      say "Rendered successfully, please fill out config/environments/#{@env}/vars.#{@name}.yml with correct values", :green
+    end
+
+    method_option :env, type: :string, desc: "Environment", required: true
+    desc 'render NAME', 'Render kite module files using vars.*module*.yml'
+    def render(name)
+      @name = name
+      @env  = options[:env]
+      @vars = load_vars
+
+
+      say "Rendering files"
+      render_templates
     end
 
     no_commands do
       def clone_module(path, uri)
-        remove_dir path if File.exist? path
-        Git.clone(uri, path)
+        if File.exist? path
+         overwrite = ask "#{path} already contains a module! Overwrite? (y/n)"
+
+         if overwrite.downcase == 'y'
+           remove_dir path
+           Git.clone(uri, path)
+         end
+        end
       end
 
-      def render_vars(name, env)
-        manifest = load_manifest(name)
-        create_file "config/environments/#{options[:env]}/vars.#{name}.yml", YAML.dump(manifest['variables'])
+      def render_vars
+        create_file "config/environments/#{@env}/vars.#{@name}.yml", YAML.dump(manifest['variables'])
       end
 
-      def load_manifest(name)
-        YAML.load(File.open("modules/#{name}/manifest.yml"))
+      def render_templates
+        directory "#{ENV['PWD']}/modules/#{@name}/templates", "config/environments/#{@env}"
+      end
+
+      def load_vars
+        YAML.load(File.open("config/environments/#{@env}/vars.#{@name}.yml"))
+      end
+
+      def manifest
+        YAML.load(File.open("modules/#{@name}/manifest.yml"))
       end
     end
 
