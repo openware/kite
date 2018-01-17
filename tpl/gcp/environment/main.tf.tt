@@ -1,0 +1,9 @@
+provider "google" {
+  credentials = "<%= @cloud['gcp']['service_account'] %>"
+  project = "<%= @cloud['gcp']['project'] %>"
+  region = "<%= @cloud['region'] %>"
+}
+
+resource "random_id" "name" {
+  byte_length = 2
+}

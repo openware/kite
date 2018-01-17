@@ -74,10 +74,17 @@ module Kite
     method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
     desc 'environment NAME', 'Generate an environment with base terraform files'
     def environment(name)
-      @env_name = name
-      @values   = parse_cloud_config[name]
-
       say "Generating environment for #{options[:provider]}"
+
+      unless parse_cloud_config.key? name
+        append_to_file cloud_file, "\n"
+        append_to_file cloud_file, "\n#{name}:\n"
+        append_to_file cloud_file, "  <<: *default\n"
+      end
+
+      @cloud = parse_cloud_config[name]
+      @env_name = name
+
       directory("#{options[:provider]}/environment", "config/environments/#{name}")
     end
 
@@ -89,7 +96,10 @@ module Kite
       def app_name
         @name ||= "app-name"
       end
-    end
 
+      def cloud_file
+        "config/cloud.yml"
+      end
+    end
   end
 end

@@ -1,9 +1,0 @@
-director_name:             bosh-director
-internal_cidr:             10.0.20.0/26
-internal_gw:               10.0.20.1
-internal_ip:               10.0.20.10
-project_id:                example-project
-zone:                      us-east1-a
-network:                   example-platform
-subnetwork:                platform_net
-kubernetes_apiserver:
