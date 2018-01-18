@@ -19,6 +19,9 @@ module Kite
     desc 'module', 'Use kite modules with environments'
     subcommand "module", Kite::Module
 
+    desc 'terraform', 'Use Terraform-related operations'
+    subcommand "terraform", Kite::Terraform
+
     desc "version", "Return kite version"
     # Return kite version
     def version

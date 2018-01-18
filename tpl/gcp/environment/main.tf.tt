@@ -1,5 +1,5 @@
 provider "google" {
-  credentials = "<%= @cloud['gcp']['service_account'] %>"
+  credentials = "${file("<%= @cloud['gcp']['service_account'] %>")}"
   project = "<%= @cloud['gcp']['project'] %>"
   region = "<%= @cloud['region'] %>"
 }

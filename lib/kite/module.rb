@@ -24,20 +24,26 @@ module Kite
       @env  = options[:env]
       @vars = load_vars
 
-
       say "Rendering files"
       render_templates
     end
 
     no_commands do
+      def kite_env
+        @env
+      end
+
       def clone_module(path, uri)
         if File.exist? path
-         overwrite = ask "#{path} already contains a module! Overwrite? (y/n)"
+          overwrite = ask "#{path} already contains a module! Overwrite? (y/n)"
 
-         if overwrite.downcase == 'y'
-           remove_dir path
-           Git.clone(uri, path)
-         end
+          if overwrite.downcase == 'y'
+            remove_dir path
+            Git.clone(uri, path)
+          end
+
+        else
+          Git.clone(uri, path)
         end
       end
 
@@ -46,7 +52,7 @@ module Kite
       end
 
       def render_templates
-        directory "#{ENV['PWD']}/modules/#{@name}/templates", "config/environments/#{@env}"
+        directory "#{ENV['PWD']}/modules/#{@name}/templates", "."
       end
 
       def load_vars
