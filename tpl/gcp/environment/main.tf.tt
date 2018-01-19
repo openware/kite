@@ -3,5 +3,3 @@ provider "google" {
   project = "<%= @cloud['gcp']['project'] %>"
   region = "<%= @cloud['region'] %>"
 }
-
-
