@@ -6,14 +6,15 @@ module Kite
       @env_name = options[:env]
     end
 
-    def say(*args)
-      @core.say(*args)
-    end
-
     def run(command, *args)
-      say "Loading env"
+      STDERR.puts "Loading env"
       load_env
-      system "terraform #{command} config/environments/#{@env_name}"
+      script = "terraform #{command} #{args.join " "}"
+      STDERR.puts script
+
+      Dir.chdir("config/environments/#{@env_name}") do
+        system(script)
+      end
     end
 
     def load_env
@@ -21,7 +22,7 @@ module Kite
       @vars.each do |var, val|
         key = "TF_VAR_#{var}"
         ENV[key] = val
-        puts "%-25s: %s" % [key, ENV["TF_VAR_#{var}"]]
+        STDERR.puts "%-25s: %s" % [key, ENV["TF_VAR_#{var}"]]
       end
 
       # TODO: Need to be set only in case of GCP
