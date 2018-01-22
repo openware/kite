@@ -4,6 +4,4 @@ provider "google" {
   region = "<%= @cloud['region'] %>"
 }
 
-resource "random_id" "name" {
-  byte_length = 2
-}
+
