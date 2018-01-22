@@ -19,8 +19,11 @@ module Kite
     desc 'module', 'Use kite modules with environments'
     subcommand "module", Kite::Module
 
-    desc 'terraform', 'Use Terraform-related operations'
-    subcommand "terraform", Kite::Terraform
+    desc 'terraform', 'Run Terraform-related command with environement variables'
+    method_option :env, type: :string, desc: "Environment", required: true
+    def terraform(command, *args)
+      Kite::Terraform.new(self, options).run(command, *args)
+    end
 
     desc "version", "Return kite version"
     # Return kite version

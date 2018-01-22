@@ -1,45 +1,48 @@
 module Kite
-  class Terraform < Base
-    include Kite::Helpers
+  class Terraform
 
-    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp}, required: true
-    desc "apply", "Apply Terraform files in a chosen environment"
-    def apply(env_name)
+    def initialize(core, options)
+      @core = core
+      @env_name = options[:env]
+    end
+
+    def say(*args)
+      @core.say(*args)
+    end
+
+    def run(command, *args)
       say "Loading env"
-      @env_name = env_name
       load_env
       say "Initializing terraform"
-      initialized = system "terraform init config/environments/#{env_name}"
+      initialized = system "terraform init config/environments/#{@env_name}"
 
       if initialized
         say "Applying terraform"
-        system "terraform apply config/environments/#{env_name}"
+        system "terraform apply config/environments/#{@env_name}"
       end
     end
 
-    no_commands do
-      def load_env
-        load_vars
-        @vars.each do |var, val|
-          puts var, val
-          ENV["TF_VAR_#{var}"] = val
-          p "value: #{ENV["TF_VAR_#{var}"]}"
-        end
+    def load_env
+      load_vars
+      @vars.each do |var, val|
+        key = "TF_VAR_#{var}"
+        ENV[key] = val
+        puts "%-25s: %s" % [key, ENV["TF_VAR_#{var}"]]
       end
-
-      def cloud
-        YAML.load(File.read('config/cloud.yml'))[@env_name]
-      end
-
-      def load_vars
-        vars_files = Dir["config/environments/#{@env_name}/vars.*.yml"]
-        @vars = Hash.new
-
-        vars_files.each do |f|
-          @vars.merge!(YAML.load(File.read(f)))
-        end
-      end
+      # TODO: Need to be set only in case of GCP
+      ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @vars["credentials"]
     end
 
+    def cloud
+      YAML.load(File.read('config/cloud.yml'))[@env_name]
+    end
+
+    def load_vars
+      vars_files = Dir["config/environments/#{@env_name}/vars.*.yml"]
+      @vars = Hash.new
+      vars_files.each do |f|
+        @vars.merge!(YAML.load(File.read(f)))
+      end
+    end
   end
 end
