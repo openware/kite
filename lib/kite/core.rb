@@ -20,7 +20,7 @@ module Kite
     subcommand "module", Kite::Module
 
     desc 'terraform', 'Run Terraform-related command with environement variables'
-    method_option :env, type: :string, desc: "Environment", required: true
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     def terraform(command, *args)
       Kite::Terraform.new(self, options).run(command, *args)
     end
