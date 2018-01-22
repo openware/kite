@@ -20,6 +20,7 @@ class Kite::Cloud
     core.inside(name) do
       core.chmod('bin/kite', 0755)
     end
+    Git.init(name)
   end
 
 end

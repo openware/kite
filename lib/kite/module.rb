@@ -3,24 +3,28 @@ module Kite
     include Kite::Helpers
 
     method_option :env, type: :string, desc: "Environment", required: true
-    desc 'init NAME https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
-    def init(name, uri)
-      @name = name
+    desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
+    def init(uri)
+      @uri  = uri
+      @name = uri.gsub(/(.*:|.git)/, '').split('/').last
+      @path = "modules/#{@name}"
       @env  = options[:env]
 
       say "Cloning the #{@name} module"
-      clone_module("modules/#{@name}", uri)
+      clone_module
 
       say "Rendering vars"
       render_vars
 
+      say "Use git submodule add #{@path} to be able to commit this module as a submodule", :yellow
       say "Rendered successfully, please fill out config/environments/#{@env}/vars.#{@name}.yml with correct values", :green
     end
 
     method_option :env, type: :string, desc: "Environment", required: true
-    desc 'render NAME', 'Render kite module files using vars.*module*.yml'
-    def render(name)
-      @name = name
+    desc 'render PATH', 'Render kite module files using vars.*module*.yml'
+    def render(path)
+      @path = path
+      @name = @path.split('/').last
       @env  = options[:env]
       @vars = load_vars
 
@@ -33,17 +37,16 @@ module Kite
         @env
       end
 
-      def clone_module(path, uri)
-        if File.exist? path
-          overwrite = ask "#{path} already contains a module! Overwrite? (y/n)"
+      def clone_module
+        if File.exist? @path
+          overwrite = ask "#{@path} already contains a module! Overwrite? (y/n)"
 
           if overwrite.downcase == 'y'
-            remove_dir path
-            Git.clone(uri, path)
+            remove_dir @path
+            Git.clone(@uri, @path)
           end
-
         else
-          Git.clone(uri, path)
+          Git.clone(@uri, @path)
         end
       end
 

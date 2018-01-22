@@ -77,9 +77,7 @@ module Kite
       say "Generating environment for #{options[:provider]}"
 
       unless parse_cloud_config.key? name
-        append_to_file cloud_file, "\n"
-        append_to_file cloud_file, "\n#{name}:\n"
-        append_to_file cloud_file, "  <<: *default\n"
+        append_to_file cloud_file, "\n#{name}:\n  <<: *default\n"
       end
 
       @cloud = parse_cloud_config[name]

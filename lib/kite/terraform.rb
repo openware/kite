@@ -29,6 +29,7 @@ module Kite
         ENV[key] = val
         puts "%-25s: %s" % [key, ENV["TF_VAR_#{var}"]]
       end
+
       # TODO: Need to be set only in case of GCP
       ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @vars["credentials"]
     end
