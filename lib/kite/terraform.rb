@@ -13,13 +13,7 @@ module Kite
     def run(command, *args)
       say "Loading env"
       load_env
-      say "Initializing terraform"
-      initialized = system "terraform init config/environments/#{@env_name}"
-
-      if initialized
-        say "Applying terraform"
-        system "terraform apply config/environments/#{@env_name}"
-      end
+      system "terraform #{command} config/environments/#{@env_name}"
     end
 
     def load_env
