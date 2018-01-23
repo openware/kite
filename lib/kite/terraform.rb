@@ -26,7 +26,7 @@ module Kite
       end
 
       # TODO: Need to be set only in case of GCP
-      ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @vars["credentials"]
+      # ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @vars["credentials"]
     end
 
     def cloud
@@ -37,7 +37,8 @@ module Kite
       vars_files = Dir["config/environments/#{@env_name}/vars.*.yml"]
       @vars = Hash.new
       vars_files.each do |f|
-        @vars.merge!(YAML.load(File.read(f)))
+        tf_vars = YAML.load(File.read(f))['terraform']
+        @vars.merge!(tf_vars) unless tf_vars.nil?
       end
     end
   end
