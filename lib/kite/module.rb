@@ -2,7 +2,7 @@ module Kite
   class Module < Base
     include Kite::Helpers
 
-    method_option :env, type: :string, desc: "Environment", required: true
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
     def init(uri)
       @uri  = uri
@@ -20,7 +20,7 @@ module Kite
       say "Rendered successfully, please fill out config/environments/#{@env}/vars.#{@name}.yml with correct values", :green
     end
 
-    method_option :env, type: :string, desc: "Environment", required: true
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     desc 'render PATH', 'Render kite module files using vars.*module*.yml'
     def render(path)
       @path = path
