@@ -23,10 +23,11 @@ module Kite
     method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     desc 'render PATH', 'Render kite module files using vars.*module*.yml'
     def render(path)
-      @path = path
-      @name = @path.split('/').last
-      @env  = options[:env]
-      @vars = load_vars
+      @path  = path
+      @name  = @path.split('/').last
+      @env   = options[:env]
+      @vars  = load_vars
+      @cloud = parse_cloud_config[@env]
 
       say "Rendering files"
       render_templates
@@ -55,7 +56,8 @@ module Kite
       end
 
       def render_templates
-        directory "#{ENV['PWD']}/modules/#{@name}/templates", "."
+        directory "#{ENV['PWD']}/modules/#{@name}/templates", ".", mode: :preserve
+        chmod     "bin", 0755
       end
 
       def load_vars
