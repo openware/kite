@@ -40,11 +40,14 @@ module Kite
 
       def clone_module
         if File.exist? @path
-          overwrite = ask "#{@path} already contains a module! Overwrite? (y/n)"
+          overwrite = ask "#{@path} already contains a module! Overwrite? (y/N)"
 
           if overwrite.downcase == 'y'
             remove_dir @path
             Git.clone(@uri, @path)
+            say "Successfully cloned the fresh version!", :green
+          else
+            say "Keeping the current module"
           end
         else
           Git.clone(@uri, @path)
