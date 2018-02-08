@@ -1,0 +1,5 @@
+provider "aws" {
+  region = "<%= @cloud['region'] %>"
+  access_key = "<%= @cloud['aws']['access_key'] %>"
+  secret_key = "<%= @cloud['aws']['secret_key'] %>"
+}

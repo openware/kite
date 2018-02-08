@@ -1,5 +1,5 @@
 default: &default
-  region: "us-east1"
+  region: "us-east1" # Note that region formats differ between AWS and GCP
   zone: "us-east1-a"
   gcp:
     project: "hc-public"
@@ -8,3 +8,4 @@ default: &default
   aws:
     access_key: "********************"
     secret_key: "****************************************"
+    bucket_name: "kite-state-helios-devel"
