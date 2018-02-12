@@ -21,5 +21,7 @@ module Kite
     def version
       say "v#{ Kite::VERSION }"
     end
+
+    include Kite::UserTasksAutoload
   end
 end

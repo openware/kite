@@ -41,10 +41,36 @@ module Kite
       end
     end
 
-    method_option :name, type: :string, desc: "Task name", required: true
-    desc "task", "Generate task IaC from configuration"
-    def task()
-      say "Generating task #{ options[:name] } IaC", :green
+    method_option :force, type: :boolean, desc: "Overwrite existing commands", default: false
+    desc "task COMMAND_NAME [TASK_NAME, ...]", "Generate task IaC from configuration"
+    def task(command_name, *tasks)
+      command_file = "lib/tasks/#{ command_name.downcase }.rb"
+      @command_name = command_name.capitalize
+
+      if !File.exists?(command_file) or options[:force]
+        say "Generating task #{ options[:name] } IaC", :green
+        template("tasks/command.rb.erb", command_file)
+      end
+
+      tasks.each do |task|
+        task = task.downcase
+        command_code = File.read(command_file)
+        if command_code =~ /desc '#{ task }'/
+          STDERR.puts "Command #{ task } already exists!"
+          exit 1
+        end
+
+        inject_into_class(command_file, "UserCommand::#{ @command_name }") do
+<<EOF
+
+  desc '#{ task }', '#{ task.capitalize } task'
+  def #{ task }
+    say 'running task #{ task }'
+  end
+
+EOF
+        end
+      end
     end
 
     method_option :git, type: :string, desc: "Git repository", required: true
