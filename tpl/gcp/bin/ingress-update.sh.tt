@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -xe
-
-kite render manifest ingress --cloud gcp
-
-bosh -e <%= @values['bosh']['name'] %> -d ingress deploy deployments/ingress/ingress.yml
