@@ -13,9 +13,6 @@ module Kite
     desc "generate", "Generate IaC from configuration"
     subcommand "generate", Kite::Generate
 
-    desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
-    subcommand "render", Kite::Render
-
     desc 'module', 'Use kite modules with environments'
     subcommand "module", Kite::Module
 

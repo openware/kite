@@ -9,7 +9,6 @@ require 'kite/helpers'
 require 'kite/error'
 
 require 'kite/base'
-require 'kite/render'
 require 'kite/generate'
 require 'kite/module'
 require 'kite/terraform'
