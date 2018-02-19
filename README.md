@@ -7,7 +7,7 @@
 
 Kite is a CLI for scaffolding and managing devops modules
 The main purpose is templating of various tools for devops around terraform, bosh, ansible
-Currently Kite support one Stack on both AWS and GCP.
+Currently Kite supports modular stacks(Kite modules) on both AWS and GCP.
 
 We plan in adding community stack using a simple template repository structure.
 
@@ -30,7 +30,8 @@ Or install it yourself as:
 ## Usage
 
 To start using kite for bootstraping your infrastructure
-follow the steps below :
+follow the steps below.
+[Note] Most kite commands can be referred by their first letter(for example kite generate environment test == kite g e test)
 
 ### Create your Infrastructure as Code base repository
 
@@ -40,24 +41,47 @@ Create a new kite project using:
 $ kite new PROJECT_NAME
 ```
 
-### Configure your cloud and credentials
+### Generate an environment(e.g. development/test/production)
 
-- Fill out the `config/cloud.yml` file with your credentials.
-- For BOSH you'll need an SSH key, to generate one, use `ssh-keygen -f *path_to_key*`
+Kite environments are separated workspaces with their own credentials, variables and modules.
 
-### Generate your infrastructure using terraform
-
-Generate the cloud IaC needed with
+Generate an environment
 
 ```
-$ kite generate cloud --provider=aws|gcp
+$ kite generate environment *env_name* --provider=aws|gcp
 ```
 
-you can now review and apply your terraform files.
+If you want to change the credentials for an environment, edit `config/cloud.yml` and regenerate environment with the same command.
 
-### Deploy the default stack (BOSH / Concourse / Vault / Kubernetes)
+Now the environment should be generated at `config/environments/*env_name*`
 
-Continue with instructions from newly generated README.md
+### Add a module to your environment
+
+To add a Kite module to your environment, you should first initialize it:
+
+```
+  kite module init https://url.for/your/module --env *env_name*
+```
+
+This should clone module's source files into `modules/*module_name*` and create a `vars.*module_name*.yml` file with all variables needed by the module.
+
+Fill in `vars.*module_name*.yml` with correct values and render the module:
+
+```
+  kite module render modules/*module_name* --env *env_name*
+```
+
+### Apply Terraform configuration from the environment
+
+Set your default gcloud credentials using
+
+```
+  gcloud auth application-default login
+```
+
+```
+  kite terraform apply --env *env_name*
+```
 
 ## Getting help
 

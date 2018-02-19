@@ -13,8 +13,14 @@ module Kite
     desc "generate", "Generate IaC from configuration"
     subcommand "generate", Kite::Generate
 
-    desc 'render MANIFEST', 'Render manifest file from configuration and Terraform output'
-    subcommand "render", Kite::Render
+    desc 'module', 'Use kite modules with environments'
+    subcommand "module", Kite::Module
+
+    desc 'terraform', 'Run Terraform-related commands with environment variables loaded from module vars'
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    def terraform(command, *args)
+      Kite::Terraform.new(self, options).run(command, *args)
+    end
 
     desc "version", "Return kite version"
     # Return kite version
