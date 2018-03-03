@@ -4,26 +4,29 @@ module Kite
 
     method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
-    def init(uri)
-      @uri  = uri
-      @name = uri.gsub(/(.*:|.git)/, '').split('/').last
-      @path = "modules/#{@name}"
+    def init(path)
       @env  = options[:env]
+      @path = path
+      @name = path.gsub(/(.*:|.git)/, '').split('/').last
 
-      say "Cloning the #{@name} module"
-      clone_module
+      unless File.exist? path
+        @uri  = path
+        @path = "modules/#{@name}"
 
-      say "Rendering vars"
+        say "Cloning the module"
+        clone_module
+        say "Use git submodule add #{@path} to be able to commit this module as a submodule", :yellow
+      end
+
       render_vars
 
-      say "Use git submodule add #{@path} to be able to commit this module as a submodule", :yellow
       say "Rendered successfully, please fill out config/environments/#{@env}/vars.#{@name}.yml with correct values", :green
     end
 
     method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     desc 'render PATH', 'Render kite module files using vars.*module*.yml'
     def render(path)
-      @path  = path
+      @path  = File.expand_path(path)
       @name  = @path.split('/').last
       @env   = options[:env]
       @vars  = load_vars
@@ -45,9 +48,9 @@ module Kite
           if overwrite.downcase == 'y'
             remove_dir @path
             Git.clone(@uri, @path)
-            say "Successfully cloned the fresh version!", :green
+            say "Successfully cloned the fresh #{@name}!", :green
           else
-            say "Keeping the current module"
+            say "Keeping the current module version"
           end
         else
           Git.clone(@uri, @path)
@@ -59,7 +62,7 @@ module Kite
       end
 
       def render_templates
-        directory "#{ENV['PWD']}/modules/#{@name}/templates", ".", mode: :preserve
+        directory "#{@path}/templates", ".", mode: :preserve
         chmod     "bin", 0755
       end
 
@@ -68,7 +71,7 @@ module Kite
       end
 
       def manifest
-        YAML.load(File.open("modules/#{@name}/manifest.yml"))
+        YAML.load(File.open("#{@path}/manifest.yml"))
       end
     end
 
