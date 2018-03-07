@@ -19,6 +19,7 @@ module Kite
 
     def load_env
       load_vars
+      load_cloud
       @vars.each do |var, val|
         key = "TF_VAR_#{var}"
         ENV[key] = val
@@ -33,9 +34,15 @@ module Kite
       YAML.load(File.read('config/cloud.yml'))[@env_name]
     end
 
+    def load_cloud
+      cloud.each do |k, v|
+        (v.is_a? Hash) ? @vars.merge!(v) : @vars[k] = v
+      end
+    end
+
     def load_vars
-      vars_files = Dir["config/environments/#{@env_name}/vars.*.yml"]
       @vars = Hash.new
+      vars_files = Dir["config/environments/#{@env_name}/vars.*.yml"]
       vars_files.each do |f|
         tf_vars = YAML.load(File.read(f))['terraform']
         @vars.merge!(tf_vars) unless tf_vars.nil?

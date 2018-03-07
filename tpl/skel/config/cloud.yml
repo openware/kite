@@ -1,11 +1,12 @@
 default: &default
-  region: "us-east1" # Note that region formats differ between AWS and GCP
-  zone: "us-east1-a"
+  # Note that region formats differ between AWS and GCP
+  region:             "europe-west4"
+  zone:               "europe-west4-c"
   gcp:
-    project: "hc-public"
-    service_account: "~/safe/hc-public/terraform.json"
-    bucket_name: "kite-state-helios-devel"
+    project:          "helios-devel"
+    service_account:  "~/safe/helios-devel.json"
+    bucket_name:      "kite-state-helios-devel"
   aws:
-    access_key: "********************"
-    secret_key: "****************************************"
-    bucket_name: "kite-state-helios-devel"
+    access_key:       "********************"
+    secret_key:       "****************************************"
+    bucket_name:      "kite-state-helios-devel"
