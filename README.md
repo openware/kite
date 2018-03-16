@@ -80,6 +80,7 @@ Set your default gcloud credentials using
 ```
 
 ```
+  kite terraform init
   kite terraform apply --env *env_name*
 ```
 
