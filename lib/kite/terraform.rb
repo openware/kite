@@ -1,9 +1,10 @@
 module Kite
   class Terraform
+    include Kite::Helpers
 
     def initialize(core, options)
       @core = core
-      @env_name = options[:env]
+      @env_name = kite_env
     end
 
     def run(command, *args)
