@@ -57,10 +57,11 @@ Now the environment should be generated at `config/environments/*env_name*`
 
 ### Add a module to your environment
 
-To add a Kite module to your environment, you should first initialize it:
+To add a Kite module to your environment, you should first initialize it.
+It's recommended to use specific module versions/tags(master branch would be used by default):
 
 ```
-  kite module init https://url.for/your/module --env *env_name*
+  kite module init https://url.for/your/module --env *env_name* --version *x.y.z/x-y-stable*
 ```
 
 This should clone module's source files into `modules/*module_name*` and create a `vars.*module_name*.yml` file with all variables needed by the module.
