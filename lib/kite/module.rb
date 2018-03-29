@@ -8,6 +8,7 @@ module Kite
       @env  = options[:env]
       @path = path
       @name = path.gsub(/(.*:|.git)/, '').split('/').last
+      @cloud = parse_cloud_config[@env]
 
       unless File.exist? path
         @uri  = path
@@ -71,7 +72,7 @@ module Kite
       end
 
       def manifest
-        YAML.load(File.open("#{@path}/manifest.yml"))
+        YAML.load(ERB.new(File.read("#{@path}/manifest.yml.tt")).result(binding))
       end
     end
 
