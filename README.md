@@ -1,12 +1,13 @@
 # Kite
 
-![Build Status](https://ci.helioscloud.com/api/v1/teams/heliostech/pipelines/kite/jobs/build-master/badge)
-[![Build Status](https://travis-ci.org/helios-technologies/kite.svg?branch=master)](https://travis-ci.org/helios-technologies/kite)
-[![codecov](https://codecov.io/gh/helios-technologies/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/helios-technologies/kite)
+[![Gem Version](https://badge.fury.io/rb/kite.svg)](https://badge.fury.io/rb/kite)
+[![license](https://img.shields.io/github/license/rubykube/kite.svg)](https://github.com/rubykube/kite/blob/master/LICENSE.md)
 
+[![Build Status](https://travis-ci.org/rubykube/kite.svg?branch=master)](https://travis-ci.org/rubykube/kite)
+[![codecov](https://codecov.io/gh/rubykube/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/rubykube/kite)
 
 Kite is a CLI for scaffolding and managing devops modules
-The main purpose is templating of various tools for devops around terraform, bosh, ansible
+The main purpose is templating of various tools for devops around terraform, bosh, ansible.
 Currently Kite supports modular stacks(Kite modules) on both AWS and GCP.
 
 We plan in adding community stack using a simple template repository structure.
@@ -31,7 +32,7 @@ Or install it yourself as:
 
 To start using kite for bootstraping your infrastructure
 follow the steps below.
-[Note] Most kite commands can be referred by their first letter(for example kite generate environment test == kite g e test)
+[Note] Most kite commands can be referred by their first letter(for example `kite generate environment test` is the same as `kite g e test`)
 
 ### Create your Infrastructure as Code base repository
 
@@ -109,4 +110,4 @@ $ ruby -Ilib ./bin/concourse/in
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/helios-technologies/kite.
+Bug reports and pull requests are welcome on GitHub at https://github.com/rubykube/kite.
