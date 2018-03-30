@@ -2,20 +2,25 @@ module Kite
   class Module < Base
     include Kite::Helpers
 
-    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    method_option :env,     type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    method_option :version, type: :string, desc: "Version", required: false
     desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
     def init(path)
-      @env  = options[:env]
-      @path = path
-      @name = path.gsub(/(.*:|.git)/, '').split('/').last
-      @cloud = parse_cloud_config[@env]
+      @env     = options[:env]
+      @path    = path
+      @name    = path.gsub(/(.*:|.git)/, '').split('/').last
+      @cloud   = parse_cloud_config[@env]
+      @version = options[:version]
 
       unless File.exist? path
         @uri  = path
         @path = "modules/#{@name}"
 
-        say "Cloning the module"
         clone_module
+        unless @version.nil?
+          checkout_version
+        end
+
         say "Use git submodule add #{@path} to be able to commit this module as a submodule", :yellow
       end
 
@@ -43,6 +48,8 @@ module Kite
       end
 
       def clone_module
+        say "Cloning the module"
+
         if File.exist? @path
           overwrite = ask "#{@path} already contains a module! Overwrite? (y/N)"
 
@@ -51,10 +58,23 @@ module Kite
             Git.clone(@uri, @path)
             say "Successfully cloned the fresh #{@name}!", :green
           else
-            say "Keeping the current module version"
+            say "Keeping the current module revision"
           end
         else
           Git.clone(@uri, @path)
+        end
+      end
+
+      def checkout_version
+        module_git = Git.open(@path)
+
+        say "Switching to #{@version}"
+        if @version =~ /\d+\.\d+\.\d+/ && module_git.tags.any? { |t| t.name == @version }
+          module_git.checkout("tags/#{@version}")
+        elsif module_git.is_remote_branch? @version
+          module_git.checkout("origin/#{@version}")
+        else
+          say "#{@version} tag/branch was not found in the module, keeping the current one", :red
         end
       end
 
