@@ -75,12 +75,6 @@ Fill in `vars.*module_name*.yml` with correct values and render the module:
 
 ### Apply Terraform configuration from the environment
 
-Set your default gcloud credentials using
-
-```
-  gcloud auth application-default login
-```
-
 ```
   kite terraform init
   kite terraform apply --env *env_name*
