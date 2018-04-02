@@ -16,6 +16,12 @@ module Kite
     desc 'module', 'Use kite modules with environments'
     subcommand "module", Kite::Module
 
+    desc 'exec', 'Run  a command with environment variables loaded from cloud.yml'
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    def exec(*args)
+      Kite::Exec.new(self, options).run(*args)
+    end
+
     desc 'terraform', 'Run Terraform-related commands with environment variables loaded from module vars'
     method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     def terraform(command, *args)

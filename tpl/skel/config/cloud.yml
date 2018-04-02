@@ -10,3 +10,5 @@ default: &default
     access_key:       "********************"
     secret_key:       "****************************************"
     bucket_name:      "kite-state-helios-devel"
+  env:
+  # HELIOS: 'awesome'
