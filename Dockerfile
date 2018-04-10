@@ -1,6 +1,8 @@
 FROM ruby:2.4-stretch
 
-RUN apt-get update && apt-get install -y zip curl wget
+RUN apt-get update && \
+    apt-get upgrade -qqy && \
+    apt-get install -y zip curl wget vim
 
 ARG TERRAFORM_VERSION=0.11.6
 ARG BOSH_VERSION=2.0.48
@@ -8,8 +10,8 @@ ARG GCLOUD_VERSION=196.0.0
 
 # Install Terraform
 RUN curl -Ls https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip \
-    && unzip terraform -d /usr/bin/terraform \
-    && chmod +x /usr/bin/terraform \
+    && unzip terraform.zip \
+    && mv terraform /usr/local/bin/terraform \
     && rm -f terraform.zip
 
 # Install BOSH v2
