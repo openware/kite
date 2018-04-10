@@ -22,7 +22,7 @@ module Kite
       load_cloud
       @vars.each do |var, val|
         key = "TF_VAR_#{var}"
-        ENV[key] = val
+        ENV[key] = val.to_s
         STDERR.puts "%-25s: %s" % [key, ENV["TF_VAR_#{var}"]]
       end
 
