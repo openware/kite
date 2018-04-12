@@ -7,6 +7,7 @@ module Kite
     end
 
     def run(command, *args)
+      exit_status = 0
       STDERR.puts "Loading env"
       load_env
       script = "terraform #{command} #{args.join " "}"
@@ -14,7 +15,9 @@ module Kite
 
       Dir.chdir("config/environments/#{@env_name}") do
         system(script)
+        exit_status =  $?.exitstatus
       end
+      exit_status
     end
 
     def load_env
