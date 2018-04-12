@@ -5,10 +5,16 @@ module Kite::Helpers
   end
 
   # Parse config/cloud.yml, returning the output hash
-  def parse_cloud_config
+  def parse_cloud_config(env = nil)
     cloud_config = YAML.load(File.read('config/cloud.yml'))
     check_cloud_config(cloud_config)
 
-    cloud_config
+    if env
+      unless cloud_config[env]
+        fail "Environement `#{env}` missing in config/cloud.yml"
+      end
+      return cloud_config[env]
+    end
+    return cloud_config
   end
 end

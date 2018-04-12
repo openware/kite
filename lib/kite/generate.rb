@@ -42,7 +42,7 @@ module Kite
         append_to_file 'config/cloud.yml', "\n#{name}:\n  <<: *default\n"
       end
 
-      @cloud = parse_cloud_config[name]
+      @cloud = parse_cloud_config(name)
       @env_name = name
 
       directory("#{options[:provider]}/environment", "config/environments/#{name}")

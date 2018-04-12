@@ -9,7 +9,7 @@ module Kite
       @env     = options[:env]
       @path    = path
       @name    = path.gsub(/(.*:|.git)/, '').split('/').last
-      @cloud   = parse_cloud_config[@env]
+      @cloud   = parse_cloud_config(@env)
       @version = options[:version]
 
       unless File.exist? path
@@ -36,7 +36,7 @@ module Kite
       @name  = @path.split('/').last
       @env   = options[:env]
       @vars  = load_vars
-      @cloud = parse_cloud_config[@env]
+      @cloud = parse_cloud_config(@env)
 
       say "Rendering files"
       render_templates
