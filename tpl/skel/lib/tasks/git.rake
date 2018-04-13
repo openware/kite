@@ -19,6 +19,7 @@ namespace :git do
 
   desc "Update submodules"
   task :update do
+    %x{git submodule init}
     %x{git submodule update}
   end
 
