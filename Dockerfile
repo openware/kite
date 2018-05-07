@@ -1,4 +1,4 @@
-FROM ruby:2.4-stretch
+FROM ruby:2.5.1-stretch
 
 RUN apt-get update && \
     apt-get upgrade -qqy && \
