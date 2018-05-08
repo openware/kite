@@ -22,6 +22,8 @@ module Kite
         end
 
         say "Use git submodule add #{@path} to be able to commit this module as a submodule", :yellow
+      else
+        link_file File.expand_path(path), "modules/#{@name}"
       end
 
       render_vars
