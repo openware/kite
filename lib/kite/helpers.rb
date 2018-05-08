@@ -4,6 +4,22 @@ module Kite::Helpers
     raise Kite::Error, 'The config/cloud.yml is not filled out!' unless config.find { |key, hash| hash.find { |k, v| v.nil? } }.nil?
   end
 
+  def cloud_valid?(path)
+    valid = Dir.children(path).include? 'config'
+    valid &&= Dir.children(path + '/config').include? 'cloud.yml'
+
+    valid
+  end
+
+  def cloud_path
+    Dir.pwd.tap do |path|
+      until cloud_valid? path
+        raise Kite::Error, "Invalid path: \"#{Dir.pwd}\"" if path == Dir.home
+        path = File.dirname(path)
+      end
+    end
+  end
+
   # Parse config/cloud.yml, returning the output hash
   def parse_cloud_config(env = nil)
     cloud_config = YAML.load(File.read('config/cloud.yml'))
