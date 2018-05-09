@@ -17,4 +17,12 @@ module Kite::Helpers
     end
     return cloud_config
   end
+
+  def run!(command, config = {})
+    run(command)
+
+    if $?.exitstatus != 0
+      raise Thor::Error.new("command faild: #{ command }")
+    end
+  end
 end
