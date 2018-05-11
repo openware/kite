@@ -7,14 +7,19 @@ module Kite
     method_option :method,  type: :string, desc: "Module import method", enum: %w{copy submodule}, default: "submodule"
     desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
     def init(path)
-      @env     = options[:env]
-      @cloud   = parse_cloud_config[@env]
+      @env = options[:env]
       @module_name = path.gsub(/(.*:|.git)/, '').split('/').last
       @module_path = "modules/#{ @module_name }"
 
       if File.exist?(@module_path)
-        say "Remove existing files"
-        remove_dir(@module_path)
+        overwrite = ask "#{ @module_path } already exists! Overwrite? (y/N)"
+        if overwrite.downcase == 'y'
+          say "Remove existing files"
+          remove_dir(@module_path)
+        else
+          say "Skipping module init"
+          return
+        end
       end
 
       case options[:method]
@@ -26,8 +31,9 @@ module Kite
       else
         raise "Unsupported method #{ method }"
       end
-      vars_output = render_vars(@module_name, @module_path)
 
+      @cloud = parse_cloud_config(@env)
+      vars_output = render_vars(@module_name, @module_path)
       say "Rendered successfully #{ vars_output }, please edit this file with correct values", :green
     end
 
@@ -38,7 +44,7 @@ module Kite
       @name  = @path.split('/').last
       @env   = options[:env]
       @vars  = load_vars
-      @cloud = parse_cloud_config[@env]
+      @cloud = parse_cloud_config(@env)
 
       say "Rendering files"
       render_templates
