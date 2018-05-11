@@ -22,7 +22,7 @@ module Kite::Helpers
     run(command)
 
     if $?.exitstatus != 0
-      raise Thor::Error.new("command faild: #{ command }")
+      raise Thor::Error.new("command failed: #{ command }")
     end
   end
 end
