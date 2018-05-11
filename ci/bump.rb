@@ -199,9 +199,7 @@ bump &&= ENV["TRAVIS_TAG"].to_s.empty?
 bump &&= !tagged_commits_mapping.key?(ENV["TRAVIS_COMMIT"])
 
 if bump
-  if ENV["TRAVIS_BRANCH"] == "master"
-    bump_from_master_branch
-  else
+  if ENV["TRAVIS_BRANCH"] != "master"
     bump_from_version_specific_branch(ENV["TRAVIS_BRANCH"])
   end
 end
