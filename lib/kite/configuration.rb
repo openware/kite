@@ -7,7 +7,6 @@ module Kite
     def get(query)
       @env = options[:env]
       @path = cloud_path
-
       vars_paths = Dir[@path + "/config/environments/#{@env}/vars.*"]
 
       vars_paths.each do |vars_path|

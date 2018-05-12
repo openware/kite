@@ -14,7 +14,7 @@ module Kite::Helpers
   def cloud_path
     Dir.pwd.tap do |path|
       until cloud_valid? path
-        raise Kite::Error, "Invalid path: \"#{Dir.pwd}\"" if path == Dir.home
+        raise Kite::Error, "Invalid path: \"#{Dir.pwd}\"" if path == "/"
         path = File.dirname(path)
       end
     end
