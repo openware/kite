@@ -25,7 +25,7 @@ RSpec.describe Kite do
     it 'returns value for valid selector' do
       expect(capture(:stdout) do
         Kite::Core.start(%w(config get key --env test))
-      end.strip).to eq '"value"'
+      end.strip).to eq 'value'
     end
 
     it 'returns error for invalid selector' do

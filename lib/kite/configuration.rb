@@ -19,7 +19,7 @@ module Kite
       if @res.nil?
         raise Kite::Error, "Invalid query: \"#{query}\""
       else
-        pp @res
+        puts @res
       end
     end
   end
