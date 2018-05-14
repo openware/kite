@@ -34,6 +34,12 @@ module Kite::Helpers
     return cloud_config
   end
 
+  def append_environement(env)
+    unless parse_cloud_config.key?(env)
+      append_to_file 'config/cloud.yml', "\n#{ env }:\n  <<: *default\n"
+    end
+  end
+
   def run!(command, config = {})
     run(command)
 

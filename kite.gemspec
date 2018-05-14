@@ -29,4 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "git"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "codecov"
+  spec.add_development_dependency "byebug"
 end

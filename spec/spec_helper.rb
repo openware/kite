@@ -14,6 +14,7 @@ require "bundler/setup"
 require "kite"
 require "pp"
 require "open3"
+require "byebug"
 
 KITE_ROOT = File.expand_path(File.join(File.dirname(__FILE__), ".."))
 KITE_BIN = File.join(KITE_ROOT, "bin/kite")
@@ -55,6 +56,22 @@ RSpec.configure do |config|
       raise "Command `#{ command }` failed with status #{ return_value }"
     end
     return_value.success?
+  end
+
+  def init_kite_project(name)
+    run "#{ KITE_BIN } new #{ name }"
+  end
+
+  def init_git_local(name)
+    run "git init #{ name }"
+    Dir.chdir(name) do
+      run "echo hello > README.md"
+      File.open("manifest.yml.tt", "w") do |f|
+        f.puts YAML.dump("options" => {"colors" => [%w{red blue green}]})
+      end
+      run "git add ."
+      run "git ci -m 'Initialized kite module'"
+    end
   end
 end
 

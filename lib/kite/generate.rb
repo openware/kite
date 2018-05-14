@@ -37,11 +37,7 @@ module Kite
     desc 'environment NAME', 'Generate an environment with base terraform files'
     def environment(name)
       say "Generating environment for #{options[:provider]}"
-
-      unless parse_cloud_config.key? name
-        append_to_file 'config/cloud.yml', "\n#{name}:\n  <<: *default\n"
-      end
-
+      append_environement(name)
       @cloud = parse_cloud_config(name)
       @env_name = name
 

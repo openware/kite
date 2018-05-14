@@ -2,12 +2,10 @@ module Kite
   class Module < Base
     include Kite::Helpers
 
-    method_option :env,     type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     method_option :version, type: :string, desc: "Version", required: false
     method_option :method,  type: :string, desc: "Module import method", enum: %w{copy submodule}, default: "submodule"
-    desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
-    def init(path)
-      @env = options[:env]
+    desc 'import https://github.com/foo/bar-module', 'Import a kite module to the project'
+    def import(path)
       @module_name = path.gsub(/(.*:|.git)/, '').split('/').last
       @module_path = "modules/#{ @module_name }"
 
@@ -31,8 +29,18 @@ module Kite
       else
         raise "Unsupported method #{ method }"
       end
+    end
 
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    desc 'init module_name', 'Initialize a kite module and render its vars.module.yml'
+    def init(path)
+      @env = options[:env]
+      append_environement(@env)
       @cloud = parse_cloud_config(@env)
+
+      @module_name = path.gsub(/(.*:|.git)/, '').split('/').last
+      @module_path = "modules/#{ @module_name }"
+
       vars_output = render_vars(@module_name, @module_path)
       say "Rendered successfully #{ vars_output }, please edit this file with correct values", :green
     end
@@ -51,10 +59,6 @@ module Kite
     end
 
     no_commands do
-      def kite_env
-        @env
-      end
-
       def clone_module(uri, path, version)
         say "Cloning the module"
         run! "git submodule add #{ uri } #{ path }"
