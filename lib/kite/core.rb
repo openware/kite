@@ -13,10 +13,13 @@ module Kite
     desc "generate", "Generate IaC from configuration"
     subcommand "generate", Kite::Generate
 
-    desc 'module', 'Use kite modules with environments'
+    desc "module", "Use kite modules with environments"
     subcommand "module", Kite::Module
 
-    desc 'terraform', 'Run Terraform-related commands with environment variables loaded from module vars'
+    desc "configuration", "Get configs of current environment"
+    subcommand "configuration", Kite::Configuration
+
+    desc "terraform", "Run Terraform-related commands with environment variables loaded from module vars"
     method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     def terraform(command, *args)
       Kernel.exit Kite::Terraform.new(self, options).run(command, *args)
