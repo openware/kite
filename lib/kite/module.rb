@@ -3,7 +3,7 @@ module Kite
     include Kite::Helpers
 
     method_option :env,     type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
-    method_option :version, type: :string, desc: "Version", required: false
+    method_option :version, type: :string, desc: "Version", aliases: '-v', required: false
     method_option :method,  type: :string, desc: "Module import method", enum: %w{copy submodule}, default: "submodule"
     desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
     def init(path)
