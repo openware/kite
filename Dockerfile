@@ -1,12 +1,12 @@
-FROM ruby:2.4-stretch
+FROM ruby:2.5-stretch
 
 RUN apt-get update && \
     apt-get upgrade -qqy && \
     apt-get install -y zip curl wget vim
 
-ARG TERRAFORM_VERSION=0.11.6
+ARG TERRAFORM_VERSION=0.11.7
 ARG BOSH_VERSION=2.0.48
-ARG GCLOUD_VERSION=196.0.0
+ARG GCLOUD_VERSION=202.0.0
 
 # Install Terraform
 RUN curl -Ls https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip \
