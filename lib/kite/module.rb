@@ -5,8 +5,17 @@ module Kite
     method_option :env,     type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
     method_option :version, type: :string, desc: "Version", required: false
     method_option :method,  type: :string, desc: "Module import method", enum: %w{copy submodule}, default: "submodule"
-    desc 'init https://github.com/foo/bar-module', 'Initialize a kite module and render its vars.module.yml'
+    desc 'init https://github.com/foo/bar-module', '[DEPRECATED] Use kite module fetch and kite module vars instead'
     def init(path)
+      say "Kite module init is deprecated. Use kite module fetch and kite module vars instead", :yellow
+    end
+
+
+    method_option :env,     type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    method_option :version, type: :string, desc: "Version", required: false
+    method_option :method,  type: :string, desc: "Module import method", enum: %w{copy submodule}, default: "submodule"
+    desc 'fetch https://github.com/foo/bar-module', 'Fetch a kite module'
+    def fetch(path)
       @env = options[:env]
       @module_name = path.gsub(/(.*:|.git)/, '').split('/').last
       @module_path = "modules/#{ @module_name }"
@@ -23,14 +32,22 @@ module Kite
       end
 
       case options[:method]
-      when"submodule"
-        clone_module(path, @module_path, options[:version])
-      when "copy"
-        FileUtils.mkdir_p("modules")
-        FileUtils.cp_r(path, @module_path)
-      else
-        raise "Unsupported method #{ method }"
+        when"submodule"
+          clone_module(path, @module_path, options[:version])
+        when "copy"
+          FileUtils.mkdir_p("modules")
+          FileUtils.cp_r(path, @module_path)
+        else
+          raise "Unsupported method #{ method }"
       end
+    end
+
+    method_option :env, type: :string, desc: "Environment", required: true, default: ENV['KITE_ENV']
+    desc 'vars modules/bar-module', 'Render initial vars.*module*.yml'
+    def vars(path)
+      @env = options[:env]
+      @module_name = path.gsub(/(.*:|.git)/, '').split('/').last
+      @module_path = "modules/#{ @module_name }"
 
       @cloud = parse_cloud_config(@env)
       vars_output = render_vars(@module_name, @module_path)
