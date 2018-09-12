@@ -24,7 +24,8 @@ module Kite
         overwrite = ask "#{ @module_path } already exists! Overwrite? (y/N)"
         if overwrite.downcase == 'y'
           say "Remove existing files"
-          remove_dir(@module_path)
+          run! "git rm -f #{ @module_path }"
+          remove_dir(".git/modules/#{ @module_path }")
         else
           say "Skipping module init"
           return
