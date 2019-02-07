@@ -1,14 +1,14 @@
-require "rubygems/version"
-require "net/http"
-require "json"
-require "uri"
+require 'rubygems/version'
+require 'net/http'
+require 'json'
+require 'uri'
 
 #
 # Returns bot's username in GitHub.
 #
 # @return [String]
 def bot_username
-  ENV.fetch("BOT_USERNAME", "kite-bot")
+  ENV.fetch('BOT_USERNAME', 'kite-bot')
 end
 
 #
@@ -16,7 +16,7 @@ end
 #
 # @return [String]
 def bot_name
-  ENV.fetch("BOT_NAME", "Kite Bot")
+  ENV.fetch('BOT_NAME', 'Kite Bot')
 end
 
 #
@@ -24,7 +24,7 @@ end
 #
 # @return [String]
 def bot_email
-  ENV.fetch("BOT_EMAIL", "kite-bot@heliostech.fr")
+  ENV.fetch('BOT_EMAIL', 'kite-bot@heliostech.fr')
 end
 
 #
@@ -32,7 +32,7 @@ end
 #
 # @return [String]
 def repository_slug
-  ENV.fetch("REPOSITORY_SLUG", "rubykube/kite")
+  ENV.fetch('REPOSITORY_SLUG', 'rubykube/kite')
 end
 
 #
@@ -83,11 +83,15 @@ def bump_from_version_specific_branch(name)
   # Find latest version for the branch (compare by major and minor).
   # We use find here since versions are sorted in descending order.
   latest_version = versions.reverse.find { |v| v.segments[0...2] == branch[:version].segments }
-  return unless latest_version
 
   # Increment patch version number, tag, and push.
-  candidate_version = Gem::Version.new(latest_version.segments.dup.tap { |s| s[2] += 1 }.join("."))
-  tag_n_push(candidate_version.to_s, branch) unless versions.include?(candidate_version)
+  if latest_version
+    candidate_version = Gem::Version.new(latest_version.segments.dup.tap { |s| s[2] += 1 }.join('.'))
+  else
+    candidate_version = "#{branch[:version].segments.join('.')}.0"
+  end
+
+  tag_n_push(candidate_version.to_s) unless versions.include?(candidate_version)
 end
 
 #
@@ -97,30 +101,18 @@ end
 #
 # @param tag [String]
 def tag_n_push(tag, branch)
-  File.open "lib/kite/version.rb", "w" do |f|
-    f.write <<-RUBY
-module Kite
-  VERSION = '#{tag}'
-end
-    RUBY
-  end
-
   [
     %( git config --global user.email "#{bot_email}" ),
     %( git config --global user.name "#{bot_name}" ),
-    %( git remote add authenticated-origin https://#{bot_username}:#{ENV.fetch("GITHUB_API_KEY")}@github.com/#{repository_slug} ),
-    %( git checkout -b release ),
-    %( git add lib/kite/version.rb ),
-    %( git commit -m "[ci skip] Bump #{tag}." ),
-    %( git push authenticated-origin release:#{branch.fetch(:name)} ),
-    %( git tag v#{tag} -a -m "Automatically generated tag from TravisCI build #{ENV.fetch("TRAVIS_BUILD_NUMBER")}." ),
-    %( git push authenticated-origin v#{tag} )
+    %( git remote add authenticated-origin https://#{bot_username}:#{ENV.fetch('GITHUB_API_KEY')}@github.com/#{repository_slug} ),
+    %( git tag #{tag} -a -m 'Automatically generated tag' ),
+    %( git push authenticated-origin #{tag} )
   ].each do |command|
     command.strip!
     unless Kernel.system(command)
       # Prevent GitHub API key from being published.
-      command.gsub!(ENV["GITHUB_API_KEY"], "(secret)")
-      raise %(Command "#{command}" exited with status #{$?.exitstatus || "(unavailable)"}.)
+      command.gsub!(ENV['GITHUB_API_KEY'], '(secret)')
+      raise %(Command "#{command}" exited with status #{$?.exitstatus || '(unavailable)'}.)
     end
   end
 end
@@ -131,7 +123,7 @@ end
 # @return [Array<Gem::Version>]
 def versions
   @versions ||= github_api_authenticated_get("/repos/#{repository_slug}/tags").map do |x|
-    Gem::Version.new(x.fetch("name")[/\d+\.\d+\.\d+/])
+    Gem::Version.new(x.fetch('name')[/\d+\.\d+\.\d+/])
   end.sort
 end
 
@@ -142,7 +134,7 @@ end
 #   Key is commit's SHA-1 hash, value is instance of Gem::Version.
 def tagged_commits_mapping
   @commits ||= github_api_authenticated_get("/repos/#{repository_slug}/tags").each_with_object({}) do |x, memo|
-    memo[x.fetch("commit").fetch("sha")] = Gem::Version.new(x.fetch("name")[/\d+\.\d+\.\d+/])
+    memo[x.fetch('commit').fetch('sha')] = Gem::Version.new(x.fetch('name')[/\d+\.\d+\.\d+/])
   end
 end
 
@@ -153,8 +145,8 @@ end
 #   Array of hashes each containing "name" & "version" keys.
 def version_specific_branches
   @branches ||= github_api_authenticated_get("/repos/#{repository_slug}/branches").map do |x|
-    if x.fetch("name") =~ /\A(\d)-(\d)-\w+\z/
-      { name: x["name"], version: Gem::Version.new($1 + "." + $2) }
+    if x.fetch('name') =~ /\A(\d)-(\d)-\w+\z/
+      { name: x['name'], version: Gem::Version.new($1 + "." + $2) }
     end
   end.compact
 end
@@ -166,9 +158,9 @@ end
 #   Request path.
 # @return [Hash]
 def github_api_authenticated_get(path)
-  http         = Net::HTTP.new("api.github.com", 443)
+  http         = Net::HTTP.new('api.github.com', 443)
   http.use_ssl = true
-  response     = http.get path, "Authorization" => %[token #{ENV.fetch("GITHUB_API_KEY")}]
+  response     = http.get path, 'Authorization' => %[token #{ENV.fetch('GITHUB_API_KEY')}]
   if response.code.to_i == 200
     JSON.load(response.body)
   else
@@ -185,21 +177,4 @@ def generic_semver?(version)
   version.segments.count == 3 && version.segments.all? { |segment| segment.match?(/\A[0-9]+\z/) }
 end
 
-# Build must not run on a fork.
-bump   = ENV["TRAVIS_REPO_SLUG"] == repository_slug
-# Skip PRs.
-bump &&= ENV["TRAVIS_PULL_REQUEST"] == "false"
-# Build must run on branch.
-bump &&= !ENV["TRAVIS_BRANCH"].to_s.empty?
-# GitHub API key must be available.
-bump &&= !ENV["GITHUB_API_KEY"].to_s.empty?
-# Build must not run on tag.
-bump &&= ENV["TRAVIS_TAG"].to_s.empty?
-# Ensure this commit is not tagged.
-bump &&= !tagged_commits_mapping.key?(ENV["TRAVIS_COMMIT"])
-
-if bump
-  if ENV["TRAVIS_BRANCH"] != "master"
-    bump_from_version_specific_branch(ENV["TRAVIS_BRANCH"])
-  end
-end
+bump_from_version_specific_branch(ENV.fetch('DRONE_BRANCH'))

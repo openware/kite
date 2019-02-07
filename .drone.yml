@@ -1,0 +1,25 @@
+kind: pipeline
+name: default
+
+steps:
+- name: Run rspec
+  image: ruby:2.5.3
+  commands:
+    - bundle
+    - rspec
+  when:
+   event:
+    - pull_request
+- name: Bump and Tag
+  image: ruby:2.5.3
+  environment:
+    GITHUB_API_KEY:
+      from_secret: kite_bot_key
+  commands:
+    - gem install bundler -v 1.14.6
+    - ruby ci/bump.rb
+  when:
+    event:
+      - push
+    branch:
+      - master
