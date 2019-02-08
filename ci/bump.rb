@@ -24,7 +24,7 @@ end
 #
 # @return [String]
 def bot_email
-  ENV.fetch('BOT_EMAIL', 'kite-bot@heliostech.fr')
+  ENV.fetch('BOT_EMAIL', 'kite-bot@rubykube.io')
 end
 
 #
@@ -36,45 +36,14 @@ def repository_slug
 end
 
 #
-# Increments the newest available version which is in stage of development (master),
-# and publishes it on the GitHub.
-#
-# The requirements for this to work are:
-#  1) Repository has some tagged versions.
-#  2) The latest version is not released yet (e.g. there is no version-specific branch like "1-3-stable").
-#
-# If you are on 1.1 and you want to start developing 1.2 do the following:
-#  1) Create branch "1-1-stable", and push up-to-date source to it.
-#  2) Push the same to master branch.
-#  3) Push new commit(s) to master, and tag master as 1.2.0.
-#  4) Future pushes to master will be treated as new patch version number.
-#
-def bump_from_master_branch
-  # Get latest version of Kite.
-  return unless (latest_version = versions.last)
-
-  # Find a branch which is specific the version.
-  # Comparision is based only on major and minor version numbers since
-  # these type of branches are named with a convention like: "1-0-stable", "2-4-stable", and so on.
-  linked_branch = version_specific_branches.find { |b| b[:version].segments == latest_version.segments[0...2] }
-  # If branch exists it means that version has been already released.
-  return if linked_branch
-
-  # Increment patch version number, tag, and push.
-  candidate_version = Gem::Version.new(latest_version.segments.dup.tap { |s| s[2] += 1 }.join("."))
-  tag_n_push(candidate_version.to_s, name: 'master') unless versions.include?(candidate_version)
-end
-
-#
 # Increments the version which is in stage of support (version-specific branches only),
 # and publishes it on the GitHub.
 #
-# The method expects branch name in form of "X-Y-stable", like "2-0-stable".
+# The method expects branch name in form of 'X-Y-stable', like '2-0-stable'.
 # It tags the current Git commit to the next patch number version, and pushes it to Git repository.
 #
 # @param name [String]
 #   Branch name.
-
 def bump_from_version_specific_branch(name)
   # This helps to ensure branch does exist.
   branch = version_specific_branches.find { |b| b[:name] == name }
@@ -96,11 +65,10 @@ end
 
 #
 # Configures Git user name & email,
-# updates version at lib/kite/version.rb,
-# creates Git tag, and pushes all the changes made to repository.
+# creates Git tag
 #
 # @param tag [String]
-def tag_n_push(tag, branch)
+def tag_n_push(tag)
   [
     %( git config --global user.email "#{bot_email}" ),
     %( git config --global user.name "#{bot_name}" ),
@@ -118,12 +86,12 @@ def tag_n_push(tag, branch)
 end
 
 #
-# Loads all Kite tags, and returns them in ascending order.
+# Loads all tags, and returns them in ascending order.
 #
 # @return [Array<Gem::Version>]
 def versions
   @versions ||= github_api_authenticated_get("/repos/#{repository_slug}/tags").map do |x|
-    Gem::Version.new(x.fetch('name')[/\d+\.\d+\.\d+/])
+    Gem::Version.new(x.fetch('name'))
   end.sort
 end
 
@@ -134,19 +102,19 @@ end
 #   Key is commit's SHA-1 hash, value is instance of Gem::Version.
 def tagged_commits_mapping
   @commits ||= github_api_authenticated_get("/repos/#{repository_slug}/tags").each_with_object({}) do |x, memo|
-    memo[x.fetch('commit').fetch('sha')] = Gem::Version.new(x.fetch('name')[/\d+\.\d+\.\d+/])
+    memo[x.fetch('commit').fetch('sha')] = Gem::Version.new(x.fetch('name'))
   end
 end
 
 #
-# Loads all Kite branches, selects only version-specific, and returns them.
+# Loads all branches, selects only version-specific, and returns them.
 #
 # @return [Array<Hash>]
-#   Array of hashes each containing "name" & "version" keys.
+#   Array of hashes each containing 'name' & 'version' keys.
 def version_specific_branches
   @branches ||= github_api_authenticated_get("/repos/#{repository_slug}/branches").map do |x|
     if x.fetch('name') =~ /\A(\d)-(\d)-\w+\z/
-      { name: x['name'], version: Gem::Version.new($1 + "." + $2) }
+      { name: x['name'], version: Gem::Version.new($1 + '.' + $2) }
     end
   end.compact
 end
