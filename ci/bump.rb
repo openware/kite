@@ -109,7 +109,11 @@ end
     %( git config --global user.email "#{bot_email}" ),
     %( git config --global user.name "#{bot_name}" ),
     %( git remote add authenticated-origin https://#{bot_username}:#{ENV.fetch('GITHUB_API_KEY')}@github.com/#{repository_slug} ),
-    %( git tag #{tag} -a -m 'Automatically generated tag' ),
+    %( git checkout -b release ),
+    %( git add lib/kite/version.rb ),
+    %( git commit -m "[ci skip] Bump #{tag}." ),
+    %( git push authenticated-origin release:#{branch.fetch(:name)} ),
+    %( git tag #{tag} -a -m "Automatically generated tag from the Drone CI build #{ENV.fetch('DRONE_BUILD_NUMBER')}." ),
     %( git push authenticated-origin #{tag} )
   ].each do |command|
       command.strip!
