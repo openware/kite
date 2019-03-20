@@ -3,7 +3,7 @@ name: default
 
 steps:
 - name: Run rspec
-  image: ruby:2.5.3
+  image: ruby:2.6
   commands:
     - bundle
     - bundle exec rspec
@@ -12,7 +12,7 @@ steps:
     - pull_request
 
 - name: Bump and Tag
-  image: ruby:2.5.3
+  image: ruby:2.6
   environment:
     GITHUB_API_KEY:
       from_secret: kite_bot_key
@@ -23,3 +23,15 @@ steps:
       - push
     branch:
       - 1-1-stable
+
+- name: Publish to RubyGems
+  image: ruby:2.6
+  environment:
+    RUBYGEMS_API_KEY:
+      from_secret: rubygems_api_key
+  commands:
+    - bundle --jobs $(nproc)
+    - bundle exec rake release
+  when:
+    event:
+      - tag
