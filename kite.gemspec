@@ -6,7 +6,7 @@ require 'kite/version'
 Gem::Specification.new do |spec|
   spec.name          = "kite"
   spec.version       = Kite::VERSION
-  spec.authors       = ["Louis Bellet"]
+  spec.authors       = ['Louis Bellet', 'Camille Meulien', 'Valentine Shatravenko', 'Ali Shanaakh']
   spec.email         = ["lbellet@heliostech.fr"]
 
   spec.summary       = %q{Command line tool for devops scaffolding.}
