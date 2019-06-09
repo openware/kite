@@ -1,5 +1,5 @@
 default: &default
-  # Note that region formats differ between AWS and GCP
+  # Note that region formats differ between GCP, AWS and AliCloud
   region:             "europe-west4"
   zone:               "europe-west4-c"
   gcp:
@@ -10,3 +10,6 @@ default: &default
     access_key:       "********************"
     secret_key:       "****************************************"
     bucket_name:      "kite-state-helios-devel"
+  ali:
+    access_key:       "********************"
+    secret_key:       "****************************************"
