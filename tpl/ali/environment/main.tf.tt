@@ -1,0 +1,5 @@
+provider "alicloud" {
+  region = "<%= @cloud['region'] %>"
+  access_key = "<%= @cloud['ali']['access_key'] %>"
+  secret_key = "<%= @cloud['ali']['secret_key'] %>"
+}
