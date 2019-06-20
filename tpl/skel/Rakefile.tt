@@ -1,5 +1,7 @@
 # Add your own tasks in files placed in lib/tasks ending in .rake
 
+require 'yaml'
+
 ENV['KITE_ENV'] ||= 'test'
 
 @cloud = YAML.load_file('config/cloud.yml')[ENV['KITE_ENV']]
