@@ -1,4 +1,6 @@
 provider "aws" {
+  version = "~> 2.18.0"
+
   region = "<%= @cloud['region'] %>"
   access_key = "<%= @cloud['aws']['access_key'] %>"
   secret_key = "<%= @cloud['aws']['secret_key'] %>"
