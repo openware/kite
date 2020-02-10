@@ -1,6 +1,9 @@
 provider "google" {
-  credentials = "${file("<%= @cloud['gcp']['service_account'] %>")}"
-  project = "<%= @cloud['gcp']['project'] %>"
-  region = "<%= @cloud['region'] %>"
-  version = "2.12.0"
+  credentials = file("<%= @cloud['gcp']['service_account'] %>")
+  project     = "<%= @cloud['gcp']['project'] %>"
+  region      = "<%= @cloud['region'] %>"
+}
+
+terraform {
+  required_version = ">= 0.12"
 }
