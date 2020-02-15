@@ -24,7 +24,7 @@ steps:
     event:
       - push
     branch:
-      - 1-1-stable
+      - "*stable"
 
 - name: Publish to RubyGems
   image: ruby:2.6
