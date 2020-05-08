@@ -1,6 +1,10 @@
 kind: pipeline
 name: default
 
+trigger:
+  event:
+    - push
+
 steps:
 - name: Run rspec
   image: ruby:2.6
@@ -8,8 +12,10 @@ steps:
     - bundle
     - bundle exec rspec
   when:
-   event:
-    - pull_request
+    branch:
+      exclude:
+        - master
+        - "*stable"
 
 - name: Bump and tag
   image: quay.io/openware/sdk-citools:2.3.1
@@ -28,6 +34,18 @@ steps:
       - master
       - "*stable"
 
+image_pull_secrets:
+  - dockerconfigjson
+
+---
+kind: pipeline
+name: publish
+
+trigger:
+  event:
+    - tag
+
+steps:
 - name: Publish to RubyGems
   image: ruby:2.6
   environment:
@@ -41,9 +59,3 @@ steps:
     - bundle --jobs $(nproc)
     - bundle exec gem build kite.gemspec
     - bundle exec gem push kite-$DRONE_TAG.gem
-  when:
-    event:
-      - tag
-
-image_pull_secrets:
-  - dockerconfigjson
