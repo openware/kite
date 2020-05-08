@@ -18,11 +18,8 @@ steps:
         - "*stable"
 
 - name: Bump and tag
-  image: quay.io/openware/sdk-citools:2.3.1
+  image: quay.io/openware/sdk-citools:2.4.5
   environment:
-    BOT_USERNAME: kite-bot
-    BOT_NAME: Kite Bot
-    BOT_EMAIL: kite-bot@heliostech.fr
     BRANCH_NAME: ${DRONE_BRANCH}
     REPO_NAME: ${DRONE_REPO}
     GITHUB_API_KEY:
