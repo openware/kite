@@ -13,3 +13,4 @@ default: &default
   ali:
     access_key:       "********************"
     secret_key:       "****************************************"
+  baremetal:          {}

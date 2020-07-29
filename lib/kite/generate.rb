@@ -33,7 +33,7 @@ module Kite
       directory('service', path)
     end
 
-    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp ali}, required: true
+    method_option :provider, type: :string, desc: "Cloud provider", enum: %w{aws gcp ali baremetal}, required: true
     desc 'environment NAME', 'Generate an environment with base terraform files'
     def environment(name)
       say "Generating environment for #{options[:provider]}"
