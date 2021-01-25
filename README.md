@@ -18,6 +18,8 @@
 [![Build Status](https://travis-ci.org/rubykube/kite.svg?branch=master)](https://travis-ci.org/rubykube/kite)
 [![codecov](https://codecov.io/gh/rubykube/kite/branch/master/graph/badge.svg)](https://codecov.io/gh/rubykube/kite)
 
+**Please note, that this project is deprecated and moved to https://github.com/openware/opendax**
+
 Kite is a CLI for scaffolding and managing devops modules
 The main purpose is templating of various tools for devops around terraform, bosh, ansible.
 Currently Kite supports modular stacks(Kite modules) on both AWS and GCP.
